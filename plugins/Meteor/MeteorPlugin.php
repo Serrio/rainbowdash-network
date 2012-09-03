@@ -100,7 +100,7 @@ class MeteorPlugin extends RealtimePlugin
         return $scripts;
     }
 
-    function _updateInitialize($timeline, $user_id)
+    function _updateInitialize($timeline, $user_id, $user_ismod)
     {
         $script = parent::_updateInitialize($timeline, $user_id);
         $ours = sprintf("MeteorUpdater.init(%s, %s, %s);",

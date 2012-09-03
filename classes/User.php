@@ -519,6 +519,18 @@ class User extends Managed_DataObject
         return $user;
     }
 
+    function adminUsers()
+    {
+        $UT = common_config('db','type')=='pgsql'?'"user"':'user';
+        $qry = "SELECT id, nickname, role ".
+            "FROM $UT JOIN profile_role ON id = profile_id " .
+            "WHERE role = '%s' OR role = '%s'";
+        $user = new User();
+        $user->query(sprintf($qry, Profile_role::ADMINISTRATOR, Profile_role::MODERATOR));
+
+        return $user;
+    }
+
     function getReplies($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
     {
         return Reply::stream($this->id, $offset, $limit, $since_id, $before_id);
@@ -529,10 +541,10 @@ class User extends Managed_DataObject
         return $profile->getTaggedNotices($tag, $offset, $limit, $since_id, $before_id);
     }
 
-    function getNotices($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
+    function getNotices($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0, $images=false)
     {
         $profile = $this->getProfile();
-        return $profile->getNotices($offset, $limit, $since_id, $before_id);
+        return $profile->getNotices($offset, $limit, $since_id, $before_id, $images);
     }
 
     function favoriteNotices($own=false, $offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $max_id=0)

@@ -56,6 +56,7 @@ class RealtimePlugin extends Plugin
         // FIXME: need to find a better way to pass this pattern in
         $this->showurl = common_local_url('shownotice',
                                             array('notice' => '0000000000'));
+
         return true;
     }
 
@@ -135,8 +136,10 @@ class RealtimePlugin extends Plugin
 
         if (!empty($user->id)) {
             $user_id = $user->id;
+            $user_ismod = $user->hasRole(Profile_role::MODERATOR) ? 'true' : 'false';
         } else {
             $user_id = 0;
+            $user_ismod = 'false';
         }
 
         if ($action->boolean('realtime')) {
@@ -158,6 +161,11 @@ class RealtimePlugin extends Plugin
         return true;
     }
 
+    function onEndDeleteOwnNotice($user, $notice) {
+        $this->_addToTimelines($notice, array('notice_delete' => $notice->id));
+    }
+
+
     function onEndShowStatusNetStyles($action)
     {
         $action->cssLink(Plugin::staticPath('Realtime', 'realtimeupdate.css'),
@@ -166,8 +174,7 @@ class RealtimePlugin extends Plugin
         return true;
     }
 
-    function onHandleQueuedNotice($notice)
-    {
+    function _addToTimelines($notice, $hson=null) {
         $paths = array();
 
         // Add to the author's timeline
@@ -239,6 +246,9 @@ class RealtimePlugin extends Plugin
             }
         }
 
+        // Add to the conversation timeline
+        if($notice->conversation) $paths[] = array('conversation', $notice->conversation);
+
         if (count($paths) > 0) {
 
             $json = $this->noticeAsJson($notice);
@@ -273,6 +283,23 @@ class RealtimePlugin extends Plugin
 
             $this->_disconnect();
         }
+    }
+
+    function onHandleQueuedNotice($notice)
+    {
+        $noticeHtmlTmp = tempnam(sys_get_temp_dir(), 'noticeHtml-');
+        if($noticeHtmlTmp) {
+            $noticeHtmlTmp = 'file://' . $noticeHtmlTmp;
+
+            $noticeHtml = new NoticeListItem($notice, new HTMLOutputter($noticeHtmlTmp));
+            $noticeHtml->show();
+            $noticeHtml = fopen($noticeHtmlTmp, 'r');
+            $noticeHtml = fread($noticeHtml, filesize($noticeHtmlTmp));
+
+            unlink($noticeHtmlTmp);
+        }
+
+        $this->_addToTimelines($notice, array('profile_id' => $notice->profile_id, 'id' => $notice->id, 'in_reply_to_status_id' => $notice->reply_to, 'notice_html' => $noticeHtml));
 
         return true;
     }
@@ -433,7 +460,7 @@ class RealtimePlugin extends Plugin
         return true;
     }
 
-    function _updateInitialize($timeline, $user_id)
+    function _updateInitialize($timeline, $user_id, $user_ismod)
     {
         return "RealtimeUpdate.init($user_id, \"$this->showurl\"); ";
     }
@@ -503,6 +530,12 @@ class RealtimePlugin extends Plugin
                 return null;
             }
             break;
+         case 'conversation':
+             $conversation = $action->trimmed('id');
+             if (!empty($conversation)) {
+                 $path = array($action_name, $conversation);
+             }
+             break;
          default:
             return null;
         }

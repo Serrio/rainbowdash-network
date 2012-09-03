@@ -78,6 +78,8 @@ class PublicAction extends Action
         parent::prepare($args);
         $this->page = ($this->arg('page')) ? ($this->arg('page')+0) : 1;
 
+        $this->images = ($this->arg('images')) ? true : false;
+
         if ($this->page > MAX_PUBLIC_PAGE) {
             // TRANS: Client error displayed when requesting a public timeline page beyond the page limit.
             // TRANS: %s is the page limit.
@@ -91,9 +93,9 @@ class PublicAction extends Action
         $user = common_current_user();
 
         if (!empty($user) && $user->streamModeOnly()) {
-            $stream = new PublicNoticeStream($this->userProfile);
+            $stream = new PublicNoticeStream($this->userProfile, $this->images);
         } else {
-            $stream = new ThreadingPublicNoticeStream($this->userProfile);
+            $stream = new ThreadingPublicNoticeStream($this->userProfile, $this->images);
         }
 
         $this->notice = $stream->getNotices(($this->page-1)*NOTICES_PER_PAGE,
@@ -233,8 +235,12 @@ class PublicAction extends Action
             $this->showEmptyList();
         }
 
+        $xpargs = array();
+        if($this->images) {
+            $xpargs['images'] = $this->images;
+        }
         $this->pagination($this->page > 1, $cnt > NOTICES_PER_PAGE,
-                          $this->page, 'public');
+            $this->page, 'public', null, $xpargs);
     }
 
     function showSections()
@@ -254,15 +260,18 @@ class PublicAction extends Action
             }
             $ibs->show();
         }
-
+        // $top = new TopPostersSection($this);
+        // $top->show();
+        $feat = new FeaturedUsersSection($this);
+        $feat->show();
+        $gbp = new GroupsByMembersSection($this);
+        $gbp->show();
         $pop = new PopularNoticeSection($this);
         $pop->show();
         if (!common_config('performance', 'high')) {
             $cloud = new PublicTagCloudSection($this);
             $cloud->show();
         }
-        $feat = new FeaturedUsersSection($this);
-        $feat->show();
     }
 
     function showAnonymousMessage()
@@ -288,8 +297,9 @@ class PublicAction extends Action
 
 class ThreadingPublicNoticeStream extends ThreadingNoticeStream
 {
-    function __construct($profile)
+    function __construct($profile, $images=false)
     {
         parent::__construct(new PublicNoticeStream($profile));
+        $this->images = $images;
     }
 }

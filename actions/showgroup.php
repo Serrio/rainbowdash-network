@@ -82,6 +82,12 @@ class ShowgroupAction extends GroupAction
         }
     }
 
+    function showNoticeForm()
+    {  
+        $notice_form = new NoticeForm($this, null, "!{$this->group->nickname} ");
+        $notice_form->show();
+    }
+
     /**
      * Prepare the action
      *
@@ -96,15 +102,16 @@ class ShowgroupAction extends GroupAction
         parent::prepare($args);
 
         $this->page = ($this->arg('page')) ? ($this->arg('page')+0) : 1;
+        $this->images = ($this->arg('images')) ? true : false;
 
         $this->userProfile = Profile::current();
 
         $user = common_current_user();
 
         if (!empty($user) && $user->streamModeOnly()) {
-            $stream = new GroupNoticeStream($this->group, $this->userProfile);
+            $stream = new GroupNoticeStream($this->group, $this->userProfile, $images);
         } else {
-            $stream = new ThreadingGroupNoticeStream($this->group, $this->userProfile);
+            $stream = new ThreadingGroupNoticeStream($this->group, $this->userProfile, $images);
         }
 
         $this->notice = $stream->getNotices(($this->page-1)*NOTICES_PER_PAGE,
@@ -152,14 +159,19 @@ class ShowgroupAction extends GroupAction
         } else {
             $nl = new ThreadedNoticeList($this->notice, $this, $this->userProfile);
         } 
-
         $cnt = $nl->show();
+
+        $xpargs = array();
+        if($this->images) {
+            $xpargs['images'] = $this->images;
+        }
 
         $this->pagination($this->page > 1,
                           $cnt > NOTICES_PER_PAGE,
                           $this->page,
                           'showgroup',
-                          array('nickname' => $this->group->nickname));
+                          array('nickname' => $this->group->nickname),
+                          $xpargs);
     }
 
     /**

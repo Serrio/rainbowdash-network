@@ -117,6 +117,10 @@ RealtimeUpdate = {
       */
      receive: function(data)
      {
+          if (data.notice_delete) {
+              RealtimeUpdate.deleteNotice(data.notice_delete);
+              return;
+          }
           if (RealtimeUpdate.isNoticeVisible(data.id)) {
               // Probably posted by the user in this window, and so already
               // shown by the AJAX form handler. Ignore it.
@@ -161,12 +165,11 @@ RealtimeUpdate = {
             if (RealtimeUpdate.isNoticeVisible(data.id)) {
                 return;
             }
-            var noticeItemID = $(noticeItem).attr('id');
 
-            var list = $("#notices_primary .notices:first")
+            var list = $("#notices_primary .notices").filter(':first');
             var prepend = true;
 
-            var threaded = list.hasClass('threaded-notices');
+            var threaded = list.hasClass('threaded-notices') || $('body').attr('id') == 'conversation';
             if (threaded && data.in_reply_to_status_id) {
                 // aho!
                 var parent = $('#notice-' + data.in_reply_to_status_id);
@@ -175,21 +178,33 @@ RealtimeUpdate = {
                 } else {
                     // Check the parent notice to make sure it's not a reply itself.
                     // If so, use it's parent as the parent.
+                    /*
                     var parentList = parent.closest('.notices');
                     if (parentList.hasClass('threaded-replies')) {
                         parent = parentList.closest('.notice');
                     }
-                    list = parent.find('.threaded-replies');
+                    */
+                    list = parent.find('.notices');
                     if (list.length == 0) {
-                        list = $('<ul class="notices threaded-replies xoxo"></ul>');
+                        list = $('<ol class="notices"></ol>');
                         parent.append(list);
-                        SN.U.NoticeInlineReplyPlaceholder(parent);
+                        //SN.U.NoticeInlineReplyPlaceholder(parent);
                     }
                     prepend = false;
                 }
             }
 
             var newNotice = $(noticeItem);
+            // Remove the delete button if user is not a mod.
+            if(data.profile_id != RealtimeUpdate._userid && !RealtimeUpdate._ismod) {
+                newNotice.find('.notice_delete').remove();
+            }
+
+            // Remove the repeat button if the post belongs to the current user.
+            if(data.profile_id == RealtimeUpdate._userid) {
+                newNotice.find('.form_repeat').remove();
+            }
+
             if (prepend) {
                 list.prepend(newNotice);
             } else {
@@ -200,10 +215,10 @@ RealtimeUpdate = {
                     newNotice.appendTo(list);
                 }
             }
-            newNotice.css({display:"none"}).fadeIn(1000);
+            newNotice.css({display:"none"}).fadeIn(500);
 
-            SN.U.NoticeReplyTo($('#'+noticeItemID));
-            SN.U.NoticeWithAttachment($('#'+noticeItemID));
+            SN.U.NoticeReplyTo($('#notice-'+data.id));
+            SN.U.NoticeWithAttachment($('#notice-'+data.id));
         });
      },
 
@@ -355,6 +370,19 @@ RealtimeUpdate = {
                "</form>";
 
           return rf;
+     },
+
+     /**
+      * Deletes a post.
+      *
+      * @param {number} id: notice ID to remove from the timeline
+      * @return {undefined}
+      *
+      * @access private
+      */
+     deleteNotice: function(id)
+     {
+         $('#notice-' + id).remove();
      },
 
      /**

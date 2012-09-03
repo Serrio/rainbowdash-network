@@ -853,10 +853,10 @@ class Notice extends Managed_DataObject
 	    $this->_attachments = $attachments;
 	}
 
-    function publicStream($offset=0, $limit=20, $since_id=0, $max_id=0)
+    function publicStream($offset=0, $limit=20, $since_id=0, $max_id=0, $images=false)
     {
         $stream = new PublicNoticeStream();
-        return $stream->getNotices($offset, $limit, $since_id, $max_id);
+        return $stream->getNotices($offset, $limit, $since_id, $max_id, $images=false);
     }
 
 

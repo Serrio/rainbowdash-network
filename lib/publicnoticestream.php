@@ -47,11 +47,13 @@ if (!defined('STATUSNET')) {
 
 class PublicNoticeStream extends ScopingNoticeStream
 {
-    function __construct($profile=null)
+    function __construct($profile=null, $images=false)
     {
         parent::__construct(new CachingNoticeStream(new RawPublicNoticeStream(),
                                                     'public'),
                             $profile);
+
+        $this->images = $images;
     }
 }
 

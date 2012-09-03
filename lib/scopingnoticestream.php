@@ -71,6 +71,11 @@ class ScopingNoticeStream extends FilteringNoticeStream
 
     function filter($notice)
     {
-        return $notice->inScope($this->profile);
+        if(!empty($this->images)) {
+            return $notice->inScope($this->profile) && count($notice->attachments());
+        }
+        else {
+            return $notice->inScope($this->profile);
+        }
     }
 }

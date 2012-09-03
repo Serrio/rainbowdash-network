@@ -62,9 +62,15 @@ class ThreadingNoticeStream extends FilteringNoticeStream
     {
         if (!array_key_exists($notice->conversation, $this->seen)) {
             $this->seen[$notice->conversation] = true;
-            return true;
+            $seen = true;
         } else {
-            return false;
+            $seen = false;
+        }
+        if(!empty($this->images)) {
+            $seen && count($notice->attachments());
+        }
+        else {
+            return $seen;
         }
     }
 }

@@ -69,7 +69,7 @@ class ShowstreamAction extends ProfileAction
             $stream = new TaggedProfileNoticeStream($this->profile, $this->tag, $p);
         }
 
-        $this->notice = $stream->getNotices(($this->page-1)*NOTICES_PER_PAGE, NOTICES_PER_PAGE + 1);
+        $this->notice = $stream->getNotices(($this->page-1)*NOTICES_PER_PAGE, NOTICES_PER_PAGE + 1, null , null, $this->images);
 
         return true;
     }
@@ -103,6 +103,12 @@ class ShowstreamAction extends ProfileAction
                                $this->page);
             }
         }
+    }
+
+    function showNoticeForm()
+    {  
+        $notice_form = new NoticeForm($this, array('content' => "@{$this->profile->nickname} "));
+        $notice_form->show();
     }
 
     function handle($args)
@@ -252,13 +258,18 @@ class ShowstreamAction extends ProfileAction
             $this->showEmptyListMessage();
         }
 
+        $xpargs = array();
+        if($this->images) {
+            $xpargs['images'] = $this->images;
+        }
+
         $args = array('nickname' => $this->user->nickname);
         if (!empty($this->tag))
         {
             $args['tag'] = $this->tag;
         }
         $this->pagination($this->page>1, $cnt>NOTICES_PER_PAGE, $this->page,
-                          'showstream', $args);
+            'showstream', $args, $xpargs);
     }
 
     function showAnonymousMessage()
