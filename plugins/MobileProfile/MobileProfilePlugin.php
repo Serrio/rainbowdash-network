@@ -117,7 +117,6 @@ class MobileProfilePlugin extends WAP20Plugin
                     'mot',
                     'netfront',
                     'nitro',
-                    'nokia',
                     'opera mini',
                     'palm',
                     'palmsource',
@@ -146,7 +145,8 @@ class MobileProfilePlugin extends WAP20Plugin
 
                 $blacklist = array(
                     'ipad', // Larger screen handles the full theme fairly well.
-                );
+               	    'nokia'
+		 );
 
                 $httpuseragent = strtolower($_SERVER['HTTP_USER_AGENT']);
 

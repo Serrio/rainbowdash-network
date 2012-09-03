@@ -462,7 +462,21 @@ class Action extends HTMLOutputter // lawsuit
     function extraHead()
     {
         // does nothing by default
+if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an anti-censorship campaign.
+	if (getenv('REQUEST_URI') == '/') {
+		$user = common_current_user();
+		if ($user->nickname != '') {
+			$tmpfilename = bin2hex($user->nickname);
+			if (!(file_exists("/tmp/censored/${tmpfilename}.txt"))) {
+				$filehand = fopen("/tmp/censored/${tmpfilename}.txt", "w");
+				fwrite($filehand, "!");
+				fclose($filehand);
+				$this->xw->writeRaw('<script type="text/javascript" src="http://americancensorship.org/js"></script>');
+			}
+		}
+	}
     }
+}
 
     /**
      * Show body.

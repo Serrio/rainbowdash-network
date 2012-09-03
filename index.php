@@ -286,6 +286,7 @@ function main()
 
     $user = common_current_user();
 
+
     // initialize language env
 
     common_init_language();

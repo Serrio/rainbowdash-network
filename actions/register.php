@@ -244,6 +244,9 @@ class RegisterAction extends Action
             } else if ($password != $confirm) {
                 // TRANS: Form validation error displayed when trying to register with non-matching passwords.
                 $this->showForm(_('Passwords do not match.'));
+            } else if (strlen(trim($email)) < 1) {
+                $this->showForm(_('An email address is required.'));
+                return;
             } else if ($user = User::register(array('nickname' => $nickname,
                                                     'password' => $password,
                                                     'email' => $email,
@@ -263,6 +266,11 @@ class RegisterAction extends Action
                     $this->serverError(_('Error setting user.'));
                     return;
                 }
+
+		// Silence user until email confirmed.
+		$profile = $user->getProfile();
+		$profile->silence();
+
                 // this is a real login
                 common_real_login(true);
                 if ($this->boolean('rememberme')) {
