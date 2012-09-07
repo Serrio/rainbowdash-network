@@ -524,7 +524,6 @@ class User extends Managed_DataObject
         $UT = common_config('db','type')=='pgsql'?'"user"':'user';
         $qry = "SELECT profile_role.*, $UT.* ".
             "FROM $UT JOIN profile_role ON id = profile_role.profile_id ";
-        $user = new User();
 
         if(!empty($type)) {
             if($type == array(Profile_role::MODERATOR)) {
@@ -548,7 +547,9 @@ class User extends Managed_DataObject
             $qry .= sprintf("WHERE role = '%s' OR role = '%s'", Profile_role::ADMINISTRATOR, Profile_role::MODERATOR);
         }
 
-        $user->query($qry);
+        $user = Memcached_DataObject::cachedQuery('User',
+                                                     $qry,
+                                                     6 * 3600);
 
         return $user;
     }
