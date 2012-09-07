@@ -96,7 +96,7 @@ class PublicGroupNav extends Menu
             }
 
             $this->out->menuItem(common_local_url('public') . '?images=1', _('Media'),
-                _("Media"), $action_name == 'publiczzz', 'nav_timeline_media');
+                _("Media"), $action_name == 'public', 'nav_timeline_media');
 
             Event::handle('EndPublicGroupNav', array($this));
         }
