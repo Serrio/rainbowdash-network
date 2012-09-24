@@ -136,10 +136,8 @@ class RealtimePlugin extends Plugin
 
         if (!empty($user->id)) {
             $user_id = $user->id;
-            $user_ismod = $user->hasRole(Profile_role::MODERATOR) ? 'true' : 'false';
         } else {
             $user_id = 0;
-            $user_ismod = 'false';
         }
 
         if ($action->boolean('realtime')) {
@@ -448,7 +446,7 @@ class RealtimePlugin extends Plugin
         return true;
     }
 
-    function _updateInitialize($timeline, $user_id, $user_ismod)
+    function _updateInitialize($timeline, $user_id)
     {
         return "RealtimeUpdate.init($user_id, \"$this->showurl\"); ";
     }
