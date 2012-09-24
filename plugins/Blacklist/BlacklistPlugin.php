@@ -46,6 +46,7 @@ class BlacklistPlugin extends Plugin
 
     public $nicknames = array();
     public $urls      = array();
+    public $texts     = array();
     public $canAdmin  = true;
 
     function _getNicknamePatterns()
@@ -70,6 +71,17 @@ class BlacklistPlugin extends Plugin
                            $dbURLs);
     }
 
+    function _getTextPatterns()
+    {
+        $confTexts = $this->_configArray('blacklist', 'texts');
+
+        $dbTexts = Bio_blacklist::getPatterns();
+
+        return array_merge($this->texts,
+                           $confTexts,
+                           $dbTexts);
+    }
+
     /**
      * Database schema setup
      *
@@ -92,6 +104,16 @@ class BlacklistPlugin extends Plugin
                                                  false)));
 
         $schema->ensureTable('homepage_blacklist',
+                             array(new ColumnDef('pattern',
+                                                 'varchar',
+                                                 255,
+                                                 false,
+                                                 'PRI'),
+                                   new ColumnDef('created',
+                                                 'datetime',
+                                                 null,
+                                                 false)));
+        $schema->ensureTable('bio_blacklist',
                              array(new ColumnDef('pattern',
                                                  'varchar',
                                                  255,
@@ -156,6 +178,17 @@ class BlacklistPlugin extends Plugin
 
         $nickname = strtolower($profile->nickname);
 
+        $bio = strtolower($action->trimmed('bio'));
+
+        if (!empty($bio)) {
+            if (!$this->_checkText($bio)) {
+                // TRANS: Validation failure for text. %s is the text.
+                $msg = sprintf(_m("You may not register with bio \"%s\"."),
+                               $bio);
+                throw new ClientException($msg);
+            }
+        }
+
         if (!empty($nickname)) {
             if (!$this->_checkNickname($nickname)) {
                 // TRANS: Validation failure for nickname. %s is the nickname.
@@ -197,6 +230,17 @@ class BlacklistPlugin extends Plugin
                 // TRANS: Validation failure for nickname. %s is the nickname.
                 $msg = sprintf(_m("You may not use nickname \"%s\"."),
                                $nickname);
+                throw new ClientException($msg);
+            }
+        }
+
+        $bio = strtolower($action->trimmed('bio'));
+
+        if (!empty($bio)) {
+            if (!$this->_checkText($bio)) {
+                // TRANS: Validation failure for text. %s is the text.
+                $msg = sprintf(_m("You may not use bio \"%s\"."),
+                               $bio);
                 throw new ClientException($msg);
             }
         }
@@ -269,6 +313,28 @@ class BlacklistPlugin extends Plugin
     }
 
     /**
+     * Helper for checking Texts
+     *
+     * Checks an text against our patterns for a match.
+     *
+     * @param string $bio bio to check
+     *
+     * @return boolean true means it's OK, false means it's bad
+     */
+    private function _checkText($bio)
+    {
+        $patterns = $this->_getTextPatterns();
+
+        foreach ($patterns as $pattern) {
+            if ($pattern != '' && preg_match("/$pattern/", $bio)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Helper for checking nicknames
      *
      * Checks a nickname against our patterns for a match.
@@ -316,6 +382,7 @@ class BlacklistPlugin extends Plugin
         {
         case 'nickname_blacklist':
         case 'homepage_blacklist':
+        case 'bio_blacklist':
             include_once INSTALLDIR.'/plugins/Blacklist/'.ucfirst($cls).'.php';
             return false;
         case 'blacklistadminpanelaction':

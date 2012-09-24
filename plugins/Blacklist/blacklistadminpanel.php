@@ -91,6 +91,9 @@ class BlacklistadminpanelAction extends AdminPanelAction
         $urlPatterns = $this->splitPatterns($this->trimmed('blacklist-urls'));
         Homepage_blacklist::saveNew($urlPatterns);
 
+        $textPatterns = $this->splitPatterns($this->trimmed('blacklist-texts'));
+        Bio_blacklist::saveNew($textPatterns);
+
         return;
     }
 
@@ -189,6 +192,15 @@ class BlacklistAdminPanelForm extends Form
                              // TRANS: Field title in blacklist plugin administration panel.
                              _m('Patterns of URLs to block, one per line.'));
         $this->out->elementEnd('li');
+
+        $textPatterns = Bio_blacklist::getPatterns();
+
+        $this->out->elementStart('li');
+        $this->out->textarea('blacklist-texts', _m('Bio Texts'),
+                             implode("\r\n", $textPatterns),
+                             _m('Patterns of bios to block, one per line'));
+        $this->out->elementEnd('li');
+
 
         $this->out->elementEnd('ul');
     }
