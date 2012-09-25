@@ -58,6 +58,9 @@ class PublicGroupNav extends Menu
     function show()
     {
         $this->actionName = $this->action->trimmed('action');
+        if($this->action_name == 'public' && $this->action->arg('images')) {
+            $this->action_name = 'public_media';
+        }
 
         $this->action->elementStart('ul', array('class' => 'nav'));
 
@@ -73,6 +76,8 @@ class PublicGroupNav extends Menu
             $this->out->menuItem(common_local_url('groups'), _m('MENU','Groups'),
                 // TRANS: Menu item title in search group navigation panel.
                 _('User groups'), $this->actionName == 'groups', 'nav_groups');
+            $this->out->menuItem(common_local_url('public') . '?images=1', _('Media'),
+                _("Media"), $action_name == 'public_media', 'nav_timeline_media');
 
             if (!common_config('performance', 'high')) {
                 // TRANS: Menu item in search group navigation panel.
@@ -94,9 +99,6 @@ class PublicGroupNav extends Menu
                                      // TRANS: Menu item title in search group navigation panel.
                                      _('Popular notices'), $this->actionName == 'favorited', 'nav_timeline_favorited');
             }
-
-            $this->out->menuItem(common_local_url('public') . '?images=1', _('Media'),
-                _("Media"), $action_name == 'public', 'nav_timeline_media');
 
             Event::handle('EndPublicGroupNav', array($this));
         }
