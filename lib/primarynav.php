@@ -50,9 +50,6 @@ class PrimaryNav extends Menu
     function show()
     {
         $user = common_current_user();
-        $this->action->elementStart('ul', array('class' => 'nav'));
-        if (Event::handle('StartPrimaryNav', array($this->action))) {
-            if (!empty($user)) {
         $tmpisadmin = 0;
         if ($user) {
            if ($user->hasRight(Right::CONFIGURESITE)) {
@@ -69,7 +66,7 @@ class PrimaryNav extends Menu
         $this->element('dt', null, _('Primary site navigation'));
         $this->elementStart('dd');
         $this->elementStart('ul', array('class' => 'nav'));
-        if (Event::handle('StartPrimaryNav', array($this))) {
+        if (Event::handle('StartPrimaryNav', array($this->action))) {
 
         
 
@@ -80,12 +77,6 @@ class PrimaryNav extends Menu
                 $this->menuItem('http://www.bronies.com/map/',
                                 // TRANS: Main menu option when logged in for access to personal profile and friends timeline.
                                 _m('MENU', 'Meetups'), $tooltip, false, 'nav_meetups');
-
-                // TRANS: Tooltip for main menu option "Forums".
-                $tooltip = _m('TOOLTIP', 'phpBB discussion forums!');
-                $this->menuItem('http://forums.rainbowdash.com/',
-                                // TRANS: Main menu option when logged in for access to personal profile and friends timeline.
-                                _m('MENU', 'Forums'), $tooltip, false, 'nav_forums');
 
                 // TRANS: Tooltip for main menu option "Rules".
                 $tooltip = _m('TOOLTIP', 'Site Rules!');
@@ -171,7 +162,8 @@ class PrimaryNav extends Menu
             }
             Event::handle('EndPrimaryNav', array($this->action));
         }
-
-        $this->action->elementEnd('ul');
+        $this->elementEnd('ul');
+        $this->elementEnd('dd');
+        $this->elementEnd('dl');
     }
 }
