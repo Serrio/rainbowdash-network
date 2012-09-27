@@ -66,11 +66,13 @@ class PrimaryNav extends Menu
         $this->element('dt', null, _('Primary site navigation'));
         $this->elementStart('dd');
         $this->elementStart('ul', array('class' => 'nav'));
-        if (Event::handle('StartPrimaryNav', array($this->action))) {
+        if (Event::handle('StartPrimaryNav', array($this))) {
 
-        
-
-
+                // TRANS: Tooltip for main menu option "Roleplay".
+                $tooltip = _m('TOOLTIP', 'Act out characters in the MLP universe!');
+                $this->menuItem('http://rp.rainbowdash.net/',
+                                // TRANS: Main menu option when logged in for access to personal profile and friends timeline.
+                    _m('MENU', 'Roleplay'), $tooltip, false, 'nav_roleplay');
 
                 // TRANS: Tooltip for main menu option "Meetups".
                 $tooltip = _m('TOOLTIP', 'Pony/brony meetups and social groups!');
@@ -160,7 +162,7 @@ class PrimaryNav extends Menu
                                 // TRANS: Main menu option when logged in or when the StatusNet instance is not private.
                                 _m('MENU', 'Search'), $tooltip, false, 'nav_search');
             }
-            Event::handle('EndPrimaryNav', array($this->action));
+            Event::handle('EndPrimaryNav', array($this));
         }
         $this->elementEnd('ul');
         $this->elementEnd('dd');
