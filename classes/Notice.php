@@ -1861,7 +1861,7 @@ class Notice extends Managed_DataObject
      *
      * @throws Exception on failure or permission problems
      */
-    function repeat($repeater_id, $source)
+    function repeat($repeater_id, $source, $finish=null)
     {
         $author = Profile::staticGet('id', $this->profile_id);
 
@@ -1884,11 +1884,17 @@ class Notice extends Managed_DataObject
 
         // Scope is same as this one's
 
+        $options =           array('repeat_of' => $this->id,
+                                   'scope' => $this->scope));
+
+        if(!empty($finish)) {
+            $options = array_merge($options, array('finish' => $finish));
+        }
+
         return self::saveNew($repeater_id,
                              $content,
                              $source,
-                             array('repeat_of' => $this->id,
-                                   'scope' => $this->scope));
+                             $options);
     }
 
     // These are supposed to be in chron order!
