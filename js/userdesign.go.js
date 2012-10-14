@@ -16,7 +16,8 @@ $(document).ready(function() {
                 $(E).val(rgb2hex($('#content').css('background-color')));
                 break;
             case 3:
-                $(E).val(rgb2hex($('#aside_primary_wrapper, #site_nav_local_views_wrapper').css('background-color')));
+                /*$(E).val(rgb2hex($('#aside_primary_wrapper, #site_nav_local_views_wrapper').css('background-color')));*/
+                $(E).val(rgb2hex($('#wrap').css('background-color')));
                 break;
             case 4:
                 $(E).val(rgb2hex($('html body').css('color')));
@@ -48,7 +49,8 @@ $(document).ready(function() {
                 $('#content').css({'background-color':C});
                 break;
             case 3:
-                $('#aside_primary_wrapper, #site_nav_local_views_wrapper').css({'background-color':C});
+                /*$('#aside_primary_wrapper, #site_nav_local_views_wrapper').css({'background-color':C});*/
+                $('#wrap').css({'background-color':C});
                 break;
             case 4:
                 $('html body').css({'color':C});
