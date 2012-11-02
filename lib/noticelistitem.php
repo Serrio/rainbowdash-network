@@ -163,7 +163,8 @@ class NoticeListItem extends Widget
     {
         if (Event::handle('StartOpenNoticeListItemElement', array($this))) {
             $id = (empty($this->repeat)) ? $this->notice->id : $this->repeat->id;
-            $class = 'hentry notice';
+            $replyto = (!empty($this->notice->reply_to)) ? ' inreplyto-' . $this->notice->reply_to : '';
+            $class = 'hentry notice' . $replyto;
             if ($this->notice->scope != 0 && $this->notice->scope != 1) {
                 $class .= ' limited-scope';
             }
