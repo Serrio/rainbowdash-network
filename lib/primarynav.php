@@ -108,11 +108,11 @@ class PrimaryNav extends Menu
                 $this->menuItem(common_local_url('profilesettings'),
                                 // TRANS: Main menu option when logged in for access to user settings.
                                 _('Account'), $tooltip, false, 'nav_account');
-#                // TRANS: Tooltip for main menu option "Services".
-#               $tooltip = _m('TOOLTIP', 'Connect to services');
-#               $this->menuItem(common_local_url('oauthconnectionssettings'),
-#                                // TRANS: Main menu option when logged in and connection are possible for access to options to connect to other services.
-#                                _('Connect'), $tooltip, false, 'nav_connect');
+                // TRANS: Tooltip for main menu option "Services".
+               $tooltip = _m('TOOLTIP', 'Connect to services');
+               $this->menuItem(common_local_url('oauthconnectionssettings'),
+                                // TRANS: Main menu option when logged in and connection are possible for access to options to connect to other services.
+                                _('Connect'), $tooltip, false, 'nav_connect');
                 if ($user->hasRight(Right::CONFIGURESITE)) {
                     // TRANS: Tooltip for menu option "Admin".
                     $tooltip = _m('TOOLTIP', 'Change site configuration');
