@@ -832,8 +832,12 @@ class Profile extends Managed_DataObject
      */
     function mutuallySubscribed($other)
     {
-        return $this->isSubscribed($other) &&
-          $other->isSubscribed($this);
+        return ($this->isSubscribed($other) &&
+            $other->isSubscribed($this)) ||
+            $this->hasRole(Profile_role::MODERATOR) ||
+            $this->hasRole(Profile_role::ADMINISTRATOR) ||
+            (($other->hasRole(Profile_role::ADMINISTRATOR) || $other->hasRole(Profile_role::MODERATOR))
+                && !$this->hasRole(Profile_role::SILENCED));
     }
 
     function hasFave($notice)

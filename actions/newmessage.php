@@ -146,9 +146,7 @@ class NewmessageAction extends Action
             }
 
             foreach($this->other as $other) {
-                if (!$user->mutuallySubscribed($other) &&
-                    !($user->hasRole(Profile_role::MODERATOR) || $user->hasRole(Profile_role::ADMINISTRATOR)) &&
-                    !(($other->hasRole(Profile_role::ADMINISTRATOR) || $other->hasRole(Profile_role::MODERATOR)) && !$user->hasRole(Profile_role::SILENCED))) {
+                if (!$user->mutuallySubscribed($other)) {
                     $this->clientError(_('You cannot send a message to this user.'), 404);
                     return false;
                 }
@@ -199,10 +197,15 @@ class NewmessageAction extends Action
         
         $nicknames = array();
         foreach($this->other as $other) {
+<<<<<<< HEAD
             if (!$user->mutuallySubscribed($other) &&
                 !($user->hasRole(Profile_role::MODERATOR) || $user->hasRole(Profile_role::ADMINISTRATOR)) &&
                 !(($other->hasRole(Profile_role::ADMINISTRATOR) || $other->hasRole(Profile_role::MODERATOR)) && !$user->hasRole(Profile_role::SILENCED)) ) {
             $this->clientError(_('You cannot send a message to this user.'), 404);
+=======
+            if (!$user->mutuallySubscribed($other)) {
+                $this->clientError(_('You can\'t send a message to this user.'), 404);
+>>>>>>> Fixed message checking logic and autoinsert to field for users that don't exist in the dropdown.
                 return;
             } else if ($user->id == $other->id) {
                 // TRANS: Client error displayed trying to send a direct message to self.
@@ -303,7 +306,7 @@ class NewmessageAction extends Action
 
     function showNoticeForm()
     {
-        $message_form = new MessageForm($this, $other, $this->content);
+        $message_form = new MessageForm($this, $this->other[0], $this->content);
         $message_form->show();
     }
 }
