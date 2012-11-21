@@ -615,6 +615,12 @@ class RegisterAction extends Action
             $profileurl = common_local_url('showstream',
                                            array('nickname' => $nickname));
 
+            // Redirect to custom welcome page
+            if(file_exists(INSTALLDIR . '/doc-src/welcome')) {
+                common_redirect(common_local_url('doc', array('title' => 'welcome')));
+            }
+
+
             $this->elementStart('div', 'success');
             // TRANS: Text displayed after successful account registration.
             // TRANS: %1$s is the registered nickname, %2$s is the profile URL.
