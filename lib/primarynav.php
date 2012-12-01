@@ -66,7 +66,12 @@ class PrimaryNav extends Menu
         $this->element('dt', null, _('Primary site navigation'));
         $this->elementStart('dd');
         $this->elementStart('ul', array('class' => 'nav'));
-        if (Event::handle('StartPrimaryNav', array($this))) {
+        if (Event::handle('StartPrimaryNav', array($this->action))) {
+
+                // TRANS: Tooltip for main menu option "Home".
+                $tooltip = _m('TOOLTIP', 'Home');
+                $this->menuItem(common_local_url('public'),
+                    _m('MENU', 'Home'), $tooltip, false, 'nav_home');
 
                 // TRANS: Tooltip for main menu option "Roleplay".
                 $tooltip = _m('TOOLTIP', 'Act out characters in the MLP universe!');
@@ -162,7 +167,7 @@ class PrimaryNav extends Menu
                                 // TRANS: Main menu option when logged in or when the StatusNet instance is not private.
                                 _m('MENU', 'Search'), $tooltip, false, 'nav_search');
             }
-            Event::handle('EndPrimaryNav', array($this));
+            Event::handle('EndPrimaryNav', array($this->action));
         }
         $this->elementEnd('ul');
         $this->elementEnd('dd');
