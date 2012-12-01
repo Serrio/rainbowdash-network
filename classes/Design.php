@@ -54,7 +54,7 @@ class Design extends Memcached_DataObject
         $ccolor  = Design::toWebColor($this->contentcolor);
         if (!empty($ccolor)) {
             $css .= '#content, #site_nav_local_views li.current a, #site_nav_local_views li:hover a';
-			$css .= ' { background-color: #';
+			$css .= '{ background-color: #';
             $css .= $ccolor->hexValue() . '} '."\n";
             $css .= '#site_notice, #anon_notice, #core { background-color: rgba(';
             $corecolor = hexdec($ccolor->hexValue());
