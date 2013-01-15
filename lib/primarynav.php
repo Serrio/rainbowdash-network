@@ -74,9 +74,8 @@ class PrimaryNav extends Menu
                     _m('MENU', 'Home'), $tooltip, false, 'nav_home');
 
                 // TRANS: Tooltip for main menu option "Roleplay".
-                $tooltip = _m('TOOLTIP', 'Act out characters in the MLP universe!');
-                $this->menuItem('http://rp.rainbowdash.net/',
-                                // TRANS: Main menu option when logged in for access to personal profile and friends timeline.
+                $tooltip = _m('TOOLTIP', 'Go to Equestria RP for any roleplaying! (Not affiliated with Rainbow Dash Network)');
+                $this->menuItem('http://equestriarp.net/',
                     _m('MENU', 'Roleplay'), $tooltip, false, 'nav_roleplay');
 
                 // TRANS: Tooltip for main menu option "Meetups".
@@ -87,13 +86,13 @@ class PrimaryNav extends Menu
 
                 // TRANS: Tooltip for main menu option "Rules".
                 $tooltip = _m('TOOLTIP', 'Site Rules!');
-                $this->menuItem('/doc/rules',
+                $this->menuItem(common_local_url('doc', array('title' => 'rules')),
                                 // TRANS: Main menu option when logged in for access to personal profile and friends timeline.
                                 _m('MENU', 'Rules'), $tooltip, false, 'nav_rules');
 
                 // TRANS: Tooltip for main menu option "Rules".
                 $tooltip = _m('TOOLTIP', 'List of Site Staff');
-                $this->menuItem('/main/staff',
+                $this->menuItem(common_local_url('staff'),
                                 // TRANS: Main menu option when logged in for access to personal profile and friends timeline.
                                 _m('MENU', 'Staff'), $tooltip, false, 'nav_admins');
 
