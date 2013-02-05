@@ -31,9 +31,9 @@ define('AVATAR_PROFILE_SIZE', 96);
 define('AVATAR_STREAM_SIZE', 48);
 define('AVATAR_MINI_SIZE', 24);
 
-define('NOTICES_PER_PAGE', 20);
-define('PROFILES_PER_PAGE', 20);
-define('MESSAGES_PER_PAGE', 20);
+define('NOTICES_PER_PAGE', 30);
+define('PROFILES_PER_PAGE', 30);
+define('MESSAGES_PER_PAGE', 30);
 
 define('FOREIGN_NOTICE_SEND', 1);
 define('FOREIGN_NOTICE_RECV', 2);
