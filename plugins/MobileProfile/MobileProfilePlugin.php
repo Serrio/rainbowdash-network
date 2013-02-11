@@ -180,9 +180,9 @@ class MobileProfilePlugin extends WAP20Plugin
             }
         }
 
-        if (!$this->serveMobile) {
+        //if (!$this->serveMobile) {
             return true;
-        }
+        //}
 
         // @fixme $type is undefined, making this if case useless and spewing errors.
         // What's the intent?
@@ -205,17 +205,14 @@ class MobileProfilePlugin extends WAP20Plugin
         header('Content-Type: '.$type);
 
         if ($this->reallyMobile) {
-
             $action->extraHeaders();
             if (preg_match("/.*\/.*xml/", $type)) {
                 // Required for XML documents
                 $action->xw->startDocument('1.0', 'UTF-8');
             }
-            /*
             $action->xw->writeDTD('html',
                 '-//WAPFORUM//DTD XHTML Mobile 1.0//EN',
                 $this->DTD);
-             */
 
 
             $language = $action->getLanguage();
