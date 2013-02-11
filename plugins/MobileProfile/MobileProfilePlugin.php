@@ -291,7 +291,7 @@ class MobileProfilePlugin extends WAP20Plugin
         return false;
     }
 
-    function onStartShowHead($action) {
+    function onEndShowHeadElements($action) {
         if (!$this->serveMobile) {
             return true;
         }
