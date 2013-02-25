@@ -78,6 +78,13 @@ class Message extends Managed_DataObject
             throw new ClientException(_('You are banned from sending direct messages.'));
         }
 
+        if (common_config('throttle', 'enabled') && !Message::checkEditThrottle($from)) {
+            common_log(LOG_WARNING, 'Excessive posting by profile #' . $from . '; throttled.');
+            // TRANS: Client exception thrown when a user tries to post too many notices in a given time frame.
+            throw new ClientException(_('Too many notices too fast; take a breather '.
+                                        'and post again in a few minutes.'));
+        }
+
         $user = User::staticGet('id', $sender->id);
 
         $msg = new Message();
@@ -114,6 +121,23 @@ class Message extends Managed_DataObject
         }
 
         return $msg;
+    }
+
+    static function checkEditThrottle($profile_id) {
+        $msg = new Message();
+        $msg->from_profile = $profile_id;
+        $msg->orderBy('id DESC');
+        $msg->limit(common_config('throttle', 'count') - 1, 1);
+
+        if ($msg->find() && $msg->fetch()) {
+            # If the Nth message was posted less than timespan seconds ago
+            if (time() - strtotime($msg->created) <= common_config('throttle', 'timespan')) {
+                # Then we throttle
+                return false;
+            }
+        }
+        # Either not N notices in the stream, OR the Nth was not posted within timespan seconds
+        return true;
     }
 
     static function maxContent()
