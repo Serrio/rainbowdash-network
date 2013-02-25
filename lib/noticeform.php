@@ -204,8 +204,7 @@ class NoticeForm extends Form
         if (Event::handle('StartShowNoticeFormData', array($this))) {
             $this->out->element('label', array('for' => 'notice_data-text',
                                                'id' => 'notice_data-text-label'),
-                                // TRANS: Title for notice label. %s is the user's nickname.
-                                sprintf(_('What\'s up, %s?'), $this->user->nickname));
+            sprintf(common_config('site', 'prompttext') ? common_config('site', 'prompttext') : _('What\'s up, %s?'), $this->user->nickname));
             // XXX: vary by defined max size
             $this->out->element('textarea', array('class' => 'notice_data-text',
                                                   'cols' => 35,
