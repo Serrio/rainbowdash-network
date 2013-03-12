@@ -87,6 +87,52 @@ var SN = { // StatusNet
 
     U: { // Utils
         /**
+         * Prevent propagation of unneeded HTML5 drop events.
+         *
+         * @param {event} e: Event object
+         * @access private
+         */
+        DropNoop: function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+        },
+
+        /**
+         * Handle drop.
+         *
+         * @param {event} e: Event object
+         * @access private
+         */
+        HandleDrop: function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+
+            var files = e.originalEvent.dataTransfer.files;
+            var count = files.length;
+
+            if(count) {
+                if(typeof files[0].name != 'undefined') {
+                    var filename = files[0].name;
+                }
+                else if(typeof files[0].fileName != 'undefined') {
+                    var filename = files[0].fileName;
+                }
+                else {
+                    var filename = 'dropfile';
+                }
+
+                if (!filename) {
+                    // No file -- we've been tricked!
+                    $('#'+SN.C.S.NoticeDataAttachSelected).remove();
+                    return false;
+                }
+
+                SN.U.NoticeDataAttachSelected(filename);
+                SN.U.PreviewAttach(files[0]);
+            }
+        },
+
+        /**
          * Setup function -- DOES NOT trigger actions immediately.
          *
          * Sets up event handlers on the new notice form.
@@ -348,10 +394,24 @@ var SN = { // StatusNet
                 form.find('.form_response').remove();
             };
 
+            form.bind('dragenter', SN.U.DropNoop);
+            form.bind('dragexit', SN.U.DropNoop);
+            form.bind('dragover', SN.U.DropNoop);
+            form.bind('drop', SN.U.HandleDrop);
+
+            var attach = form.find('#'+SN.U.NoticeDataAttach);
+
             form.ajaxForm({
                 dataType: 'xml',
                 timeout: '60000',
                 beforeSend: function(formData) {
+                    // FIXME widget need to change NoticeDataAttachSelected variable
+                    if(!form.find('.notice a.attachment').val()) {
+                        var file = form.find('.attach-status img');
+                        if(file.length) {
+                            settings.data += (settings.data ? '&' : '') + 'ajaxfile=' + encodeURIComponent(file.attr('src'));
+                        }
+                    }
                     if (form.find('.notice_data-text:first').val() == '') {
                         form.addClass(SN.C.S.Warning);
                         return false;
@@ -959,6 +1019,8 @@ var SN = { // StatusNet
                     return false;
                 }
 
+                // FIXME widget: 
+<<<<<<< HEAD
                 var attachStatus = $('<div class="attach-status '+SN.C.S.Success+'"><code></code> <button class="close">&#215;</button></div>');
                 attachStatus.find('code').text(filename);
                 attachStatus.find('button').click(function(){
@@ -969,12 +1031,39 @@ var SN = { // StatusNet
                 });
                 form.append(attachStatus);
 
+=======
+                SN.U.NoticeDataAttachSelected(filename);
+
+>>>>>>> AJAX file drop
                 if (typeof this.files == "object") {
                     // Some newer browsers will let us fetch the files for preview.
                     for (var i = 0; i < this.files.length; i++) {
                         SN.U.PreviewAttach(form, this.files[i]);
                     }
                 }
+            });
+        },
+
+        /**
+         * Show notice attach form
+         *
+         * @param {String} filename
+         */
+        NoticeDataAttachSelected: function(filename) {
+            // @fixme appending filename straight in is potentially unsafe
+            S = '<div id="'+SN.C.S.NoticeDataAttachSelected+'" class="'+SN.C.S.Success+'"><code>'+filename+'</code> <button class="close">&#215;</button></div>';
+            NDAS = $('#'+SN.C.S.NoticeDataAttachSelected);
+            if (NDAS.length > 0) {
+                NDAS.replaceWith(S);
+            }
+            else {
+                $('#'+SN.C.S.FormNotice).append(S);
+            }
+            $('#'+SN.C.S.NoticeDataAttachSelected+' button').click(function(){
+                $('#'+SN.C.S.NoticeDataAttachSelected).remove();
+                NDA.val('');
+
+                return false;
             });
         },
 
