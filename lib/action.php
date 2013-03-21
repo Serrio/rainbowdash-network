@@ -164,10 +164,10 @@ class Action extends HTMLOutputter // lawsuit
     function showTitle()
     {
         $this->element('title', null,
-                       // TRANS: Page title. %1$s is the title, %2$s is the site name.
-                       sprintf(_('%1$s - %2$s'),
-                               $this->title(),
-                               common_config('site', 'name')));
+            // TRANS: Page title. %1$s is the title, %2$s is the site name.
+            sprintf(_("%1\$s - %2\$s"),
+            $this->title(),
+            common_config('site', 'name')));
     }
 
     /**
@@ -193,20 +193,20 @@ class Action extends HTMLOutputter // lawsuit
     {
         if (is_readable(INSTALLDIR . '/theme/' . common_config('site', 'theme') . '/favicon.ico')) {
             $this->element('link', array('rel' => 'shortcut icon',
-                                         'href' => Theme::path('favicon.ico')));
+                'href' => Theme::path('favicon.ico')));
         } else {
             // favicon.ico should be HTTPS if the rest of the page is
             $this->element('link', array('rel' => 'shortcut icon',
-                                         'href' => common_path('favicon.ico', StatusNet::isHTTPS())));
+                'href' => common_path('favicon.ico', StatusNet::isHTTPS())));
         }
 
         if (common_config('site', 'mobile')) {
             if (is_readable(INSTALLDIR . '/theme/' . common_config('site', 'theme') . '/apple-touch-icon.png')) {
                 $this->element('link', array('rel' => 'apple-touch-icon',
-                                             'href' => Theme::path('apple-touch-icon.png')));
+                    'href' => Theme::path('apple-touch-icon.png')));
             } else {
                 $this->element('link', array('rel' => 'apple-touch-icon',
-                                             'href' => common_path('apple-touch-icon.png')));
+                    'href' => common_path('apple-touch-icon.png')));
             }
         }
     }
@@ -224,21 +224,21 @@ class Action extends HTMLOutputter // lawsuit
 
             if (Event::handle('StartShowStatusNetStyles', array($this)) &&
                 Event::handle('StartShowLaconicaStyles', array($this))) {
-                $this->primaryCssLink(null, 'screen, projection, tv, print');
-                Event::handle('EndShowStatusNetStyles', array($this));
-                Event::handle('EndShowLaconicaStyles', array($this));
-            }
+                    $this->primaryCssLink(null, 'screen, projection, tv, print');
+                    Event::handle('EndShowStatusNetStyles', array($this));
+                    Event::handle('EndShowLaconicaStyles', array($this));
+                }
 
             $this->cssLink(common_path('js/css/smoothness/jquery-ui.css'));
 
             if (Event::handle('StartShowUAStyles', array($this))) {
                 $this->comment('[if IE]><link rel="stylesheet" type="text/css" '.
-                               'href="'.Theme::path('css/ie.css', 'base').'?version='.STATUSNET_VERSION.'" /><![endif]');
+                    'href="'.Theme::path('css/ie.css', 'base').'?version='.STATUSNET_VERSION.'" /><![endif]');
                 foreach (array(6,7) as $ver) {
                     if (file_exists(Theme::file('css/ie'.$ver.'.css', 'base'))) {
                         // Yes, IE people should be put in jail.
                         $this->comment('[if lte IE '.$ver.']><link rel="stylesheet" type="text/css" '.
-                                       'href="'.Theme::path('css/ie'.$ver.'.css', 'base').'?version='.STATUSNET_VERSION.'" /><![endif]');
+                            'href="'.Theme::path('css/ie'.$ver.'.css', 'base').'?version='.STATUSNET_VERSION.'" /><![endif]');
                     }
                 }
                 if (file_exists(Theme::file('css/ie.css'))) {
@@ -338,9 +338,6 @@ class Action extends HTMLOutputter // lawsuit
                 if (common_config('javascript', 'bustframes')) {
                     $this->inlineScript('if (window.top !== window.self) { document.write = ""; window.top.location = window.self.location; setTimeout(function () { document.body.innerHTML = ""; }, 1); window.self.onload = function () { document.body.innerHTML = ""; }; }');
                 }
-                Event::handle('EndShowStatusNetScripts', array($this));
-                Event::handle('EndShowLaconicaScripts', array($this));
-            }
             Event::handle('EndShowScripts', array($this));
         }
     }
@@ -370,7 +367,7 @@ class Action extends HTMLOutputter // lawsuit
 
             $messages = array_merge($messages, $this->getScriptMessages());
 
-	    Event::handle('EndScriptMessages', array($this, &$messages));
+            Event::handle('EndScriptMessages', array($this, &$messages));
         }
 
         if (!empty($messages)) {
@@ -411,12 +408,12 @@ class Action extends HTMLOutputter // lawsuit
     function showOpenSearch()
     {
         $this->element('link', array('rel' => 'search',
-                                     'type' => 'application/opensearchdescription+xml',
-                                     'href' =>  common_local_url('opensearch', array('type' => 'people')),
-                                     'title' => common_config('site', 'name').' People Search'));
+            'type' => 'application/opensearchdescription+xml',
+            'href' =>  common_local_url('opensearch', array('type' => 'people')),
+            'title' => common_config('site', 'name').' People Search'));
         $this->element('link', array('rel' => 'search', 'type' => 'application/opensearchdescription+xml',
-                                     'href' =>  common_local_url('opensearch', array('type' => 'notice')),
-                                     'title' => common_config('site', 'name').' Notice Search'));
+            'href' =>  common_local_url('opensearch', array('type' => 'notice')),
+            'title' => common_config('site', 'name').' Notice Search'));
     }
 
     /**
@@ -433,9 +430,9 @@ class Action extends HTMLOutputter // lawsuit
         if ($feeds) {
             foreach ($feeds as $feed) {
                 $this->element('link', array('rel' => $feed->rel(),
-                                             'href' => $feed->url,
-                                             'type' => $feed->mimeType(),
-                                             'title' => $feed->title));
+                    'href' => $feed->url,
+                    'type' => $feed->mimeType(),
+                    'title' => $feed->title));
             }
         }
     }
@@ -462,21 +459,21 @@ class Action extends HTMLOutputter // lawsuit
     function extraHead()
     {
         // does nothing by default
-if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an anti-censorship campaign.
-	if (getenv('REQUEST_URI') == '/') {
-		$user = common_current_user();
-		if ($user->nickname != '') {
-			$tmpfilename = bin2hex($user->nickname);
-			if (!(file_exists("/tmp/censored/${tmpfilename}.txt"))) {
-				$filehand = fopen("/tmp/censored/${tmpfilename}.txt", "w");
-				fwrite($filehand, "!");
-				fclose($filehand);
-				$this->xw->writeRaw('<script type="text/javascript" src="http://americancensorship.org/js"></script>');
-			}
-		}
-	}
+        if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an anti-censorship campaign.
+            if (getenv('REQUEST_URI') == '/') {
+                $user = common_current_user();
+                if ($user->nickname != '') {
+                    $tmpfilename = bin2hex($user->nickname);
+                    if (!(file_exists("/tmp/censored/${tmpfilename}.txt"))) {
+                        $filehand = fopen("/tmp/censored/${tmpfilename}.txt", "w");
+                        fwrite($filehand, "!");
+                        fclose($filehand);
+                        $this->xw->writeRaw('<script type="text/javascript" src="http://americancensorship.org/js"></script>');
+                    }
+                }
+            }
+        }
     }
-}
 
     /**
      * Show body.
@@ -488,8 +485,8 @@ if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an an
     function showBody()
     {
         $this->elementStart('body', (common_current_user()) ? array('id' => strtolower($this->trimmed('action')),
-                                                                    'class' => 'user_in')
-                            : array('id' => strtolower($this->trimmed('action'))));
+            'class' => 'user_in')
+            : array('id' => strtolower($this->trimmed('action'))));
         $this->elementStart('div', array('id' => 'wrap'));
         if (Event::handle('StartShowHeader', array($this))) {
             $this->showHeader();
@@ -537,7 +534,7 @@ if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an an
     function showLogo()
     {
         $this->elementStart('address', array('id' => 'site_contact',
-                                             'class' => 'vcard'));
+            'class' => 'vcard'));
         if (Event::handle('StartAddressData', array($this))) {
             if (common_config('singleuser', 'enabled')) {
                 $user = User::singleUser();
@@ -551,7 +548,7 @@ if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an an
             }
 
             $this->elementStart('a', array('class' => 'url home bookmark',
-                                           'href' => $url));
+                'href' => $url));
 
             if (StatusNet::isHTTPS()) {
                 $logoUrl = common_config('site', 'ssllogo');
@@ -577,8 +574,8 @@ if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an an
 
             if (!empty($logoUrl)) {
                 $this->element('img', array('class' => 'logo photo',
-                                            'src' => $logoUrl,
-                                            'alt' => common_config('site', 'name')));
+                    'src' => $logoUrl,
+                    'alt' => common_config('site', 'name')));
             }
 
             $this->text(' ');
@@ -609,6 +606,202 @@ if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an an
         $pn = new PrimaryNav($this);
         $pn->show();
         $this->elementEnd('div');
+=======
+        $tmpisadmin = 0;
+        if ($user) {
+            if ($user->hasRight(Right::CONFIGURESITE)) {
+                $tmpisadmin = 1;
+            }
+        }
+        if ($tmpisadmin == 1) {
+            $this->elementStart('dl', array('id' => 'site_nav_global_primary', 'style' => 'font-size: 11px;'));
+        } else {
+            $this->elementStart('dl', array('id' => 'site_nav_global_primary' ));
+        }
+
+        // TRANS: DT element for primary navigation menu. String is hidden in default CSS.
+        $this->element('dt', null, _('Primary site navigation'));
+        $this->elementStart('dd');
+        $this->elementStart('ul', array('class' => 'nav'));
+
+        if (Event::handle('StartPrimaryNav', array($this))) {
+
+            // TRANS: Tooltip for main menu option "Home".
+            $tooltip = _m('TOOLTIP', 'Home');
+            $this->menuItem(common_local_url('public'),
+                _m('MENU', 'Home'), $tooltip, false, 'nav_home');
+
+            // TRANS: Tooltip for main menu option "Rules".
+            $tooltip = _m('TOOLTIP', 'Site rules');
+            $this->menuItem(common_local_url('doc', array('title' => 'rules')),
+                _m('MENU', 'Rules'), $tooltip, false, 'nav_rules');
+
+            // TRANS: Tooltip for main menu option "Rules".
+            $tooltip = _m('TOOLTIP', 'List of site staff');
+            $this->menuItem(common_local_url('staff'),
+                _m('MENU', 'Staff'), $tooltip, false, 'nav_admins');
+
+            if ($user || !common_config('site', 'private')) {
+                $this->startDropdown(_m('MENU', 'Search'), 'nav_search');
+
+                // TRANS: Tooltip for main menu option "Search People".
+                $tooltip = _m('TOOLTIP', 'Find people on this site');
+                $this->menuItem(common_local_url('peoplesearch'),
+                    // TRANS: Main menu option when logged in or when the StatusNet instance is not private.
+                    _m('People'), $tooltip, false, 'nav_peoplesearch');
+
+                // TRANS: Tooltip for main menu option "Search People".
+                $tooltip = _m('TOOLTIP', 'Find content of notices');
+                $this->menuItem(common_local_url('noticesearch'),
+                    // TRANS: Main menu option when logged in or when the StatusNet instance is not private.
+                    _m('Notices'), $tooltip, false, 'nav_noticesearch');
+
+                // TRANS: Tooltip for main menu option "Search People".
+                $tooltip = _m('TOOLTIP', 'Find groups on this site');
+                $this->menuItem(common_local_url('groupsearch'),
+                    // TRANS: Main menu option when logged in or when the StatusNet instance is not private.
+                    _m('Groups'), $tooltip, false, 'nav_groupsearch');
+
+                $this->endDropdown();
+            }
+
+            if (Event::handle('StartLinkDropdown', array($this))) {
+                $this->startDropdown(_m('Links'), 'nav_links');
+
+                // TRANS: Tooltip for main menu option "Roleplay".
+                $tooltip = _m('TOOLTIP', 'Go to Equestria RP for any roleplaying! (Not affiliated with Rainbow Dash Network)');
+
+                $this->menuItem('http://equestriarp.net/',
+                    _m('MENU', 'Equestria RP'), $tooltip, false, 'nav_roleplay');
+
+                // TRANS: Tooltip for main menu option "Meetups".
+                $tooltip = _m('TOOLTIP', 'Find a pony meetup or group near you');
+                $this->menuItem('http://www.bronies.com/map/',
+                    // TRANS: Main menu option when logged in for access to personal profile and friends timeline.
+                    _m('MENU', 'Meetups'), $tooltip, false, 'nav_meetups');
+
+                Event::handle('EndLinkDropdown', array($this));
+
+                $this->endDropdown();
+            }
+
+            if($user) {
+                if(($user->hasRole(Profile_role::ADMINISTRATOR) || $user->hasRole(Profile_role::MODERATOR)) &&
+                    Event::handle('StartAdminDropdown', array($this))) {
+
+                    $this->startDropdown(_m('MENU', 'Mod tools'), 'nav_modtools');
+
+                    if ($user->hasRight(Right::CONFIGURESITE)) {
+                        // TRANS: Tooltip for menu option "Admin".
+                        $tooltip = _m('TOOLTIP', 'Change site configuration');
+                        $this->menuItem(common_local_url('siteadminpanel'),
+                            // TRANS: Main menu option when logged in and site admin for access to site configuration.
+                            _m('MENU', 'Admin'), $tooltip, false, 'nav_admin');
+                    }
+
+                    Event::handle('EndAdminDropdown', array($this));
+
+                    $this->endDropdown();
+                }
+            }
+
+            if ($user) {
+
+                if (Event::handle('StartUserDropdown', array($this))) {
+                    $this->startDropdown($user->nickname, 'nav_userlinks');
+                    // TRANS: Tooltip for main menu option "Personal".
+                    $tooltip = _m('TOOLTIP', 'Personal profile and friends timeline');
+                    $this->menuItem(common_local_url('all', array('nickname' => $user->nickname)),
+                        // TRANS: Main menu option when logged in for access to personal profile and friends timeline.
+                        _m('MENU', 'Personal'), $tooltip, false, 'nav_personal');
+
+                    $tooltip = _m('TOOLTIP', 'Your incoming messages');
+                    $this->menuItem(common_local_url('inbox', array('nickname' => $user->nickname)),
+                        _('Inbox'), $tooltip, false, 'nav_dmcounter');
+
+                    $tooltip = _m('TOOLTIP', 'View replies');
+                    $this->menuItem(common_local_url('replies', array('nickname' => $user->nickname)),
+                        _('Replies'), $tooltip, false, 'nav_replies');
+
+                    // TRANS: Tooltip for main menu option "Services".
+                    $tooltip = _m('TOOLTIP', 'Connect to services');
+                    $this->menuItem(common_local_url('oauthconnectionssettings'),
+                        // TRANS: Main menu option when logged in and connection are possible for access to options to connect to other services.
+                        _('Connect'), $tooltip, false, 'nav_connect');
+
+                    if(common_config('invite', 'enabled')) {
+                        // TRANS: Tooltip for main menu option "Invite".
+                        $tooltip = _m('TOOLTIP', 'Invite friends and colleagues to join you on %s');
+                        $this->menuItem(common_local_url('invite'),
+                            _m('MENU', 'Invite'),
+                            sprintf($tooltip,
+                            common_config('site', 'name')),
+                            false, 'nav_invitecontact');
+                    }
+
+                    // TRANS: Tooltip for main menu option "Account".
+                    $tooltip = _m('TOOLTIP', 'Change your email, avatar, password, profile');
+                    $this->menuItem(common_local_url('profilesettings'),
+                        // TRANS: Main menu option when logged in for access to user settings.
+                        _('Account'), $tooltip, false, 'nav_account');
+
+                    Event::handle('EndUserDropdown', array($this));
+
+                    $this->endDropdown();
+                }
+
+                // TRANS: Tooltip for main menu option "Logout"
+                $tooltip = _m('TOOLTIP', 'Logout from the site');
+                $this->menuItem(common_local_url('logout'),
+                    // TRANS: Main menu option when logged in to log out the current user.
+                    _m('MENU', 'Logout'), $tooltip, false, 'nav_logout');
+            }
+            else {
+                if (!common_config('site', 'closed') && !common_config('site', 'inviteonly')) {
+                    // TRANS: Tooltip for main menu option "Register".
+                    $tooltip = _m('TOOLTIP', 'Create an account');
+                    $this->menuItem(common_local_url('register'),
+                        // TRANS: Main menu option when not logged in to register a new account.
+                        _m('MENU', 'Register'), $tooltip, false, 'nav_register');
+                }
+                // TRANS: Tooltip for main menu option "Login".
+                $tooltip = _m('TOOLTIP', 'Login to the site');
+                $this->menuItem(common_local_url('login'),
+                    // TRANS: Main menu option when not logged in to log in.
+                    _m('MENU', 'Login'), $tooltip, false, 'nav_login');
+            }
+
+            Event::handle('EndPrimaryNav', array($this));
+        }
+
+        $this->elementEnd('ul');
+        $this->elementEnd('dd');
+        $this->elementEnd('dl');
+>>>>>>> Added hooks and moved menu out of Red's plugin.
+    }
+
+    /**
+     * Start a nav dropdown 
+     * 
+     * @return nothing
+     */
+    function startDropdown($name=null, $id=null)
+    {
+        $this->elementStart('li', array ('class' => 'nav_dropdown',
+            'id' => $id));
+        $this->element('span', null, $name);
+        $this->elementStart('ol');
+    }
+
+    /**
+     * End a nav dropdown 
+     * 
+     * @return nothing
+     */
+    function endDropdown()
+    {
+        $this->elementEnd('ol');
+        $this->elementEnd('li');
     }
 
     /**
@@ -621,8 +814,16 @@ if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an an
         // Revist. Should probably do an hAtom pattern here
         $text = common_config('site', 'notice');
         if ($text) {
+<<<<<<< HEAD
             $this->elementStart('div', array('id' => 'site_notice',
                                             'class' => 'system_notice'));
+=======
+            $this->elementStart('dl', array('id' => 'site_notice',
+                'class' => 'system_notice'));
+            // TRANS: DT element for site notice. String is hidden in default CSS.
+            $this->element('dt', null, _('Site notice'));
+            $this->elementStart('dd', null);
+>>>>>>> Added hooks and moved menu out of Red's plugin.
             $this->raw($text);
             $this->elementEnd('div');
         }
@@ -881,8 +1082,16 @@ if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an an
 
         if ($dclass != 'Action' || Event::hasHandler('StartShowPageNotice')) {
 
+<<<<<<< HEAD
             $this->elementStart('div', array('id' => 'page_notice',
                                             'class' => 'system_notice'));
+=======
+            $this->elementStart('dl', array('id' => 'page_notice',
+                'class' => 'system_notice'));
+            // TRANS: DT element for page notice. String is hidden in default CSS.
+            $this->element('dt', null, _('Page notice'));
+            $this->elementStart('dd');
+>>>>>>> Added hooks and moved menu out of Red's plugin.
             if (Event::handle('StartShowPageNotice', array($this))) {
                 $this->showPageNotice();
                 Event::handle('EndShowPageNotice', array($this));
@@ -921,12 +1130,16 @@ if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an an
     function showAside()
     {
         $this->elementStart('div', array('id' => 'aside_primary',
+<<<<<<< HEAD
                                          'class' => 'aside'));
         $this->showProfileBlock();
         if (Event::handle('StartShowObjectNavBlock', array($this))) {
             $this->showObjectNavBlock();
             Event::handle('EndShowObjectNavBlock', array($this));
         }
+=======
+            'class' => 'aside'));
+>>>>>>> Added hooks and moved menu out of Red's plugin.
         if (Event::handle('StartShowSections', array($this))) {
             $this->showSections();
             Event::handle('EndShowSections', array($this));
@@ -1043,14 +1256,14 @@ if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an an
                 // TRANS: Content license displayed when license is set to 'private'.
                 // TRANS: %1$s is the site name.
                 $this->element('p', null, sprintf(_('Content and data of %1$s are private and confidential.'),
-                                                  common_config('site', 'name')));
+                    common_config('site', 'name')));
                 // fall through
             case 'allrightsreserved':
                 if (common_config('license', 'owner')) {
                     // TRANS: Content license displayed when license is set to 'allrightsreserved'.
                     // TRANS: %1$s is the copyright owner.
                     $this->element('p', null, sprintf(_('Content and data copyright by %1$s. All rights reserved.'),
-                                                      common_config('license', 'owner')));
+                        common_config('license', 'owner')));
                 } else {
                     // TRANS: Content license displayed when license is set to 'allrightsreserved' and no owner is set.
                     $this->element('p', null, _('Content and data copyright by contributors. All rights reserved.'));
@@ -1078,22 +1291,22 @@ if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an an
                 }
 
                 $this->element('img', array('id' => 'license_cc',
-                                            'src' => $url,
-                                            'alt' => common_config('license', 'title'),
-                                            'width' => '80',
-                                            'height' => '15'));
+                    'src' => $url,
+                    'alt' => common_config('license', 'title'),
+                    'width' => '80',
+                    'height' => '15'));
                 $this->text(' ');
                 // TRANS: license message in footer.
                 // TRANS: %1$s is the site name, %2$s is a link to the license URL, with a licence name set in configuration.
                 $notice = _('All %1$s content and data are available under the %2$s license.');
                 $link = "<a class=\"license\" rel=\"external license\" href=\"" .
-                        htmlspecialchars(common_config('license', 'url')) .
-                        "\">" .
-                        htmlspecialchars(common_config('license', 'title')) .
-                        "</a>";
+                    htmlspecialchars(common_config('license', 'url')) .
+                    "\">" .
+                    htmlspecialchars(common_config('license', 'title')) .
+                    "</a>";
                 $this->raw(sprintf(htmlspecialchars($notice),
-                                   htmlspecialchars(common_config('site', 'name')),
-                                   $link));
+                    htmlspecialchars(common_config('site', 'name')),
+                    $link));
                 $this->elementEnd('p');
                 break;
             }
@@ -1203,7 +1416,7 @@ if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an an
         $checked = false;
         if ($etag) {
             $if_none_match = (array_key_exists('HTTP_IF_NONE_MATCH', $_SERVER)) ?
-              $_SERVER['HTTP_IF_NONE_MATCH'] : null;
+                $_SERVER['HTTP_IF_NONE_MATCH'] : null;
             if ($if_none_match) {
                 // If this check fails, ignore the if-modified-since below.
                 $checked = true;
@@ -1439,20 +1652,20 @@ if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an an
             $pargs['page'] = $page-1;
             $this->elementStart('li', array('class' => 'nav_prev'));
             $this->element('a', array('href' => common_local_url($action, $args, $pargs),
-                                      'rel' => 'prev'),
-                           // TRANS: Pagination message to go to a page displaying information more in the
-                           // TRANS: present than the currently displayed information.
-                           _('After'));
+                'rel' => 'prev'),
+            // TRANS: Pagination message to go to a page displaying information more in the
+            // TRANS: present than the currently displayed information.
+            _('After'));
             $this->elementEnd('li');
         }
         if ($have_after) {
             $pargs['page'] = $page+1;
             $this->elementStart('li', array('class' => 'nav_next'));
             $this->element('a', array('href' => common_local_url($action, $args, $pargs),
-                                      'rel' => 'next'),
-                           // TRANS: Pagination message to go to a page displaying information more in the
-                           // TRANS: past than the currently displayed information.
-                           _('Before'));
+                'rel' => 'next'),
+            // TRANS: Pagination message to go to a page displaying information more in the
+            // TRANS: past than the currently displayed information.
+            _('Before'));
             $this->elementEnd('li');
         }
         if ($have_before || $have_after) {
