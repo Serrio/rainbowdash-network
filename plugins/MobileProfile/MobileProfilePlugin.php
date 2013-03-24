@@ -1,48 +1,4 @@
-<?php
-/**
- * StatusNet, the distributed open-source microblogging tool
- *
- * XHTML Mobile Profile plugin that uses WAP 2.0 Plugin
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Plugin
- * @package   StatusNet
- * @author    Sarven Capadisli <csarven@status.net>
- * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
- */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
-
-define('PAGE_TYPE_PREFS_MOBILEPROFILE',
-       'application/vnd.wap.xhtml+xml, application/xhtml+xml, text/html;q=0.9');
-
-require_once INSTALLDIR.'/plugins/Mobile/WAP20Plugin.php';
-
-/**
- * Superclass for plugin to output XHTML Mobile Profile
- *
- * @category Plugin
- * @package  StatusNet
- * @author   Sarven Capadisli <csarven@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
  */
 class MobileProfilePlugin extends WAP20Plugin
@@ -285,7 +241,10 @@ class MobileProfilePlugin extends WAP20Plugin
 
         $action->elementStart('div', array('id' => 'header'));
         $this->_showLogo($action);
-        $action->showPrimaryNav();
+        $this->_showPrimaryNav($action);
+        if (common_logged_in()) {
+            $action->showNoticeForm();
+        }
         $action->elementEnd('div');
 
         return false;
@@ -328,6 +287,59 @@ class MobileProfilePlugin extends WAP20Plugin
         $action->element('span', array('class' => 'fn org'), common_config('site', 'name'));
         $action->elementEnd('a');
         $action->elementEnd('address');
+    }
+
+    function _showPrimaryNav($action)
+    {
+        $user    = common_current_user();
+		$class = $user ? 'loggedin' : 'loggedout';
+        $action->elementStart('ul', array('id' => 'site_nav_global_primary'));
+		
+		$action->element('span', array('id'=>'nav_dummy'));
+
+		// TRANS: Tooltip for main menu option "Rules".
+		$action->menuItem(common_local_url('doc', array('title' => 'rules')),
+						_m('MENU', 'Rules'));
+        if ($user) {
+            $action->menuItem(common_local_url('all', array('nickname' => $user->nickname)),
+                            _m('Personal'));
+
+                // TRANS: Tooltip for main menu option "Account".
+                $tooltip = _m('TOOLTIP', 'Your incoming messages');
+                $action->menuItem(common_local_url('inbox', array('nickname' => $user->nickname)),
+                                // TRANS: Main menu option when logged in for access to user settings.
+                                _('Inbox'), $tooltip, false, 'nav_dmcounter');
+								
+            $action->menuItem(common_local_url('profilesettings'),
+                            _m('Account'));
+            /*$action->menuItem(common_local_url('oauthconnectionssettings'),
+                                _m('Connect'));*/
+            if ($user->hasRight(Right::CONFIGURESITE)) {
+                $action->menuItem(common_local_url('siteadminpanel'),
+                                _m('Admin'), null, false, 'nav_admin');
+            }
+            /*if (common_config('invite', 'enabled')) {
+                $action->menuItem(common_local_url('invite'),
+                                _m('Invite'));
+            }*/
+            $action->menuItem(common_local_url('peoplesearch'),
+                            _m('Search'));
+            $action->menuItem(common_local_url('logout'),
+                            _m('Logout'));
+        } else {
+			if (!common_config('site', 'private')) {
+				$action->menuItem(common_local_url('peoplesearch'),
+								_m('Search'));
+			}
+            if (!common_config('site', 'closed')) {
+                $action->menuItem(common_local_url('register'),
+                                _m('Register'));
+            }
+            $action->menuItem(common_local_url('login'),
+                            _m('Login'));
+        }
+		$action->element('div', array('style' => 'clear: both;width: 1px;height: 1px'));
+        $action->elementEnd('ul');
     }
 
     function onStartShowAside($action)
