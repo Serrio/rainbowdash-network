@@ -29,7 +29,7 @@ fag(g.t)?
 p[ui$s][s$s]s
 p[e3]?n[i1][5s]
 ahole
-d[o$s]?[u$s]che?( ?bag)?
+d[o$s]?[u$s]che?( ?bag)?(?!ss)
 b[aeiou$s]s?t[aeiou$s]rd
 boner
 fellat
