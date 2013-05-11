@@ -617,7 +617,9 @@ class Action extends HTMLOutputter // lawsuit
     {
         $this->elementStart('li', array ('class' => 'nav_dropdown',
             'id' => $id));
-        $this->element('span', null, $name);
+        $this->elementStart('span');
+        $this->raw($name . ' &#9660;');
+        $this->elementEnd('span');
         $this->elementStart('ol');
     }
 

@@ -228,15 +228,6 @@ li.nav_dropdown {
 position: relative;
 }
 
-li.nav_dropdown > span:after {
-content: '';
-border: 6px solid transparent;
-border-top: 6px solid #AAA;
-position: relative;
-top: 10px;
-margin-left: 3px;
-}
-
 li.nav_dropdown > ol {
 position: absolute;
 top: 18px;
