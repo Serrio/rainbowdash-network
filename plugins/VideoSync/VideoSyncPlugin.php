@@ -124,7 +124,7 @@ class VideoSyncPlugin extends Plugin
             $action->element('input', array(
                 'type' => 'button', 
                 'id' => 'videosync_btn', 
-                'value' => "▼ Watch videos together on the #{$this->tag}! ▼")
+                'value' => "&#9660; Watch videos together on the #{$this->tag}! &#9660;")
             );
             if(!empty($user) && $user->hasRight(Right::CONFIGURESITE)) {
                 $action->elementStart('div', array('id' => 'videosync_aside'));
