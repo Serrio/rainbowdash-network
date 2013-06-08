@@ -42,6 +42,7 @@ class Popularity
     public $limit = NOTICES_PER_PAGE;
     public $offset = 0;
     public $tag = false;
+    public $user = null;
     public $expiry = 600;
 
     /**
@@ -71,6 +72,9 @@ class Popularity
         } else {
             $qry .= 'FROM notice JOIN fave ON notice.id = fave.notice_id ' .
                     "WHERE $cutoff";
+        }
+        if(isset($this->user)) {
+            $qry .= " AND profile_id={$this->user->id}";
         }
         $qry .= ' GROUP BY notice.id,notice.profile_id,notice.content,notice.uri,' .
                 'notice.rendered,notice.url,notice.created,notice.modified,' .
