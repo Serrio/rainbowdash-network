@@ -24,7 +24,7 @@ class VanityPlugin extends Plugin
 
     }    
 
-    function onRouterInitialized($m)
+    function onStartInitializeRouter($m)
     {
         $m->connect(':nickname/favorited',
             array('action' => 'vanity'),
@@ -33,10 +33,10 @@ class VanityPlugin extends Plugin
     }
 
     function onEndPersonalGroupNav($action) {
-        $action->out->menuItem(common_local_url('vanity'),
+        $action->out->menuItem(common_local_url('vanity', array('nickname' => $action->action->user->nickname)),
             _m('MENU','Popular'),
             _('Posts that other people liked'),
-            $action->name == 'vanity');
+            $action->action->trimmed('action') == 'vanity');
 
         return true;
     }
