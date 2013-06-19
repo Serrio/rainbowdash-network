@@ -23,7 +23,7 @@
  * @package   StatusNet
  * @author    Evan Prodromou <evan@status.net>
  * @author    Zach Copley <zach@status.net>
- * @copyright 2008-2009 StatusNet, Inc.
+ * @copyright 2008-2011 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link      http://status.net/
  */
@@ -32,7 +32,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
     exit(1);
 }
 
-require_once INSTALLDIR.'/lib/accountsettingsaction.php';
+
 
 define('MAX_ORIGINAL', 480);
 
@@ -49,7 +49,7 @@ define('MAX_ORIGINAL', 480);
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
  */
-class GrouplogoAction extends GroupDesignAction
+class GrouplogoAction extends GroupAction
 {
     var $mode = null;
     var $imagefile = null;
@@ -180,8 +180,8 @@ class GrouplogoAction extends GroupDesignAction
 
         if (!$profile) {
             common_log_db_error($user, 'SELECT', __FILE__);
-            // TRANS: Server error displayed coming across a request from a user without a profile.
-            $this->serverError(_('User without matching profile.'));
+            // TRANS: Error message displayed when referring to a user without a profile.
+            $this->serverError(_('User has no profile.'));
             return;
         }
 
@@ -456,11 +456,5 @@ class GrouplogoAction extends GroupDesignAction
         }
 
         $this->autofocus('avatarfile');
-    }
-
-    function showLocalNav()
-    {
-        $nav = new GroupNav($this, $this->group);
-        $nav->show();
     }
 }

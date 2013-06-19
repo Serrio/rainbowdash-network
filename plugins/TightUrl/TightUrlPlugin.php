@@ -31,8 +31,6 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-require_once INSTALLDIR.'/plugins/UrlShortener/UrlShortenerPlugin.php';
-
 class TightUrlPlugin extends UrlShortenerPlugin
 {
     public $serviceUrl;
@@ -40,7 +38,8 @@ class TightUrlPlugin extends UrlShortenerPlugin
     function onInitializePlugin(){
         parent::onInitializePlugin();
         if(!isset($this->serviceUrl)){
-            throw new Exception("must specify a serviceUrl");
+            // TRANS: Exception thrown when the TightUrl plugin has been configured incorrectly.
+            throw new Exception(_m('You must specify a serviceUrl.'));
         }
     }
 
@@ -65,6 +64,7 @@ class TightUrlPlugin extends UrlShortenerPlugin
                             'author' => 'Craig Andrews',
                             'homepage' => 'http://status.net/wiki/Plugin:TightUrl',
                             'rawdescription' =>
+                            // TRANS: Plugin description. %s is the shortener name.
                             sprintf(_m('Uses <a href="http://%1$s/">%1$s</a> URL-shortener service.'),
                                     $this->shortenerName));
         return true;

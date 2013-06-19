@@ -43,15 +43,6 @@ class DirectionDetectorPlugin extends Plugin {
     }
 
     /**
-     * SN plugin API, here we will add css needed for modifiyed rendered
-     *
-     * @param Action $xml
-     */
-    public function onEndShowStatusNetStyles($xml){
-        $xml->element('style', array('type' => 'text/css'), 'span.rtl {display:block;direction:rtl;text-align:right;float:right;} .notice .author {float:left}');
-    }
-
-    /**
      * is passed string a rtl content or not
      *
      * @param string $content
@@ -261,6 +252,7 @@ class DirectionDetectorPlugin extends Plugin {
             'version' => DIRECTIONDETECTORPLUGIN_VERSION,
             'author' => 'Behrooz Shabani',
             'homepage' => $url,
+            // TRANS: Plugin description.
             'rawdescription' => _m('Shows notices with right-to-left content in correct direction.')
         );
         return true;

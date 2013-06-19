@@ -77,7 +77,8 @@ class OStatusGroupAction extends OStatusSubAction
                      // TRANS: Field label.
                      _m('Join group'),
                      $this->profile_uri,
-                     // TRANS: Tooltip for field label "Join group".
+                     // TRANS: Tooltip for field label "Join group". Do not translate the "example.net"
+                     // TRANS: domain name in the URL, as it is an official standard domain name for examples.
                      _m("OStatus group's address, like http://example.net/group/nickname."));
         $this->elementEnd('li');
         $this->elementEnd('ul');
@@ -102,7 +103,8 @@ class OStatusGroupAction extends OStatusSubAction
         $cur = common_current_user();
         if ($cur->isMember($group)) {
             $this->element('div', array('class' => 'error'),
-                           _m("You are already a member of this group."));
+                           // TRANS: Error text displayed when trying to join a remote group the user is already a member of.
+                           _m('You are already a member of this group.'));
             $ok = false;
         } else {
             $ok = true;
@@ -141,18 +143,12 @@ class OStatusGroupAction extends OStatusSubAction
             return;
         }
 
-        if (Event::handle('StartJoinGroup', array($group, $user))) {
-            $ok = Group_member::join($this->oprofile->group_id, $user->id);
-            if ($ok) {
-                Event::handle('EndJoinGroup', array($group, $user));
-                $this->success();
-            } else {
-                // TRANS: OStatus remote group subscription dialog error.
-                $this->showForm(_m('Remote group join failed!'));
-            }
-        } else {
+        try {
+            $user->joinGroup($group);
+        } catch (Exception $e) {
             // TRANS: OStatus remote group subscription dialog error.
-            $this->showForm(_m('Remote group join aborted!'));
+            $this->showForm(_m('Remote group join failed!'));
+            return;
         }
     }
 
@@ -174,7 +170,7 @@ class OStatusGroupAction extends OStatusSubAction
      */
     function getInstructions()
     {
-        // TRANS: Instructions.
+        // TRANS: Form instructions.
         return _m('You can subscribe to groups from other supported sites. Paste the group\'s profile URI below:');
     }
 

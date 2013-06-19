@@ -29,6 +29,8 @@ if (!defined('STATUSNET')) {
 class OStatusInitAction extends Action
 {
     var $nickname;
+    var $tagger;
+    var $peopletag;
     var $group;
     var $profile;
     var $err;
@@ -45,6 +47,8 @@ class OStatusInitAction extends Action
 
         // Local user or group the remote wants to subscribe to
         $this->nickname = $this->trimmed('nickname');
+        $this->tagger = $this->trimmed('tagger');
+        $this->peopletag = $this->trimmed('peopletag');
         $this->group = $this->trimmed('group');
 
         // Webfinger or profile URL of the remote user
@@ -61,6 +65,7 @@ class OStatusInitAction extends Action
             /* Use a session token for CSRF protection. */
             $token = $this->trimmed('token');
             if (!$token || $token != common_session_token()) {
+                // TRANS: Client error displayed when the session token does not match or is not given.
                 $this->showForm(_m('There was a problem with your session token. '.
                                   'Try again, please.'));
                 return;
@@ -80,7 +85,7 @@ class OStatusInitAction extends Action
             $this->elementStart('html');
             $this->elementStart('head');
             // TRANS: Form title.
-            $this->element('title', null, _m('Subscribe to user'));
+            $this->element('title', null, _m('TITLE','Subscribe to user'));
             $this->elementEnd('head');
             $this->elementStart('body');
             $this->showContent();
@@ -94,14 +99,20 @@ class OStatusInitAction extends Action
     function showContent()
     {
         if ($this->group) {
-            // TRANS: Form legend.
+            // TRANS: Form legend. %s is a group name.
             $header = sprintf(_m('Join group %s'), $this->group);
-            // TRANS: Button text.
+            // TRANS: Button text to join a group.
             $submit = _m('BUTTON','Join');
-        } else {
-            // TRANS: Form legend.
-            $header = sprintf(_m('Subscribe to %s'), $this->nickname);
+        } else if ($this->peopletag && $this->tagger) {
+            // TRANS: Form legend. %1$s is a list, %2$s is a lister's name.
+            $header = sprintf(_m('Subscribe to list %1$s by %2$s'), $this->peopletag, $this->tagger);
+            // TRANS: Button text to subscribe to a list.
+            $submit = _m('BUTTON','Subscribe');
             // TRANS: Button text.
+        } else {
+            // TRANS: Form legend. %s is a nickname.
+            $header = sprintf(_m('Subscribe to %s'), $this->nickname);
+            // TRANS: Button text to subscribe to a profile.
             $submit = _m('BUTTON','Subscribe');
         }
         $this->elementStart('form', array('id' => 'form_ostatus_connect',
@@ -114,21 +125,27 @@ class OStatusInitAction extends Action
 
         $this->elementStart('ul', 'form_data');
         $this->elementStart('li', array('id' => 'ostatus_nickname'));
+
         if ($this->group) {
             // TRANS: Field label.
             $this->input('group', _m('Group nickname'), $this->group,
+                         // TRANS: Field title.
                          _m('Nickname of the group you want to join.'));
         } else {
             // TRANS: Field label.
             $this->input('nickname', _m('User nickname'), $this->nickname,
+                         // TRANS: Field title.
                          _m('Nickname of the user you want to follow.'));
+            $this->hidden('tagger', $this->tagger);
+            $this->hidden('peopletag', $this->peopletag);
         }
+
         $this->elementEnd('li');
         $this->elementStart('li', array('id' => 'ostatus_profile'));
         // TRANS: Field label.
         $this->input('profile', _m('Profile Account'), $this->profile,
                       // TRANS: Tooltip for field label "Profile Account".
-                     _m('Your account id (e.g. user@identi.ca).'));
+                     _m('Your account ID (e.g. user@identi.ca).'));
         $this->elementEnd('li');
         $this->elementEnd('ul');
         $this->submit('submit', $submit);
@@ -150,7 +167,7 @@ class OStatusInitAction extends Action
             $this->connectWebfinger($this->profile);
         } else {
             // TRANS: Client error.
-            $this->clientError(_m("Must provide a remote profile."));
+            $this->clientError(_m('Must provide a remote profile.'));
         }
     }
 
@@ -162,7 +179,7 @@ class OStatusInitAction extends Action
         $result = $disco->lookup($acct);
         if (!$result) {
             // TRANS: Client error.
-            $this->clientError(_m("Couldn't look up OStatus account profile."));
+            $this->clientError(_m('Could not look up OStatus account profile.'));
         }
 
         foreach ($result->links as $link) {
@@ -175,7 +192,7 @@ class OStatusInitAction extends Action
 
         }
         // TRANS: Client error.
-        $this->clientError(_m("Couldn't confirm remote profile address."));
+        $this->clientError(_m('Could not confirm remote profile address.'));
     }
 
     function connectProfile($subscriber_profile)
@@ -201,7 +218,7 @@ class OStatusInitAction extends Action
                 return common_local_url('userbyid', array('id' => $user->id));
             } else {
                 // TRANS: Client error.
-                $this->clientError("No such user.");
+                $this->clientError(_m('No such user.'));
             }
         } else if ($this->group) {
             $group = Local_group::staticGet('nickname', $this->group);
@@ -209,11 +226,25 @@ class OStatusInitAction extends Action
                 return common_local_url('groupbyid', array('id' => $group->group_id));
             } else {
                 // TRANS: Client error.
-                $this->clientError("No such group.");
+                $this->clientError(_m('No such group.'));
             }
+        } else if ($this->peopletag && $this->tagger) {
+            $user = User::staticGet('nickname', $this->tagger);
+            if (empty($user)) {
+                // TRANS: Client error.
+                $this->clientError(_m('No such user.'));
+            }
+
+            $peopletag = Profile_list::getByTaggerAndTag($user->id, $this->peopletag);
+            if ($peopletag) {
+                return common_local_url('profiletagbyid',
+                    array('tagger_id' => $user->id, 'id' => $peopletag->id));
+            }
+            // TRANS: Client error.
+            $this->clientError(_m('No such list.'));
         } else {
             // TRANS: Client error.
-            $this->clientError("No local user or group nickname provided.");
+            $this->clientError(_m('No local user or group nickname provided.'));
         }
     }
 

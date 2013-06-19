@@ -35,6 +35,9 @@ class SubMirrorPlugin extends Plugin
     {
         $m->connect('settings/mirror',
                     array('action' => 'mirrorsettings'));
+        $m->connect('settings/mirror/add/:provider',
+                    array('action' => 'mirrorsettings'),
+                    array('provider' => '[A-Za-z0-9_-]+'));
         $m->connect('settings/mirror/add',
                     array('action' => 'addmirror'));
         $m->connect('settings/mirror/edit',
@@ -87,6 +90,7 @@ class SubMirrorPlugin extends Plugin
                             'author' => 'Brion Vibber',
                             'homepage' => 'http://status.net/wiki/Plugin:SubMirror',
                             'rawdescription' =>
+                            // TRANS: Plugin description.
                             _m('Pull feeds into your timeline!'));
 
         return true;
@@ -95,15 +99,15 @@ class SubMirrorPlugin extends Plugin
     /**
      * Menu item for personal subscriptions/groups area
      *
-     * @param Widget $widget Widget being executed
+     * @param Action $action action being executed
      *
      * @return boolean hook return
      */
-
-    function onEndSubGroupNav($widget)
+    function onEndAccountSettingsNav($action)
     {
-        $action = $widget->out;
         $action_name = $action->trimmed('action');
+
+        common_debug("ACTION NAME = " . $action_name);
 
         $action->menuItem(common_local_url('mirrorsettings'),
                           // TRANS: SubMirror plugin menu item on user settings page.
@@ -180,6 +184,7 @@ class SubMirrorPlugin extends Plugin
             $mirror->subscriber = $profile->id;
             $entry = array(
                 'id' => 'mirrors',
+                // TRANS: Label in profile statistics section, followed by a count.
                 'label' => _m('Mirrored feeds'),
                 'link' => common_local_url('mirrorsettings'),
                 'value' => $mirror->count(),

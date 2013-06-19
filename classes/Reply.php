@@ -4,7 +4,7 @@
  */
 require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
 
-class Reply extends Memcached_DataObject
+class Reply extends Managed_DataObject
 {
     ###START_AUTOCODE
     /* the code below is auto generated do not remove the above tag */
@@ -22,6 +22,33 @@ class Reply extends Memcached_DataObject
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
 
+    public static function schemaDef()
+    {
+        return array(
+            'fields' => array(
+                'notice_id' => array('type' => 'int', 'not null' => true, 'description' => 'notice that is the reply'),
+                'profile_id' => array('type' => 'int', 'not null' => true, 'description' => 'profile replied to'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'replied_id' => array('type' => 'int', 'description' => 'notice replied to (not used, see notice.reply_to)'),
+            ),
+            'primary key' => array('notice_id', 'profile_id'),
+            'foreign keys' => array(
+                'reply_notice_id_fkey' => array('notice', array('notice_id' => 'id')),
+                'reply_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
+            ),
+            'indexes' => array(
+                'reply_notice_id_idx' => array('notice_id'),
+                'reply_profile_id_idx' => array('profile_id'),
+                'reply_replied_id_idx' => array('replied_id'),
+            ),
+        );
+    }    
+
+	function pkeyGet($kv)
+	{
+		return Memcached_DataObject::pkeyGet('Reply',$kv);   
+	}
+	
     /**
      * Wrapper for record insertion to update related caches
      */
@@ -38,35 +65,8 @@ class Reply extends Memcached_DataObject
 
     function stream($user_id, $offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $max_id=0)
     {
-        $ids = Notice::stream(array('Reply', '_streamDirect'),
-                              array($user_id),
-                              'reply:stream:' . $user_id,
-                              $offset, $limit, $since_id, $max_id);
-        return $ids;
-    }
+        $stream = new ReplyNoticeStream($user_id);
 
-    function _streamDirect($user_id, $offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $max_id=0)
-    {
-        $reply = new Reply();
-        $reply->profile_id = $user_id;
-
-        Notice::addWhereSinceId($reply, $since_id, 'notice_id', 'modified');
-        Notice::addWhereMaxId($reply, $max_id, 'notice_id', 'modified');
-
-        $reply->orderBy('modified DESC, notice_id DESC');
-
-        if (!is_null($offset)) {
-            $reply->limit($offset, $limit);
-        }
-
-        $ids = array();
-
-        if ($reply->find()) {
-            while ($reply->fetch()) {
-                $ids[] = $reply->notice_id;
-            }
-        }
-
-        return $ids;
+        return $stream->getNotices($offset, $limit, $since_id, $max_id);
     }
 }

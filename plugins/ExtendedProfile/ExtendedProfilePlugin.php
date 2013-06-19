@@ -29,15 +29,16 @@ if (!defined('STATUSNET')) {
  */
 class ExtendedProfilePlugin extends Plugin
 {
-
     function onPluginVersion(&$versions)
     {
-        $versions[] = array('name' => 'ExtendedProfile',
-                            'version' => STATUSNET_VERSION,
-                            'author' => 'Brion Vibber',
-                            'homepage' => 'http://status.net/wiki/Plugin:ExtendedProfile',
-                            'rawdescription' =>
-                            _m('UI extensions for additional profile fields.'));
+        $versions[] = array(
+            'name' => 'ExtendedProfile',
+            'version' => STATUSNET_VERSION,
+            'author' => 'Brion Vibber, Samantha Doherty, Zach Copley',
+            'homepage' => 'http://status.net/wiki/Plugin:ExtendedProfile',
+            // TRANS: Plugin description.
+            'rawdescription' => _m('UI extensions for additional profile fields.')
+        );
 
         return true;
     }
@@ -53,18 +54,26 @@ class ExtendedProfilePlugin extends Plugin
      */
     function onAutoload($cls)
     {
-        $lower = strtolower($cls);
-        switch ($lower)
+        $dir = dirname(__FILE__);
+
+        switch (strtolower($cls))
         {
-        case 'extendedprofile':
-        case 'extendedprofilewidget':
         case 'profiledetailaction':
         case 'profiledetailsettingsaction':
-            require_once dirname(__FILE__) . '/' . $lower . '.php';
+        case 'userautocompleteaction':
+            include_once $dir . '/actions/'
+                . strtolower(mb_substr($cls, 0, -6)) . '.php';
             return false;
+            break; // Safety first!
+        case 'extendedprofile':
+        case 'extendedprofilewidget':
+            include_once $dir . '/lib/' . strtolower($cls) . '.php';
+            return false;
+            break;
         case 'profile_detail':
-            require_once dirname(__FILE__) . '/' . ucfirst($lower) . '.php';
+            include_once $dir . '/classes/' . ucfirst($cls) . '.php';
             return false;
+            break;
         default:
             return true;
         }
@@ -81,11 +90,19 @@ class ExtendedProfilePlugin extends Plugin
      */
     function onStartInitializeRouter($m)
     {
-        $m->connect(':nickname/detail',
-                array('action' => 'profiledetail'),
-                array('nickname' => Nickname::DISPLAY_FMT));
-        $m->connect('settings/profile/detail',
-                array('action' => 'profiledetailsettings'));
+        $m->connect(
+            ':nickname/detail',
+            array('action' => 'profiledetail'),
+            array('nickname' => Nickname::DISPLAY_FMT)
+        );
+        $m->connect(
+            '/settings/profile/finduser',
+            array('action' => 'Userautocomplete')
+        );
+        $m->connect(
+            'settings/profile/detail',
+            array('action' => 'profiledetailsettings')
+        );
 
         return true;
     }
@@ -95,27 +112,15 @@ class ExtendedProfilePlugin extends Plugin
         $schema = Schema::get();
         $schema->ensureTable('profile_detail', Profile_detail::schemaDef());
 
-        // @hack until key definition support is merged
-        Profile_detail::fixIndexes($schema);
         return true;
     }
 
-    function onEndAccountSettingsProfileMenuItem($widget, $menu)
-    {
-        // TRANS: Link title attribute in user account settings menu.
-        $title = _('Change additional profile settings');
-        // TRANS: Link description in user account settings menu.
-        $widget->showMenuItem('profiledetailsettings',_m('Details'),$title);
-        return true;
-    }
-
-    function onEndProfilePageProfileElements(HTMLOutputter $out, Profile $profile) {
+    function onEndShowAccountProfileBlock(HTMLOutputter $out, Profile $profile) {
         $user = User::staticGet('id', $profile->id);
         if ($user) {
             $url = common_local_url('profiledetail', array('nickname' => $user->nickname));
-            $out->element('a', array('href' => $url), _m('More details...'));
+            // TRANS: Link text on user profile page leading to extended profile page.
+            $out->element('a', array('href' => $url, 'class' => 'profiledetail'), _m('More details...'));
         }
-        return;
     }
-
 }

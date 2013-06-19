@@ -204,6 +204,8 @@ class ApiTimelineFriendsAction extends ApiBareAuthAction
         $profile    = $this->user->getProfile();
         $avatar     = $profile->getAvatar(AVATAR_PROFILE_SIZE);
         $sitename   = common_config('site', 'name');
+        // TRANS: Title of API timeline for a user and friends.
+        // TRANS: %s is a username.
         $title      = sprintf(_("%s and friends"), $this->user->nickname);
         $taguribase = TagURI::base();
         $id         = "tag:$taguribase:FriendsTimeline:" . $this->user->id;
@@ -264,16 +266,15 @@ class ApiTimelineFriendsAction extends ApiBareAuthAction
             $this->showJsonTimeline($this->notices);
             break;
         case 'as':
-            header('Content-Type: application/json; charset=utf-8');
-            $doc = new ActivityStreamJSONDocument($this->auth_user);
-            $doc->setTitle($title);
-            $doc->addLink($link,'alternate', 'text/html');
+            header('Content-Type: ' . ActivityStreamJSONDocument::CONTENT_TYPE);
+            $doc = new ActivityStreamJSONDocument($this->auth_user, $title);
+            $doc->addLink($link, 'alternate', 'text/html');
             $doc->addItemsFromNotices($this->notices);
             $this->raw($doc->asString());
             break;
         default:
-            // TRANS: Client error displayed when trying to handle an unknown API method.
-            $this->clientError(_('API method not found.'), $code = 404);
+            // TRANS: Client error displayed when coming across a non-supported API method.
+            $this->clientError(_('API method not found.'), 404);
             break;
         }
     }
@@ -287,15 +288,18 @@ class ApiTimelineFriendsAction extends ApiBareAuthAction
     {
         $notices = array();
 
-        if (!empty($this->auth_user) && $this->auth_user->id == $this->user->id) {
-            $notice = $this->user->ownFriendsTimeline(($this->page-1) * $this->count,
-                                                      $this->count, $this->since_id,
-                                                      $this->max_id);
-        } else {
-            $notice = $this->user->friendsTimeline(($this->page-1) * $this->count,
-                                                   $this->count, $this->since_id,
-                                                   $this->max_id);
+        $profile = null;
+
+        if (isset($this->auth_user)) {
+            $profile = $this->auth_user->getProfile();
         }
+
+        $stream = new InboxNoticeStream($this->user, $profile);
+        
+        $notice = $stream->getNotices(($this->page-1) * $this->count,
+                                      $this->count,
+                                      $this->since_id,
+                                      $this->max_id);
 
         while ($notice->fetch()) {
             $notices[] = clone($notice);

@@ -51,6 +51,8 @@ class AutocompletePlugin extends Plugin
 
     function onEndShowScripts($action){
         if (common_logged_in()) {
+            $action->element('span', array('id' => 'autocomplete-api',
+                                           'data-url' => common_local_url('autocomplete')));
             $action->script($this->path('jquery-autocomplete/jquery.autocomplete.pack.js'));
             $action->script($this->path('Autocomplete.js'));
         }
@@ -77,7 +79,8 @@ class AutocompletePlugin extends Plugin
                             'author' => 'Craig Andrews',
                             'homepage' => 'http://status.net/wiki/Plugin:Autocomplete',
                             'rawdescription' =>
-                            _m('The autocomplete plugin allows users to autocomplete screen names in @ replies. When an "@" is typed into the notice text area, an autocomplete box is displayed populated with the user\'s friend\' screen names.'));
+                            // TRANS: Plugin description.
+                            _m('The autocomplete plugin adds autocompletion for @ replies.'));
         return true;
     }
 }

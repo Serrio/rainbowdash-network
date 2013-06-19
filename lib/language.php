@@ -289,6 +289,21 @@ function get_nice_language_list()
     return $nice_lang;
 }
 
+/*
+ * Check whether a language is right-to-left
+ *
+ * @param string $lang language code of the language to check
+ * 
+ * @return boolean true if language is rtl
+ */
+
+function is_rtl($lang)
+{
+    $all_languages = common_config('site', 'languages');
+    $lang = $all_languages[$lang];
+    return ($lang['direction'] == 'rtl');
+}
+
 /**
  * Get a list of all languages that are enabled in the default config
  *
@@ -341,6 +356,7 @@ function get_all_languages() {
         'ru'      => array('q' => 0.9, 'lang' => 'ru', 'name' => 'Russian', 'direction' => 'ltr'),
         'sv'      => array('q' => 0.8, 'lang' => 'sv', 'name' => 'Swedish', 'direction' => 'ltr'),
         'te'      => array('q' => 0.3, 'lang' => 'te', 'name' => 'Telugu', 'direction' => 'ltr'),
+        'tl'      => array('q' => 0.8, 'lang' => 'tl', 'name' => 'Tagalog', 'direction' => 'ltr'),
         'tr'      => array('q' => 0.5, 'lang' => 'tr', 'name' => 'Turkish', 'direction' => 'ltr'),
         'uk'      => array('q' => 1, 'lang' => 'uk', 'name' => 'Ukrainian', 'direction' => 'ltr'),
         'vi'      => array('q' => 0.8, 'lang' => 'vi', 'name' => 'Vietnamese', 'direction' => 'ltr'),

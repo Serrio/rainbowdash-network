@@ -51,7 +51,14 @@ class OStatusQueueHandler extends QueueHandler
         assert($notice instanceof Notice);
 
         $this->notice = $notice;
-        $this->user = User::staticGet($notice->profile_id);
+        $this->user = User::staticGet('id', $notice->profile_id);
+
+        try {
+            $profile = $this->notice->getProfile();
+        } catch (Exception $e) {
+            common_log(LOG_ERR, "Can't get profile for notice; skipping: " . $e->getMessage());
+            return true;
+        }
 
         $this->pushUser();
 
@@ -63,7 +70,7 @@ class OStatusQueueHandler extends QueueHandler
                 $this->pushGroup($group->id);
             }
         }
-
+        
         foreach ($notice->getReplies() as $profile_id) {
             $oprofile = Ostatus_profile::staticGet('profile_id', $profile_id);
             if ($oprofile) {
@@ -82,6 +89,14 @@ class OStatusQueueHandler extends QueueHandler
                 }
             }
         }
+
+        foreach ($notice->getProfileTags() as $ptag) {
+            $oprofile = Ostatus_profile::staticGet('peopletag_id', $ptag->id);
+            if (!$oprofile) {
+                $this->pushPeopletag($ptag);
+            }
+        }
+
         return true;
     }
 
@@ -105,6 +120,17 @@ class OStatusQueueHandler extends QueueHandler
                                  array('id' => $group_id,
                                        'format' => 'atom'));
         $this->pushFeed($feed, array($this, 'groupFeedForNotice'), $group_id);
+    }
+
+    function pushPeopletag($ptag)
+    {
+        // For a local people tag, ping the PuSH hub to update its feed.
+        // Updates may come from either a local or a remote user.
+        $feed = common_local_url('ApiTimelineList',
+                                 array('id' => $ptag->id,
+                                       'user' => $ptag->tagger,
+                                       'format' => 'atom'));
+        $this->pushFeed($feed, array($this, 'peopletagFeedForNotice'), $ptag);
     }
 
     function pingReply($oprofile)
@@ -220,6 +246,15 @@ class OStatusQueueHandler extends QueueHandler
         $group = User_group::staticGet('id', $group_id);
 
         $atom = new AtomGroupNoticeFeed($group);
+        $atom->addEntryFromNotice($this->notice);
+        $feed = $atom->getString();
+
+        return $feed;
+    }
+
+    function peopletagFeedForNotice($ptag)
+    {
+        $atom = new AtomListNoticeFeed($ptag);
         $atom->addEntryFromNotice($this->notice);
         $feed = $atom->getString();
 

@@ -29,7 +29,7 @@
 
 require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
 
-class Inbox extends Memcached_DataObject
+class Inbox extends Managed_DataObject
 {
     const BOXCAR = 128;
     const MAX_NOTICES = 1024;
@@ -47,9 +47,18 @@ class Inbox extends Memcached_DataObject
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
 
-    function sequenceKey()
+    public static function schemaDef()
     {
-        return array(false, false, false);
+        return array(
+            'fields' => array(
+                'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'user receiving the notice'),
+                'notice_ids' => array('type' => 'blob', 'description' => 'packed list of notice ids'),
+            ),
+            'primary key' => array('user_id'),
+            'foreign keys' => array(
+                'inbox_user_id_fkey' => array('user', array('user_id' => 'id')),
+            ),
+        );
     }
 
     /**
@@ -157,104 +166,11 @@ class Inbox extends Memcached_DataObject
         }
     }
 
-    function stream($user_id, $offset, $limit, $since_id, $max_id, $own=false)
-    {
-        $inbox = Inbox::staticGet('user_id', $user_id);
-
-        if (empty($inbox)) {
-            $inbox = Inbox::fromNoticeInbox($user_id);
-            if (empty($inbox)) {
-                return array();
-            } else {
-                $inbox->encache();
-            }
-        }
-
-        $ids = $inbox->unpack();
-
-        if (!empty($since_id)) {
-            $newids = array();
-            foreach ($ids as $id) {
-                if ($id > $since_id) {
-                    $newids[] = $id;
-                }
-            }
-            $ids = $newids;
-        }
-
-        if (!empty($max_id)) {
-            $newids = array();
-            foreach ($ids as $id) {
-                if ($id <= $max_id) {
-                    $newids[] = $id;
-                }
-            }
-            $ids = $newids;
-        }
-
-        $ids = array_slice($ids, $offset, $limit);
-
-        return $ids;
-    }
-
-    /**
-     * Wrapper for Inbox::stream() and Notice::getStreamByIds() returning
-     * additional items up to the limit if we were short due to deleted
-     * notices still being listed in the inbox.
-     *
-     * The fast path (when no items are deleted) should be just as fast; the
-     * offset parameter is applied *before* lookups for maximum efficiency.
-     *
-     * This means offset-based paging may show duplicates, but similar behavior
-     * already exists when new notices are posted between page views, so we
-     * think people will be ok with this until id-based paging is introduced
-     * to the user interface.
-     *
-     * @param int $user_id
-     * @param int $offset skip past the most recent N notices (after since_id checks)
-     * @param int $limit
-     * @param mixed $since_id return only notices after but not including this id
-     * @param mixed $max_id return only notices up to and including this id
-     * @param mixed $own ignored?
-     * @return array of Notice objects
-     *
-     * @todo consider repacking the inbox when this happens?
-     * @fixme reimplement $own if we need it?
-     */
-    function streamNotices($user_id, $offset, $limit, $since_id, $max_id, $own=false)
-    {
-        $ids = self::stream($user_id, $offset, self::MAX_NOTICES, $since_id, $max_id, $own);
-
-        // Do a bulk lookup for the first $limit items
-        // Fast path when nothing's deleted.
-        $firstChunk = array_slice($ids, 0, $limit);
-        $notices = Notice::getStreamByIds($firstChunk);
-
-        $wanted = count($firstChunk); // raw entry count in the inbox up to our $limit
-        if ($notices->N >= $wanted) {
-            return $notices;
-        }
-
-        // There were deleted notices, we'll need to look for more.
-        assert($notices instanceof ArrayWrapper);
-        $items = $notices->_items;
-        $remainder = array_slice($ids, $limit);
-
-        while (count($items) < $wanted && count($remainder) > 0) {
-            $notice = Notice::staticGet(array_shift($remainder));
-            if ($notice) {
-                $items[] = $notice;
-            } else {
-            }
-        }
-        return new ArrayWrapper($items);
-    }
-
     /**
      * Saves a list of integer notice_ids into a packed blob in this object.
      * @param array $ids list of integer notice_ids
      */
-    protected function pack(array $ids)
+    function pack(array $ids)
     {
         $this->notice_ids = call_user_func_array('pack', array_merge(array('N*'), $ids));
     }
@@ -262,7 +178,7 @@ class Inbox extends Memcached_DataObject
     /**
      * @return array of integer notice_ids
      */
-    protected function unpack()
+    function unpack()
     {
         return unpack('N*', $this->notice_ids);
     }

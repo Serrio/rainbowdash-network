@@ -3,8 +3,11 @@
  * Table Definition for user_group
  */
 
-class User_group extends Memcached_DataObject
+class User_group extends Managed_DataObject
 {
+    const JOIN_POLICY_OPEN = 0;
+    const JOIN_POLICY_MODERATE = 1;
+
     ###START_AUTOCODE
     /* the code below is auto generated do not remove the above tag */
 
@@ -19,17 +22,60 @@ class User_group extends Memcached_DataObject
     public $homepage_logo;                   // varchar(255)
     public $stream_logo;                     // varchar(255)
     public $mini_logo;                       // varchar(255)
-    public $design_id;                       // int(4)
     public $created;                         // datetime   not_null default_0000-00-00%2000%3A00%3A00
     public $modified;                        // timestamp   not_null default_CURRENT_TIMESTAMP
     public $uri;                             // varchar(255)  unique_key
     public $mainpage;                        // varchar(255)
+    public $join_policy;                     // tinyint
+    public $force_scope;                     // tinyint
 
     /* Static get */
-    function staticGet($k,$v=NULL) { return DB_DataObject::staticGet('User_group',$k,$v); }
+    function staticGet($k,$v=NULL) {
+        return Memcached_DataObject::staticGet('User_group',$k,$v);
+    }
+    
+    function multiGet($keyCol, $keyVals, $skipNulls=true)
+    {
+        return parent::multiGet('User_group', $keyCol, $keyVals, $skipNulls);
+    }
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
+
+    public static function schemaDef()
+    {
+        return array(
+            'fields' => array(
+                'id' => array('type' => 'serial', 'not null' => true, 'description' => 'unique identifier'),
+
+                'nickname' => array('type' => 'varchar', 'length' => 64, 'description' => 'nickname for addressing'),
+                'fullname' => array('type' => 'varchar', 'length' => 255, 'description' => 'display name'),
+                'homepage' => array('type' => 'varchar', 'length' => 255, 'description' => 'URL, cached so we dont regenerate'),
+                'description' => array('type' => 'text', 'description' => 'group description'),
+                'location' => array('type' => 'varchar', 'length' => 255, 'description' => 'related physical location, if any'),
+
+                'original_logo' => array('type' => 'varchar', 'length' => 255, 'description' => 'original size logo'),
+                'homepage_logo' => array('type' => 'varchar', 'length' => 255, 'description' => 'homepage (profile) size logo'),
+                'stream_logo' => array('type' => 'varchar', 'length' => 255, 'description' => 'stream-sized logo'),
+                'mini_logo' => array('type' => 'varchar', 'length' => 255, 'description' => 'mini logo'),
+
+                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+
+                'uri' => array('type' => 'varchar', 'length' => 255, 'description' => 'universal identifier'),
+                'mainpage' => array('type' => 'varchar', 'length' => 255, 'description' => 'page for group info to link to'),
+                'join_policy' => array('type' => 'int', 'size' => 'tiny', 'description' => '0=open; 1=requires admin approval'),      
+                'force_scope' => array('type' => 'int', 'size' => 'tiny', 'description' => '0=never,1=sometimes,-1=always'),
+            ),
+            'primary key' => array('id'),
+            'unique keys' => array(
+                'user_group_uri_key' => array('uri'),
+            ),
+            'indexes' => array(
+                'user_group_nickname_idx' => array('nickname'),
+            ),
+        );
+    }
 
     function defaultLogo($size)
     {
@@ -83,42 +129,11 @@ class User_group extends Memcached_DataObject
 
     function getNotices($offset, $limit, $since_id=null, $max_id=null)
     {
-        $ids = Notice::stream(array($this, '_streamDirect'),
-                              array(),
-                              'user_group:notice_ids:' . $this->id,
-                              $offset, $limit, $since_id, $max_id);
+        $stream = new GroupNoticeStream($this);
 
-        return Notice::getStreamByIds($ids);
+        return $stream->getNotices($offset, $limit, $since_id, $max_id);
     }
 
-    function _streamDirect($offset, $limit, $since_id, $max_id)
-    {
-        $inbox = new Group_inbox();
-
-        $inbox->group_id = $this->id;
-
-        $inbox->selectAdd();
-        $inbox->selectAdd('notice_id');
-
-        Notice::addWhereSinceId($inbox, $since_id, 'notice_id');
-        Notice::addWhereMaxId($inbox, $max_id, 'notice_id');
-
-        $inbox->orderBy('created DESC, notice_id DESC');
-
-        if (!is_null($offset)) {
-            $inbox->limit($offset, $limit);
-        }
-
-        $ids = array();
-
-        if ($inbox->find()) {
-            while ($inbox->fetch()) {
-                $ids[] = $inbox->notice_id;
-            }
-        }
-
-        return $ids;
-    }
 
     function allowedNickname($nickname)
     {
@@ -149,6 +164,36 @@ class User_group extends Memcached_DataObject
         return $members;
     }
 
+    /**
+     * Get pending members, who have not yet been approved.
+     *
+     * @param int $offset
+     * @param int $limit
+     * @return Profile
+     */
+    function getRequests($offset=0, $limit=null)
+    {
+        $qry =
+          'SELECT profile.* ' .
+          'FROM profile JOIN group_join_queue '.
+          'ON profile.id = group_join_queue.profile_id ' .
+          'WHERE group_join_queue.group_id = %d ' .
+          'ORDER BY group_join_queue.created DESC ';
+
+        if ($limit != null) {
+            if (common_config('db','type') == 'pgsql') {
+                $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
+            } else {
+                $qry .= ' LIMIT ' . $offset . ', ' . $limit;
+            }
+        }
+
+        $members = new Profile();
+
+        $members->query(sprintf($qry, $this->id));
+        return $members;
+    }
+
     function getMemberCount()
     {
         // XXX: WORM cache this
@@ -162,6 +207,26 @@ class User_group extends Memcached_DataObject
         }
 
         return $member_count;
+    }
+
+    function getBlockedCount()
+    {
+        // XXX: WORM cache this
+
+        $block = new Group_block();
+        $block->group_id = $this->id;
+
+        return $block->count();
+    }
+
+    function getQueueCount()
+    {
+        // XXX: WORM cache this
+
+        $queue = new Group_join_queue();
+        $queue->group_id = $this->id;
+
+        return $queue->count();
     }
 
     function getAdmins($offset=0, $limit=null)
@@ -272,11 +337,11 @@ class User_group extends Memcached_DataObject
 
         $oldaliases = $this->getAliases();
 
-        # Delete stuff that's old that not in new
+        // Delete stuff that's old that not in new
 
         $to_delete = array_diff($oldaliases, $newaliases);
 
-        # Insert stuff that's in new and not in old
+        // Insert stuff that's in new and not in old
 
         $to_insert = array_diff($newaliases, $oldaliases);
 
@@ -331,11 +396,6 @@ class User_group extends Memcached_DataObject
             return User_group::staticGet('id', $alias->group_id);
         }
         return null;
-    }
-
-    function getDesign()
-    {
-        return Design::staticGet('id', $this->design_id);
     }
 
     function getUserMembers()
@@ -489,6 +549,18 @@ class User_group extends Memcached_DataObject
         // MAGICALLY put fields into current scope
         // @fixme kill extract(); it makes debugging absurdly hard
 
+		$defaults = array('nickname' => null,
+						  'fullname' => null,
+						  'homepage' => null,
+						  'description' => null,
+						  'location' => null,
+						  'uri' => null,
+						  'mainpage' => null,
+						  'aliases' => array(),
+						  'userid' => null);
+		
+		$fields = array_merge($defaults, $fields);
+		
         extract($fields);
 
         $group = new User_group();
@@ -511,6 +583,18 @@ class User_group extends Memcached_DataObject
         $group->uri         = $uri;
         $group->mainpage    = $mainpage;
         $group->created     = common_sql_now();
+
+        if (isset($fields['join_policy'])) {
+            $group->join_policy = intval($fields['join_policy']);
+        } else {
+            $group->join_policy = 0;
+        }
+
+        if (isset($fields['force_scope'])) {
+            $group->force_scope = intval($fields['force_scope']);
+        } else {
+            $group->force_scope = 0;
+        }
 
         if (Event::handle('StartGroupSave', array(&$group))) {
 
@@ -555,6 +639,8 @@ class User_group extends Memcached_DataObject
                 throw new ServerException(_('Could not set group membership.'));
             }
 
+            self::blow('profile:groups:%d', $userid);
+            
             if ($local) {
                 $local_group = new Local_group();
 
@@ -634,5 +720,11 @@ class User_group extends Memcached_DataObject
             common_log(LOG_WARN, "Ambiguous user_group->delete(); skipping related tables.");
         }
         parent::delete();
+    }
+
+    function isPrivate()
+    {
+        return ($this->join_policy == self::JOIN_POLICY_MODERATE &&
+                $this->force_scope == 1);
     }
 }

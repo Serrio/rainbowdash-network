@@ -22,7 +22,7 @@
  * @category  Personal
  * @package   StatusNet
  * @author    Evan Prodromou <evan@status.net>
- * @copyright 2008-2009 StatusNet, Inc.
+ * @copyright 2008-2011 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link      http://status.net/
  */
@@ -44,25 +44,21 @@ require_once INSTALLDIR.'/lib/feedlist.php';
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
  */
-
-class ShownoticeAction extends OwnerDesignAction
+class ShownoticeAction extends Action
 {
     /**
      * Notice object to show
      */
-
     var $notice = null;
 
     /**
      * Profile of the notice object
      */
-
     var $profile = null;
 
     /**
      * Avatar of the profile of the notice object
      */
-
     var $avatar = null;
 
     /**
@@ -74,29 +70,32 @@ class ShownoticeAction extends OwnerDesignAction
      *
      * @return success flag
      */
-
     function prepare($args)
     {
         parent::prepare($args);
+        if ($this->boolean('ajax')) {
+            StatusNet::setApi(true);
+        }
 
-        $id = $this->arg('notice');
+        $this->notice = $this->getNotice();
 
-        $this->notice = Notice::staticGet($id);
+        $cur = common_current_user();
 
-        if (empty($this->notice)) {
-            // Did we used to have it, and it got deleted?
-            $deleted = Deleted_notice::staticGet($id);
-            if (!empty($deleted)) {
-                $this->clientError(_('Notice deleted.'), 410);
-            } else {
-                $this->clientError(_('No such notice.'), 404);
-            }
-            return false;
+        if (!empty($cur)) {
+            $curProfile = $cur->getProfile();
+        } else {
+            $curProfile = null;
+        }
+
+        if (!$this->notice->inScope($curProfile)) {
+            // TRANS: Client exception thrown when trying a view a notice the user has no access to.
+            throw new ClientException(_('Not available.'), 403);
         }
 
         $this->profile = $this->notice->getProfile();
 
         if (empty($this->profile)) {
+            // TRANS: Server error displayed trying to show a notice without a connected profile.
             $this->serverError(_('Notice has no profile.'), 500);
             return false;
         }
@@ -109,11 +108,37 @@ class ShownoticeAction extends OwnerDesignAction
     }
 
     /**
+     * Fetch the notice to show. This may be overridden by child classes to
+     * customize what we fetch without duplicating all of the prepare() method.
+     *
+     * @return Notice
+     */
+    function getNotice()
+    {
+        $id = $this->arg('notice');
+
+        $notice = Notice::staticGet('id', $id);
+
+        if (empty($notice)) {
+            // Did we used to have it, and it got deleted?
+            $deleted = Deleted_notice::staticGet($id);
+            if (!empty($deleted)) {
+                // TRANS: Client error displayed trying to show a deleted notice.
+                $this->clientError(_('Notice deleted.'), 410);
+            } else {
+                // TRANS: Client error displayed trying to show a non-existing notice.
+                $this->clientError(_('No such notice.'), 404);
+            }
+            return false;
+        }
+        return $notice;
+    }
+
+    /**
      * Is this action read-only?
      *
      * @return boolean true
      */
-
     function isReadOnly($args)
     {
         return true;
@@ -127,7 +152,6 @@ class ShownoticeAction extends OwnerDesignAction
      *
      * @return int last-modified date as unix timestamp
      */
-
     function lastModified()
     {
         return max(strtotime($this->notice->modified),
@@ -144,7 +168,6 @@ class ShownoticeAction extends OwnerDesignAction
      *
      * @return string etag
      */
-
     function etag()
     {
         $avtime = ($this->avatar) ?
@@ -164,11 +187,12 @@ class ShownoticeAction extends OwnerDesignAction
      *
      * @return string title of the page
      */
-
     function title()
     {
         $base = $this->profile->getFancyName();
 
+        // TRANS: Title of the page that shows a notice.
+        // TRANS: %1$s is a user name, %2$s is the notice creation date/time.
         return sprintf(_('%1$s\'s status on %2$s'),
                        $base,
                        common_exact_date($this->notice->created));
@@ -183,37 +207,30 @@ class ShownoticeAction extends OwnerDesignAction
      *
      * @return void
      */
-
     function handle($args)
     {
         parent::handle($args);
 
-        if ($this->notice->is_local == Notice::REMOTE_OMB) {
-            if (!empty($this->notice->url)) {
-                $target = $this->notice->url;
-            } else if (!empty($this->notice->uri) && preg_match('/^https?:/', $this->notice->uri)) {
-                // Old OMB posts saved the remote URL only into the URI field.
-                $target = $this->notice->uri;
-            } else {
-                // Shouldn't happen.
-                $target = false;
+        if ($this->boolean('ajax')) {
+            $this->showAjax();
+        } else {
+            if ($this->notice->is_local == Notice::REMOTE) {
+                if (!empty($this->notice->url)) {
+                    $target = $this->notice->url;
+                } else if (!empty($this->notice->uri) && preg_match('/^https?:/', $this->notice->uri)) {
+                    // Old OMB posts saved the remote URL only into the URI field.
+                    $target = $this->notice->uri;
+                } else {
+                    // Shouldn't happen.
+                    $target = false;
+                }
+                if ($target && $target != $this->selfUrl()) {
+                    common_redirect($target, 301);
+                    return false;
+                }
             }
-            if ($target && $target != $this->selfUrl()) {
-                common_redirect($target, 301);
-                return false;
-            }
+            $this->showPage();
         }
-        $this->showPage();
-    }
-
-    /**
-     * Don't show local navigation
-     *
-     * @return void
-     */
-
-    function showLocalNavBlock()
-    {
     }
 
     /**
@@ -223,7 +240,6 @@ class ShownoticeAction extends OwnerDesignAction
      *
      * @return void
      */
-
     function showContent()
     {
         $this->elementStart('ol', array('class' => 'notices xoxo'));
@@ -232,12 +248,27 @@ class ShownoticeAction extends OwnerDesignAction
         $this->elementEnd('ol');
     }
 
+    function showAjax()
+    {
+        header('Content-Type: text/xml;charset=utf-8');
+        $this->xw->startDocument('1.0', 'UTF-8');
+        $this->elementStart('html');
+        $this->elementStart('head');
+        // TRANS: Title for page that shows a notice.
+        $this->element('title', null, _m('TITLE','Notice'));
+        $this->elementEnd('head');
+        $this->elementStart('body');
+        $nli = new NoticeListItem($this->notice, $this);
+        $nli->show();
+        $this->elementEnd('body');
+        $this->elementEnd('html');
+    }
+
     /**
      * Don't show page notice
      *
      * @return void
      */
-
     function showPageNoticeBlock()
     {
     }
@@ -247,7 +278,6 @@ class ShownoticeAction extends OwnerDesignAction
      *
      * @return void
      */
-
     function showAside() {
     }
 
@@ -258,7 +288,6 @@ class ShownoticeAction extends OwnerDesignAction
      *
      * @return void
      */
-
     function extraHead()
     {
         $user = User::staticGet($this->profile->id);
@@ -274,12 +303,6 @@ class ShownoticeAction extends OwnerDesignAction
                                          'content' => $id->toString()));
         }
 
-        if ($user->jabbermicroid && $user->jabber && $this->notice->uri) {
-            $id = new Microid('xmpp:', $user->jabber,
-                              $this->notice->uri);
-            $this->element('meta', array('name' => 'microid',
-                                         'content' => $id->toString()));
-        }
         $this->element('link',array('rel'=>'alternate',
             'type'=>'application/json+oembed',
             'href'=>common_local_url(
@@ -307,62 +330,11 @@ class ShownoticeAction extends OwnerDesignAction
     }
 }
 
+// @todo FIXME: Class documentation missing.
 class SingleNoticeItem extends DoFollowListItem
 {
-    /**
-     * recipe function for displaying a single notice.
-     *
-     * We overload to show attachments.
-     *
-     * @return void
-     */
-
-    function show()
+    function avatarSize()
     {
-        $this->showStart();
-        if (Event::handle('StartShowNoticeItem', array($this))) {
-            $this->showNotice();
-            $this->showNoticeAttachments();
-            $this->showNoticeInfo();
-            $this->showNoticeOptions();
-            Event::handle('EndShowNoticeItem', array($this));
-        }
-
-        $this->showEnd();
-    }
-
-    /**
-     * For our zoomed-in special case we'll use a fuller list
-     * for the attachment info.
-     */
-    function showNoticeAttachments() {
-        $al = new AttachmentList($this->notice, $this->out);
-        $al->show();
-    }
-
-    /**
-     * show the avatar of the notice's author
-     *
-     * We use the larger size for single notice page.
-     *
-     * @return void
-     */
-
-    function showAvatar()
-    {
-	$avatar_size = AVATAR_PROFILE_SIZE;
-
-        $avatar = $this->profile->getAvatar($avatar_size);
-
-        $this->out->element('img', array('src' => ($avatar) ?
-                                         $avatar->displayUrl() :
-                                         Avatar::defaultImage($avatar_size),
-                                         'class' => 'avatar photo',
-                                         'width' => $avatar_size,
-                                         'height' => $avatar_size,
-                                         'alt' =>
-                                         ($this->profile->fullname) ?
-                                         $this->profile->fullname :
-                                         $this->profile->nickname));
+        return AVATAR_STREAM_SIZE;
     }
 }

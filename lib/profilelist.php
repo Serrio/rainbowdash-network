@@ -1,5 +1,4 @@
 <?php
-
 /**
  * StatusNet, the distributed open-source microblogging tool
  *
@@ -33,6 +32,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
 }
 
 require_once INSTALLDIR.'/lib/widget.php';
+require_once INSTALLDIR.'/lib/peopletags.php';
 
 /**
  * Widget to show a list of profiles
@@ -44,7 +44,6 @@ require_once INSTALLDIR.'/lib/widget.php';
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
  */
-
 class ProfileList extends Widget
 {
     /** Current profile, profile query. */
@@ -86,14 +85,20 @@ class ProfileList extends Widget
 
     function showProfiles()
     {
-        $cnt = 0;
+        // Note: we don't use fetchAll() because it's borked with query()
+
+        $profiles = array();
 
         while ($this->profile->fetch()) {
-            $cnt++;
-            if($cnt > PROFILES_PER_PAGE) {
-                break;
-            }
-            $pli = $this->newListItem($this->profile);
+            $profiles[] = clone($this->profile);
+        }
+
+        $cnt = count($profiles);
+
+        $max = min($cnt, $this->maxProfiles());
+
+        for ($i = 0; $i < $max; $i++) {
+            $pli = $this->newListItem($profiles[$i]);
             $pli->show();
         }
 
@@ -102,7 +107,17 @@ class ProfileList extends Widget
 
     function newListItem($profile)
     {
-        return new ProfileListItem($this->profile, $this->action);
+        return new ProfileListItem($profile, $this->action);
+    }
+
+    function maxProfiles()
+    {
+        return PROFILES_PER_PAGE;
+    }
+
+    function avatarSize()
+    {
+        return AVATAR_STREAM_SIZE;
     }
 }
 
@@ -168,6 +183,10 @@ class ProfileListItem extends Widget
                 $this->showBio();
                 Event::handle('EndProfileListItemBio', array($this));
             }
+            if (Event::handle('StartProfileListItemTags', array($this))) {
+                $this->showTags();
+                Event::handle('EndProfileListItemTags', array($this));
+            }
             Event::handle('EndProfileListItemProfileElements', array($this));
         }
         $this->endProfile();
@@ -183,7 +202,7 @@ class ProfileListItem extends Widget
         $avatar = $this->profile->getAvatar(AVATAR_STREAM_SIZE);
         $aAttrs = $this->linkAttributes();
         $this->out->elementStart('a', $aAttrs);
-        $this->out->element('img', array('src' => ($avatar) ? $avatar->displayUrl() : Avatar::defaultImage(AVATAR_STREAM_SIZE),
+        $this->out->element('img', array('src' => (!empty($avatar)) ? $avatar->displayUrl() : Avatar::defaultImage(AVATAR_STREAM_SIZE),
                                          'class' => 'photo avatar',
                                          'width' => AVATAR_STREAM_SIZE,
                                          'height' => AVATAR_STREAM_SIZE,
@@ -238,6 +257,20 @@ class ProfileListItem extends Widget
         }
     }
 
+    function showTags()
+    {
+        $user = common_current_user();
+        if (!empty($user)) {
+            if ($user->id == $this->profile->id) {
+                $tags = new SelftagsWidget($this->out, $user, $this->profile);
+                $tags->show();
+            } else if ($user->getProfile()->canTag($this->profile)) {
+                $tags = new PeopletagsWidget($this->out, $user, $this->profile);
+                $tags->show();
+            }
+        }
+    }
+
     function endProfile()
     {
         $this->out->elementEnd('div');
@@ -272,11 +305,10 @@ class ProfileListItem extends Widget
                 $usf = new UnsubscribeForm($this->out, $this->profile);
                 $usf->show();
             } else {
-                // We can't initiate sub for a remote OMB profile.
-                $remote = Remote_profile::staticGet('id', $this->profile->id);
-                if (empty($remote)) {
+                if (Event::handle('StartShowProfileListSubscribeButton', array($this))) {
                     $sf = new SubscribeForm($this->out, $this->profile);
                     $sf->show();
+                    Event::handle('EndShowProfileListSubscribeButton', array($this));
                 }
             }
             $this->out->elementEnd('li');

@@ -54,12 +54,18 @@ class HostMetaAction extends Action
             $url = common_local_url('userxrd');
             $url.= '?uri={uri}';
             $xrd->links[] = array('rel' => Discovery::LRDD_REL,
-                                  'template' => $url,
-                                  'title' => array('Resource Descriptor'));
+                      'template' => $url,
+                      'title' => array('Resource Descriptor'));
             Event::handle('EndHostMetaLinks', array(&$xrd->links));
         }
 
+        // Output Cross-Origin Resource Sharing (CORS) header
+        if (common_config('discovery', 'cors')) {
+            header('Access-Control-Allow-Origin: *');
+        }
+
         header('Content-type: application/xrd+xml');
+
         print $xrd->toXML();
     }
 }

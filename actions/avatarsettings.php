@@ -32,7 +32,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
     exit(1);
 }
 
-require_once INSTALLDIR.'/lib/accountsettingsaction.php';
+
 
 define('MAX_ORIGINAL', 480);
 
@@ -49,7 +49,7 @@ define('MAX_ORIGINAL', 480);
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
  */
-class AvatarsettingsAction extends AccountSettingsAction
+class AvatarsettingsAction extends SettingsAction
 {
     var $mode = null;
     var $imagefile = null;
@@ -104,8 +104,8 @@ class AvatarsettingsAction extends AccountSettingsAction
 
         if (!$profile) {
             common_log_db_error($user, 'SELECT', __FILE__);
-            // TRANS: Server error displayed in avatar upload page when no matching profile can be found for a user.
-            $this->serverError(_('User without matching profile.'));
+            // TRANS: Error message displayed when referring to a user without a profile.
+            $this->serverError(_('User has no profile.'));
             return;
         }
 
@@ -146,13 +146,15 @@ class AvatarsettingsAction extends AccountSettingsAction
                 // TRANS: Header on avatar upload page for thumbnail of to be used rendition of uploaded avatar (h2).
                 $this->element('h2', null, _("Preview"));
                 $this->elementStart('div', array('id'=>'avatar_preview_view'));
-                $this->element('img', array('src' => $original->url,
+                $this->element('img', array('src' => $avatar->url,
                                             'width' => AVATAR_PROFILE_SIZE,
                                             'height' => AVATAR_PROFILE_SIZE,
                                             'alt' => $user->nickname));
                 $this->elementEnd('div');
-                // TRANS: Button on avatar upload page to delete current avatar.
-                $this->submit('delete', _m('BUTTON','Delete'));
+                if (!empty($avatar->filename)) {
+                    // TRANS: Button on avatar upload page to delete current avatar.
+                    $this->submit('delete', _m('BUTTON','Delete'));
+                }
                 $this->elementEnd('li');
             }
 
@@ -188,8 +190,8 @@ class AvatarsettingsAction extends AccountSettingsAction
 
         if (!$profile) {
             common_log_db_error($user, 'SELECT', __FILE__);
-            // TRANS: Server error displayed in avatar upload page when no matching profile can be found for a user.
-            $this->serverError(_('User without matching profile.'));
+            // TRANS: Error message displayed when referring to a user without a profile.
+            $this->serverError(_('User has no profile.'));
             return;
         }
 
@@ -277,6 +279,7 @@ class AvatarsettingsAction extends AccountSettingsAction
 
         $token = $this->trimmed('token');
         if (!$token || $token != common_session_token()) {
+            // TRANS: Client error displayed when the session token does not match or is not given.
             $this->showForm(_('There was a problem with your session token. '.
                                'Try again, please.'));
             return;

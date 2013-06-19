@@ -144,15 +144,6 @@ class AttachmentAction extends Action
     }
 
     /**
-     * Don't show local navigation
-     *
-     * @return void
-     */
-    function showLocalNavBlock()
-    {
-    }
-
-    /**
      * Fill the content area of the page
      *
      * Shows a single notice list item.
@@ -182,7 +173,9 @@ class AttachmentAction extends Action
     function showSections() {
         $ns = new AttachmentNoticeSection($this);
         $ns->show();
-        $atcs = new AttachmentTagCloudSection($this);
-        $atcs->show();
+        if (!common_config('performance', 'high')) {
+            $atcs = new AttachmentTagCloudSection($this);
+            $atcs->show();
+        }
     }
 }

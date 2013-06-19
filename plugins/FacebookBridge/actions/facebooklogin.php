@@ -23,7 +23,7 @@
  * @category  Plugin
  * @package   StatusNet
  * @author    Zach Copley <zach@status.net>
- * @copyright 2010 StatusNet, Inc.
+ * @copyright 2010-2011 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
  * @link      http://status.net/
  */
@@ -34,12 +34,12 @@ if (!defined('STATUSNET')) {
 
 class FacebookloginAction extends Action
 {
-
     function handle($args)
     {
         parent::handle($args);
 
         if (common_is_real_login()) {
+            // TRANS: Client error displayed when trying to login while already logged in.
             $this->clientError(_m('Already logged in.'));
         } else {
             $this->showPage();
@@ -48,7 +48,7 @@ class FacebookloginAction extends Action
 
     function getInstructions()
     {
-        // TRANS: Instructions.
+        // TRANS: Form instructions.
         return _m('Login with your Facebook Account');
     }
 
@@ -68,46 +68,36 @@ class FacebookloginAction extends Action
     }
 
     function showContent() {
-
         $this->elementStart('fieldset');
 
         $facebook = Facebookclient::getFacebook();
+
+        $params = array(
+          'scope' => 'read_stream,publish_stream,offline_access,user_status,user_location,user_website,email',
+          'redirect_uri' => common_local_url('facebookfinishlogin')
+        );
 
         // Degrade to plain link if JavaScript is not available
         $this->elementStart(
             'a',
             array(
-                'href' => $facebook->getLoginUrl(
-                    array(
-                        'next'       => common_local_url('facebookfinishlogin'),
-                        'cancel'     => common_local_url('facebooklogin'),
-                        'req_perms'  => 'read_stream,publish_stream,offline_access,user_status,user_location,user_website,email'
-                    )
-                 ),
+                'href' => $facebook->getLoginUrl($params),
                 'id'    => 'facebook_button'
             )
         );
 
         $attrs = array(
             'src' => Plugin::staticPath('FacebookBridge', 'images/login-button.png'),
-            'alt'   => 'Login with Facebook',
-            'title' => 'Login with Facebook'
+            // TRANS: Alt text for "Login with Facebook" image.
+            'alt'   => _m('Login with Facebook'),
+            // TRANS: Title for "Login with Facebook" image.
+            'title' => _m('Login with Facebook.')
         );
 
         $this->element('img', $attrs);
 
         $this->elementEnd('a');
 
-        /*
-        $this->element('div', array('id' => 'fb-root'));
-        $this->script(
-            sprintf(
-                'http://connect.facebook.net/en_US/all.js#appId=%s&xfbml=1',
-                common_config('facebook', 'appid')
-            )
-        );
-        $this->element('fb:facepile', array('max-rows' => '2', 'width' =>'300'));
-        */
         $this->elementEnd('fieldset');
     }
 
@@ -117,4 +107,3 @@ class FacebookloginAction extends Action
         $nav->show();
     }
 }
-

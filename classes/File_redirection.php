@@ -23,13 +23,11 @@ require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
 require_once INSTALLDIR.'/classes/File.php';
 require_once INSTALLDIR.'/classes/File_oembed.php';
 
-define('USER_AGENT', 'StatusNet user agent / file probe');
-
 /**
  * Table Definition for file_redirection
  */
 
-class File_redirection extends Memcached_DataObject
+class File_redirection extends Managed_DataObject
 {
     ###START_AUTOCODE
     /* the code below is auto generated do not remove the above tag */
@@ -46,6 +44,23 @@ class File_redirection extends Memcached_DataObject
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
+
+    public static function schemaDef()
+    {
+        return array(
+            'fields' => array(
+                'url' => array('type' => 'varchar', 'length' => 255, 'not null' => true, 'description' => 'short URL (or any other kind of redirect) for file (id)'),
+                'file_id' => array('type' => 'int', 'description' => 'short URL for what URL/file'),
+                'redirections' => array('type' => 'int', 'description' => 'redirect count'),
+                'httpcode' => array('type' => 'int', 'description' => 'HTTP status code (20x, 30x, etc.)'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+            ),
+            'primary key' => array('url'),
+            'foreign keys' => array(
+                'file_redirection_file_id_fkey' => array('file' => array('file_id' => 'id')),
+            ),
+        );
+    }
 
     static function _commonHttp($url, $redirs) {
         $request = new HTTPClient($url);
@@ -190,22 +205,51 @@ class File_redirection extends Memcached_DataObject
      * @param User $user whose shortening options to use; defaults to the current web session user
      * @return string
      */
-    function makeShort($long_url, $user=null) {
-
+    function makeShort($long_url, $user=null)
+    {
         $canon = File_redirection::_canonUrl($long_url);
 
         $short_url = File_redirection::_userMakeShort($canon, $user);
 
         // Did we get one? Is it shorter?
-        if (!empty($short_url) && mb_strlen($short_url) < mb_strlen($long_url)) {
+
+        if (!empty($short_url)) {
             return $short_url;
         } else {
             return $long_url;
         }
     }
 
-    function _userMakeShort($long_url, User $user=null) {
-        $short_url = common_shorten_url($long_url, $user);
+    /**
+     * Shorten a URL with the current user's configured shortening
+     * options, if applicable.
+     *
+     * If it cannot be shortened or the "short" URL is longer than the
+     * original, the original is returned.
+     *
+     * If the referenced item has not been seen before, embedding data
+     * may be saved.
+     *
+     * @param string $long_url
+     * @return string
+     */
+
+    function forceShort($long_url, $user)
+    {
+        $canon = File_redirection::_canonUrl($long_url);
+
+        $short_url = File_redirection::_userMakeShort($canon, $user, true);
+
+        // Did we get one? Is it shorter?
+        if (!empty($short_url)) {
+            return $short_url;
+        } else {
+            return $long_url;
+        }
+    }
+
+    function _userMakeShort($long_url, User $user=null, $force = false) {
+        $short_url = common_shorten_url($long_url, $user, $force);
         if (!empty($short_url) && $short_url != $long_url) {
             $short_url = (string)$short_url;
             // store it

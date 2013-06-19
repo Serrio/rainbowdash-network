@@ -2,7 +2,7 @@
 /**
  * StatusNet, the distributed open-source microblogging tool
  *
- * Plugin to do "real time" updates using Comet/Bayeux
+ * Plugin to do "real time" updates using Meteor
  *
  * PHP version 5
  *
@@ -49,10 +49,11 @@ class MeteorPlugin extends RealtimePlugin
     public $controlport   = null;
     public $controlserver = null;
     public $channelbase   = null;
+    public $protocol      = null;
     public $persistent    = true;
     protected $_socket    = null;
 
-    function __construct($webserver=null, $webport=4670, $controlport=4671, $controlserver=null, $channelbase='')
+    function __construct($webserver=null, $webport=4670, $controlport=4671, $controlserver=null, $channelbase='', $protocol='http')
     {
         global $config;
 
@@ -61,7 +62,8 @@ class MeteorPlugin extends RealtimePlugin
         $this->controlport   = $controlport;
         $this->controlserver = (empty($controlserver)) ? $webserver : $controlserver;
         $this->channelbase   = $channelbase;
-
+		$this->protocol      = $protocol;
+		
         parent::__construct();
     }
 
@@ -74,7 +76,8 @@ class MeteorPlugin extends RealtimePlugin
                           'webport',
                           'controlport',
                           'controlserver',
-                          'channelbase');
+                          'channelbase',
+                          'protocol');
         foreach ($settings as $name) {
             $val = common_config('meteor', $name);
             if ($val !== false) {
@@ -88,7 +91,11 @@ class MeteorPlugin extends RealtimePlugin
     function _getScripts()
     {
         $scripts = parent::_getScripts();
-        $scripts[] = 'http://'.$this->webserver.(($this->webport == 80) ? '':':'.$this->webport).'/meteor.js';
+        if ($this->protocol == 'https') {
+        	$scripts[] = 'https://'.$this->webserver.(($this->webport == 443) ? '':':'.$this->webport).'/meteor.js';
+        } else {
+        	$scripts[] = 'http://'.$this->webserver.(($this->webport == 80) ? '':':'.$this->webport).'/meteor.js';
+        }
         $scripts[] = $this->path('meteorupdater.min.js');
         return $scripts;
     }
@@ -96,7 +103,11 @@ class MeteorPlugin extends RealtimePlugin
     function _updateInitialize($timeline, $user_id)
     {
         $script = parent::_updateInitialize($timeline, $user_id);
-        return $script." MeteorUpdater.init(\"$this->webserver\", $this->webport, \"{$timeline}\");";
+        $ours = sprintf("MeteorUpdater.init(%s, %s, %s);",
+        				json_encode($this->webserver),
+        				json_encode($this->webport),
+        				json_encode($timeline));
+        return $script." ".$ours;
     }
 
     function _connect()
@@ -112,7 +123,7 @@ class MeteorPlugin extends RealtimePlugin
         $this->_socket = stream_socket_client("tcp://{$controlserver}:{$this->controlport}", $errno, $errstr, $timeout, $flags);
         if (!$this->_socket) {
             // TRANS: Exception. %1$s is the control server, %2$s is the control port.
-            throw new Exception(sprintf(_m('Couldn\'t connect to %1$s on %2$s.'),$controlserver,$this->controlport));
+            throw new Exception(sprintf(_m('Could not connect to %1$s on %2$s.'),$controlserver,$this->controlport));
         }
     }
 
@@ -125,7 +136,7 @@ class MeteorPlugin extends RealtimePlugin
         $result = fgets($this->_socket);
         if (preg_match('/^ERR (.*)$/', $result, $matches)) {
             // TRANS: Exception. %s is the Meteor message that could not be added.
-            throw new Exception(sprintf(_m('Error adding meteor message "%s"'),$matches[1]));
+            throw new Exception(sprintf(_m('Error adding meteor message "%s".'),$matches[1]));
         }
         // TODO: parse and deal with result
     }
@@ -155,7 +166,8 @@ class MeteorPlugin extends RealtimePlugin
                             'author' => 'Evan Prodromou',
                             'homepage' => 'http://status.net/wiki/Plugin:Meteor',
                             'rawdescription' =>
-                            _m('Plugin to do "real time" updates using Comet/Bayeux.'));
+                            // TRANS: Plugin description.
+                            _m('Plugin to do "real time" updates using Meteor.'));
         return true;
     }
 }

@@ -53,7 +53,7 @@ class GroupsalmonAction extends SalmonAction
         $oprofile = Ostatus_profile::staticGet('group_id', $id);
         if ($oprofile) {
             // TRANS: Client error.
-            $this->clientError(_m("Can't accept remote posts for a remote group."));
+            $this->clientError(_m('Cannot accept remote posts for a remote group.'));
         }
 
         return true;
@@ -74,7 +74,7 @@ class GroupsalmonAction extends SalmonAction
             break;
         default:
             // TRANS: Client exception.
-            throw new ClientException("Can't handle that kind of post.");
+            throw new ClientException('Cannot handle that kind of post.');
         }
 
         // Notice must be to the attention of this group
@@ -127,11 +127,11 @@ class GroupsalmonAction extends SalmonAction
         $oprofile = $this->ensureProfile();
         if (!$oprofile) {
             // TRANS: Client error.
-            $this->clientError(_m("Can't read profile to set up group membership."));
+            $this->clientError(_m('Cannot read profile to set up group membership.'));
         }
         if ($oprofile->isGroup()) {
             // TRANS: Client error.
-            $this->clientError(_m("Groups can't join groups."));
+            $this->clientError(_m('Groups cannot join groups.'));
         }
 
         common_log(LOG_INFO, "Remote profile {$oprofile->uri} joining local group {$this->group->nickname}");
@@ -144,19 +144,13 @@ class GroupsalmonAction extends SalmonAction
         }
 
         if (Group_block::isBlocked($this->group, $profile)) {
+            // TRANS: Client error displayed when trying to join a group the user is blocked from by a group admin.
             $this->clientError(_m('You have been blocked from that group by the admin.'), 403);
             return false;
         }
 
         try {
-            // @fixme that event currently passes a user from main UI
-            // Event should probably move into Group_member::join
-            // and take a Profile object.
-            //
-            //if (Event::handle('StartJoinGroup', array($this->group, $profile))) {
-                Group_member::join($this->group->id, $profile->id);
-                //Event::handle('EndJoinGroup', array($this->group, $profile));
-            //}
+            $profile->joinGroup($this->group);
         } catch (Exception $e) {
             // TRANS: Server error. %1$s is a profile URI, %2$s is a group nickname.
             $this->serverError(sprintf(_m('Could not join remote user %1$s to group %2$s.'),
@@ -171,21 +165,20 @@ class GroupsalmonAction extends SalmonAction
     {
         $oprofile = $this->ensureProfile();
         if (!$oprofile) {
-            $this->clientError(_m("Can't read profile to cancel group membership."));
+            // TRANS: Client error displayed when group membership cannot be cancelled
+            // TRANS: because the remote profile could not be read.
+            $this->clientError(_m('Cannot read profile to cancel group membership.'));
         }
         if ($oprofile->isGroup()) {
-            $this->clientError(_m("Groups can't join groups."));
+            // TRANS: Client error displayed when trying to have a group join another group.
+            $this->clientError(_m('Groups cannot join groups.'));
         }
 
         common_log(LOG_INFO, "Remote profile {$oprofile->uri} leaving local group {$this->group->nickname}");
         $profile = $oprofile->localProfile();
 
         try {
-            // @fixme event needs to be refactored as above
-            //if (Event::handle('StartLeaveGroup', array($this->group, $profile))) {
-                Group_member::leave($this->group->id, $profile->id);
-                //Event::handle('EndLeaveGroup', array($this->group, $profile));
-            //}
+            $profile->leaveGroup($this->group);
         } catch (Exception $e) {
             // TRANS: Server error. %1$s is a profile URI, %2$s is a group nickname.
             $this->serverError(sprintf(_m('Could not remove remote user %1$s from group %2$s.'),

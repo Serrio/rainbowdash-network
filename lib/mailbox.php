@@ -42,8 +42,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
  * @see      InboxAction
  * @see      OutboxAction
  */
-
-class MailboxAction extends CurrentUserDesignAction
+class MailboxAction extends Action
 {
     var $page = null;
 
@@ -71,12 +70,12 @@ class MailboxAction extends CurrentUserDesignAction
      *
      * @return void
      */
-
     function handle($args)
     {
         parent::handle($args);
 
         if (!$this->user) {
+            // TRANS: Client error displayed when trying to access a mailbox without providing a user.
             $this->clientError(_('No such user.'), 404);
             return;
         }
@@ -84,18 +83,13 @@ class MailboxAction extends CurrentUserDesignAction
         $cur = common_current_user();
 
         if (!$cur || $cur->id != $this->user->id) {
+            // TRANS: Client error displayed when trying to access a mailbox that is not of the logged in user.
             $this->clientError(_('Only the user can read their own mailboxes.'),
                 403);
             return;
         }
 
         $this->showPage();
-    }
-
-    function showLocalNav()
-    {
-        $nav = new PersonalGroupNav($this);
-        $nav->show();
     }
 
     function showNoticeForm()
@@ -120,8 +114,9 @@ class MailboxAction extends CurrentUserDesignAction
                               $this->trimmed('action'),
                               array('nickname' => $this->user->nickname));
         } else {
-            $this->element('p', 
-                           'guide', 
+            $this->element('p',
+                           'guide',
+                           // TRANS: Message displayed when there are no private messages in the inbox of a user.
                            _('You have no private messages. '.
                              'You can send private message to engage other users in conversation. '.
                              'People can send you messages for your eyes only.'));
@@ -145,7 +140,6 @@ class MailboxAction extends CurrentUserDesignAction
      *
      * @return void
      */
-
     function showPageNotice()
     {
         $instr  = $this->getInstructions();
@@ -163,9 +157,14 @@ class MailboxAction extends CurrentUserDesignAction
      *
      * @return boolean
      */
-
     function isReadOnly($args)
     {
          return true;
+    }
+
+    function showObjectNav()
+    {
+        $mm = new MailboxMenu($this);
+        $mm->show();
     }
 }

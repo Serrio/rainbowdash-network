@@ -49,6 +49,7 @@ class AddMirrorForm extends Form
      */
     function formData()
     {
+        $this->out->hidden('provider', 'feed');
         $this->out->elementStart('fieldset');
 
         $this->out->elementStart('ul');
@@ -56,18 +57,20 @@ class AddMirrorForm extends Form
         $this->li();
         $this->doInput('addmirror-feedurl',
                        'feedurl',
+                       // TRANS: Field label.
                        _m('Web page or feed URL:'),
                        $this->out->trimmed('feedurl'));
         $this->unli();
 
         $this->li();
+        // TRANS: Button text for adding a feed.
         $this->out->submit('addmirror-save', _m('BUTTON','Add feed'));
         $this->unli();
         $this->out->elementEnd('ul');
         $this->out->elementEnd('fieldset');
     }
 
-    private function doInput($id, $name, $label, $value=null, $instructions=null)
+    protected function doInput($id, $name, $label, $value=null, $instructions=null)
     {
         $this->out->element('label', array('for' => $id), $label);
         $attrs = array('name' => $name,

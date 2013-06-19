@@ -31,9 +31,8 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
     exit(1);
 }
 
-require_once INSTALLDIR . '/lib/connectsettingsaction.php';
 require_once INSTALLDIR . '/lib/applicationlist.php';
-require_once INSTALLDIR . '/lib/apioauthstore.php';
+require_once INSTALLDIR . '/lib/statusnetoauthstore.php';
 
 /**
  * Show connected OAuth applications
@@ -46,7 +45,7 @@ require_once INSTALLDIR . '/lib/apioauthstore.php';
  *
  * @see      SettingsAction
  */
-class OauthconnectionssettingsAction extends ConnectSettingsAction
+class OauthconnectionssettingsAction extends SettingsAction
 {
     var $page        = null;
     var $oauth_token = null;
@@ -133,6 +132,7 @@ class OauthconnectionssettingsAction extends ConnectSettingsAction
 
         $token = $this->trimmed('token');
         if (!$token || $token != common_session_token()) {
+            // TRANS: Client error displayed when the session token does not match or is not given.
             $this->showForm(_('There was a problem with your session token. '.
                               'Try again, please.'));
             return;

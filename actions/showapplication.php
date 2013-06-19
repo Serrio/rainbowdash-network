@@ -22,7 +22,7 @@
  * @category  Application
  * @package   StatusNet
  * @author    Zach Copley <zach@status.net>
- * @copyright 2008-2009 StatusNet, Inc.
+ * @copyright 2008-2011 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link      http://status.net/
  */
@@ -40,7 +40,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
  */
-class ShowApplicationAction extends OwnerDesignAction
+class ShowApplicationAction extends Action
 {
     /**
      * Application to show
@@ -75,11 +75,13 @@ class ShowApplicationAction extends OwnerDesignAction
         $this->owner        = User::staticGet($this->application->owner);
 
         if (!common_logged_in()) {
+            // TRANS: Client error displayed trying to display an OAuth application while not logged in.
             $this->clientError(_('You must be logged in to view an application.'));
             return false;
         }
 
         if (empty($this->application)) {
+            // TRANS: Client error displayed trying to display a non-existing OAuth application.
             $this->clientError(_('No such application.'), 404);
             return false;
         }
@@ -87,6 +89,7 @@ class ShowApplicationAction extends OwnerDesignAction
         $cur = common_current_user();
 
         if ($cur->id != $this->owner->id) {
+            // TRANS: Client error displayed trying to display an OAuth application for which the logged in user is not the owner.
             $this->clientError(_('You are not the owner of this application.'), 401);
             return false;
         }
@@ -110,6 +113,7 @@ class ShowApplicationAction extends OwnerDesignAction
             // CSRF protection
             $token = $this->trimmed('token');
             if (!$token || $token != common_session_token()) {
+                // TRANS: Client error displayed when the session token does not match or is not given.
                 $this->clientError(_('There was a problem with your session token.'));
                 return;
             }
@@ -148,43 +152,26 @@ class ShowApplicationAction extends OwnerDesignAction
         $consumer = $this->application->getConsumer();
 
         $this->elementStart('div', 'entity_profile vcard');
+        // TRANS: Header on the OAuth application page.
         $this->element('h2', null, _('Application profile'));
-        $this->elementStart('dl', 'entity_depiction');
-        $this->element('dt', null, _('Icon'));
-        $this->elementStart('dd');
         if (!empty($this->application->icon)) {
             $this->element('img', array('src' => $this->application->icon,
-                                        'class' => 'photo logo'));
+                                        'class' => 'photo logo entity_depiction'));
         }
-        $this->elementEnd('dd');
-        $this->elementEnd('dl');
 
-        $this->elementStart('dl', 'entity_fn');
-        $this->element('dt', null, _('Name'));
-        $this->elementStart('dd');
         $this->element('a', array('href' =>  $this->application->source_url,
-                                  'class' => 'url fn'),
+                                  'class' => 'url fn entity_fn'),
                             $this->application->name);
-        $this->elementEnd('dd');
-        $this->elementEnd('dl');
 
-        $this->elementStart('dl', 'entity_org');
-        $this->element('dt', null, _('Organization'));
-        $this->elementStart('dd');
         $this->element('a', array('href' =>  $this->application->homepage,
-                                  'class' => 'url'),
+                                  'class' => 'url entity_org'),
                             $this->application->organization);
-        $this->elementEnd('dd');
-        $this->elementEnd('dl');
 
-        $this->elementStart('dl', 'entity_note');
-        $this->element('dt', null, _('Description'));
-        $this->element('dd', 'note', $this->application->description);
-        $this->elementEnd('dl');
+        $this->element('div',
+                       'note entity_note',
+                       $this->application->description);
 
-        $this->elementStart('dl', 'entity_statistics');
-        $this->element('dt', null, _('Statistics'));
-        $this->elementStart('dd');
+        $this->elementStart('div', 'entity_statistics');
         $defaultAccess = ($this->application->access_type & Oauth_application::$writeAccess)
             ? 'read-write' : 'read-only';
         $profile = Profile::staticGet($this->application->owner);
@@ -194,23 +181,30 @@ class ShowApplicationAction extends OwnerDesignAction
         $userCnt = $appUsers->count();
 
         $this->raw(sprintf(
-            _('Created by %1$s - %2$s access by default - %3$d users'),
+            // TRANS: Information output on an OAuth application page.
+            // TRANS: %1$s is the application creator, %2$s is "read-only" or "read-write",
+            // TRANS: %3$d is the number of users using the OAuth application.
+            _m('Created by %1$s - %2$s access by default - %3$d user',
+               'Created by %1$s - %2$s access by default - %3$d users',
+               $userCnt),
               $profile->getBestName(),
               $defaultAccess,
               $userCnt
             ));
-        $this->elementEnd('dd');
-        $this->elementEnd('dl');
+        $this->elementEnd('div');
+
         $this->elementEnd('div');
 
         $this->elementStart('div', 'entity_actions');
+        // TRANS: Header on the OAuth application page.
         $this->element('h2', null, _('Application actions'));
         $this->elementStart('ul');
         $this->elementStart('li', 'entity_edit');
         $this->element('a',
                        array('href' => common_local_url('editapplication',
                                                         array('id' => $this->application->id))),
-                       'Edit');
+                       // TRANS: Link text to edit application on the OAuth application page.
+                       _m('EDITAPP','Edit'));
         $this->elementEnd('li');
 
         $this->elementStart('li', 'entity_reset_keysecret');
@@ -227,6 +221,8 @@ class ShowApplicationAction extends OwnerDesignAction
                                       'id' => 'reset',
                                       'name' => 'reset',
                                       'class' => 'submit',
+                                      // TRANS: Button text on the OAuth application page.
+                                      // TRANS: Resets the OAuth consumer key and secret.
                                       'value' => _('Reset key & secret'),
                                       'onClick' => 'return confirmReset()'));
         $this->elementEnd('fieldset');
@@ -243,7 +239,8 @@ class ShowApplicationAction extends OwnerDesignAction
 
         $this->elementStart('fieldset');
         $this->hidden('token', common_session_token());
-        $this->submit('delete', _('Delete'));
+        // TRANS: Submit button text the OAuth application page to delete an application.
+        $this->submit('delete', _m('BUTTON','Delete'));
         $this->elementEnd('fieldset');
         $this->elementEnd('form');
         $this->elementEnd('li');
@@ -252,34 +249,30 @@ class ShowApplicationAction extends OwnerDesignAction
         $this->elementEnd('div');
 
         $this->elementStart('div', 'entity_data');
+        // TRANS: Header on the OAuth application page.
         $this->element('h2', null, _('Application info'));
-        $this->elementStart('dl', 'entity_consumer_key');
+
+        $this->elementStart('dl');
+        // TRANS: Field label on application page.
         $this->element('dt', null, _('Consumer key'));
         $this->element('dd', null, $consumer->consumer_key);
-        $this->elementEnd('dl');
-
-        $this->elementStart('dl', 'entity_consumer_secret');
+        // TRANS: Field label on application page.
         $this->element('dt', null, _('Consumer secret'));
         $this->element('dd', null, $consumer->consumer_secret);
-        $this->elementEnd('dl');
-
-        $this->elementStart('dl', 'entity_request_token_url');
+        // TRANS: Field label on application page.
         $this->element('dt', null, _('Request token URL'));
         $this->element('dd', null, common_local_url('ApiOauthRequestToken'));
-        $this->elementEnd('dl');
-
-        $this->elementStart('dl', 'entity_access_token_url');
+        // TRANS: Field label on application page.
         $this->element('dt', null, _('Access token URL'));
         $this->element('dd', null, common_local_url('ApiOauthAccessToken'));
-        $this->elementEnd('dl');
-
-        $this->elementStart('dl', 'entity_authorize_url');
+        // TRANS: Field label on application page.
         $this->element('dt', null, _('Authorize URL'));
         $this->element('dd', null, common_local_url('ApiOauthAuthorize'));
         $this->elementEnd('dl');
 
         $this->element('p', 'note',
-            _('Note: We support HMAC-SHA1 signatures. We do not support the plaintext signature method.'));
+            // TRANS: Note on the OAuth application page about signature support.
+            _('Note: HMAC-SHA1 signatures are supported. The plaintext signature method is not supported.'));
         $this->elementEnd('div');
 
         $this->elementStart('p', array('id' => 'application_action'));
@@ -299,6 +292,7 @@ class ShowApplicationAction extends OwnerDesignAction
     {
         parent::showScripts();
 
+        // TRANS: Text in confirmation dialog to reset consumer key and secret for an OAuth application.
         $msg = _('Are you sure you want to reset your consumer key and secret?');
 
         $js  = 'function confirmReset() { ';

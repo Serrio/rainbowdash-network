@@ -48,7 +48,8 @@ class ImapManager extends IoManager
      */
     public static function get()
     {
-        throw new Exception(_m('ImapManager should be created using its constructor, not the using the static get method.'));
+        // TRANS: Exception thrown when the ImapManager is used incorrectly in the code.
+        throw new Exception(_m('ImapManager should be created using its constructor, not using the static "get()" method.'));
     }
 
     /**
@@ -63,12 +64,14 @@ class ImapManager extends IoManager
     }
 
     /**
-     * Tell the i/o master we need one instance for each supporting site
-     * being handled in this process.
+     * Tell the i/o master we need one instance globally.
+     * Since this is a plugin manager, the plugin class itself will
+     * create one instance per site. This prevents the IoMaster from
+     * making more instances.
      */
     public static function multiSite()
     {
-        return IoManager::INSTANCE_PER_SITE;
+        return IoManager::GLOBAL_SINGLE_ONLY;
     }
 
     /**

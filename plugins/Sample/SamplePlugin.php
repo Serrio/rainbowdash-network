@@ -172,9 +172,20 @@ class SamplePlugin extends Plugin
         // For storing user-submitted flags on profiles
 
         $schema->ensureTable('user_greeting_count',
-                             array(new ColumnDef('user_id', 'integer', null,
-                                                 true, 'PRI'),
-                                   new ColumnDef('greeting_count', 'integer')));
+            array(
+                'fields' => array(
+                    'user_id' => array('type' => 'int', 'not null' => true),
+                    'greeting_count' => array('type' => 'int'),
+                ),
+                'primary key' => array('user_id'),
+                'foreign keys' => array(
+                    // Not all databases will support foreign keys, but even
+                    // when not enforced it's helpful to include these definitions
+                    // as documentation.
+                    'user_greeting_count_user_id_fkey' => array('user', array('user_id' => 'id')),
+                ),
+            )
+        );
 
         return true;
     }
@@ -254,9 +265,11 @@ class SamplePlugin extends Plugin
     {
         // common_local_url() gets the correct URL for the action name
         // we provide
-
         $action->menuItem(common_local_url('hello'),
-                          _m('Hello'), _m('A warm greeting'), false, 'nav_hello');
+                          // TRANS: Menu item in sample plugin.
+                          _m('Hello'),
+                          // TRANS: Menu item title in sample plugin.
+                          _m('A warm greeting'), false, 'nav_hello');
         return true;
     }
 
@@ -267,6 +280,7 @@ class SamplePlugin extends Plugin
                             'author' => 'Brion Vibber, Evan Prodromou',
                             'homepage' => 'http://status.net/wiki/Plugin:Sample',
                             'rawdescription' =>
+                          // TRANS: Plugin description.
                             _m('A sample plugin to show basics of development for new hackers.'));
         return true;
     }

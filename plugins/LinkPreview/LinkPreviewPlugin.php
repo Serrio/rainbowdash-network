@@ -36,7 +36,8 @@ class LinkPreviewPlugin extends Plugin
                             'author' => 'Brion Vibber',
                             'homepage' => 'http://status.net/wiki/Plugin:LinkPreview',
                             'rawdescription' =>
-                            _m('UI extensions previewing thumbnails from links.'));
+                            // TRANS: Plugin description.
+                            _m('UI extension for previewing thumbnails from links.'));
 
         return true;
     }
@@ -51,7 +52,12 @@ class LinkPreviewPlugin extends Plugin
     {
         $user = common_current_user();
         if ($user && common_config('attachments', 'process_links')) {
-            $action->script($this->path('linkpreview.min.js'));
+            if (common_config('site', 'minify')) {
+                $js = 'linkpreview.min.js';
+            } else {
+                $js = 'linkpreview.js';
+            }
+            $action->script($this->path($js));
             $data = json_encode(array(
                 'api' => common_local_url('oembedproxy'),
                 'width' => common_config('attachments', 'thumbwidth'),

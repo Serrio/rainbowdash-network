@@ -132,9 +132,7 @@ class SubscriptionsAction extends GalleryAction
                 // TRANS: and do not change the URL part.
                 $message = _('You\'re not listening to anyone\'s notices right now, try subscribing to people you know. '.
                              'Try [people search](%%action.peoplesearch%%), look for members in groups you\'re interested '.
-                             'in and in our [featured users](%%action.featured%%). '.
-                             'If you\'re a [Twitter user](%%action.twittersettings%%), you can automatically subscribe to '.
-                             'people you already follow there.');
+                             'in and in our [featured users](%%action.featured%%).');
             } else {
                 // TRANS: Subscription list text when looking at the subscriptions for a of a user other
                 // TRANS: than the logged in user that has no subscriptions. %s is the user nickname.
@@ -150,16 +148,6 @@ class SubscriptionsAction extends GalleryAction
         $this->elementStart('div', 'guide');
         $this->raw(common_markup_to_html($message));
         $this->elementEnd('div');
-    }
-
-    function showSections()
-    {
-        parent::showSections();
-        $cloud = new SubscriptionsPeopleTagCloudSection($this);
-        $cloud->show();
-
-        $cloud2 = new SubscriptionsPeopleSelfTagCloudSection($this);
-        $cloud2->show();
     }
 
     /**
@@ -215,7 +203,9 @@ class SubscriptionsListItem extends SubscriptionListItem
             return;
         }
 
-        if (!common_config('xmpp', 'enabled') && !common_config('sms', 'enabled')) {
+        $transports = array();
+        Event::handle('GetImTransports', array(&$transports));
+        if (!$transports && !common_config('sms', 'enabled')) {
             return;
         }
 
@@ -225,7 +215,7 @@ class SubscriptionsListItem extends SubscriptionListItem
                                           'action' => common_local_url('subedit')));
         $this->out->hidden('token', common_session_token());
         $this->out->hidden('profile', $this->profile->id);
-        if (common_config('xmpp', 'enabled')) {
+        if ($transports) {
             $attrs = array('name' => 'jabber',
                            'type' => 'checkbox',
                            'class' => 'checkbox',
@@ -235,8 +225,8 @@ class SubscriptionsListItem extends SubscriptionListItem
             }
 
             $this->out->element('input', $attrs);
-            // TRANS: Checkbox label for enabling Jabber messages for a profile in a subscriptions list.
-            $this->out->element('label', array('for' => 'jabber-'.$this->profile->id), _('Jabber'));
+            // TRANS: Checkbox label for enabling IM messages for a profile in a subscriptions list.
+            $this->out->element('label', array('for' => 'jabber-'.$this->profile->id), _m('LABEL','IM'));
         } else {
             $this->out->hidden('jabber', $sub->jabber);
         }

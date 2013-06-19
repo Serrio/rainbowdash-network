@@ -108,21 +108,21 @@ class SitemapPlugin extends Plugin
         $m->connect('sitemapindex.xml',
                     array('action' => 'sitemapindex'));
 
-        $m->connect('/notice-sitemap-:year-:month-:day-:index.xml',
+        $m->connect('notice-sitemap-:year-:month-:day-:index.xml',
                     array('action' => 'noticesitemap'),
                     array('year' => '[0-9]{4}',
                           'month' => '[01][0-9]',
                           'day' => '[0123][0-9]',
                           'index' => '[1-9][0-9]*'));
 
-        $m->connect('/user-sitemap-:year-:month-:day-:index.xml',
+        $m->connect('user-sitemap-:year-:month-:day-:index.xml',
                     array('action' => 'usersitemap'),
                     array('year' => '[0-9]{4}',
                           'month' => '[01][0-9]',
                           'day' => '[0123][0-9]',
                           'index' => '[1-9][0-9]*'));
 
-        $m->connect('admin/sitemap',
+        $m->connect('panel/sitemap',
                     array('action' => 'sitemapadminpanel'));
 
         return true;
@@ -195,12 +195,6 @@ class SitemapPlugin extends Plugin
                                    new ColumnDef('created', 'datetime',
                                                  null, false),
                                    new ColumnDef('modified', 'timestamp')));
-
-        $userCreated = $schema->getColumnDef('user', 'created');
-
-        if (empty($userCreated) || $userCreated->key != 'MUL') {
-            $schema->createIndex('user', 'created');
-        }
 
         return true;
     }

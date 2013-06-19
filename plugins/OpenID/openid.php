@@ -27,7 +27,7 @@ require_once('Auth/OpenID/Server.php');
 require_once('Auth/OpenID/SReg.php');
 require_once('Auth/OpenID/MySQLStore.php');
 
-# About one year cookie expiry
+// About one year cookie expiry
 
 define('OPENID_COOKIE_EXPIRY', round(365.25 * 24 * 60 * 60));
 define('OPENID_COOKIE_KEY', 'lastusedopenid');
@@ -36,7 +36,7 @@ function oid_store()
 {
     static $store = null;
     if (!$store) {
-        # Can't be called statically
+        // Can't be called statically
         $user = new User();
         $conn = $user->getDatabaseConnection();
         $store = new Auth_OpenID_MySQLStore($conn);
@@ -85,7 +85,6 @@ function oid_get_last()
 
 function oid_link_user($id, $canonical, $display)
 {
-
     $oid = new User_openid();
     $oid->user_id = $id;
     $oid->canonical = $canonical;
@@ -152,7 +151,7 @@ function oid_authenticate($openid_url, $returnto, $immediate=false)
         common_log(LOG_ERR, __METHOD__ . ": OpenID fail to $openid_url: $auth_request->message");
         // TRANS: OpenID plugin server error. Given when the OpenID authentication request fails.
         // TRANS: %s is the failure message.
-        return sprintf(_m('OpenID failure: %s'), $auth_request->message);
+        return sprintf(_m('OpenID failure: %s.'), $auth_request->message);
     }
 
     $sreg_request = Auth_OpenID_SRegRequest::build(// Required
@@ -202,7 +201,7 @@ function oid_authenticate($openid_url, $returnto, $immediate=false)
         } else if (Auth_OpenID::isFailure($redirect_url)) {
             // TRANS: OpenID plugin server error. Given when the OpenID authentication request cannot be redirected.
             // TRANS: %s is the failure message.
-            return sprintf(_m('Could not redirect to server: %s'), $redirect_url->message);
+            return sprintf(_m('Could not redirect to server: %s.'), $redirect_url->message);
         } else {
             common_redirect($redirect_url, 303);
         }
@@ -213,8 +212,8 @@ function oid_authenticate($openid_url, $returnto, $immediate=false)
         $form_html = $auth_request->formMarkup($trust_root, $process_url,
                                                $immediate, array('id' => $form_id));
 
-        # XXX: This is cheap, but things choke if we don't escape ampersands
-        # in the HTML attributes
+        // XXX: This is cheap, but things choke if we don't escape ampersands
+        // in the HTML attributes
 
         $form_html = preg_replace('/&/', '&amp;', $form_html);
 
@@ -235,7 +234,7 @@ function oid_authenticate($openid_url, $returnto, $immediate=false)
     */
 }
 
-# Half-assed attempt at a module-private function
+// Half-assed attempt at a module-private function
 
 function _oid_print_instructions()
 {
@@ -264,16 +263,16 @@ function oid_update_user($user, $sreg)
 
     if (!empty($sreg['country'])) {
         if ($sreg['postcode']) {
-            # XXX: use postcode to get city and region
-            # XXX: also, store postcode somewhere -- it's valuable!
+            // XXX: use postcode to get city and region
+            // XXX: also, store postcode somewhere -- it's valuable!
             $profile->location = $sreg['postcode'] . ', ' . $sreg['country'];
         } else {
             $profile->location = $sreg['country'];
         }
     }
 
-    # XXX save language if it's passed
-    # XXX save timezone if it's passed
+    // XXX save language if it's passed
+    // XXX save timezone if it's passed
 
     if (!$profile->update($orig_profile)) {
         // TRANS: OpenID plugin server error.
@@ -319,7 +318,7 @@ function oid_assert_allowed($url)
                 }
             }
             // TRANS: OpenID plugin client exception (403).
-            throw new ClientException(_m("Unauthorized URL used for OpenID login."), 403);
+            throw new ClientException(_m('Unauthorized URL used for OpenID login.'), 403);
         }
     }
 
@@ -373,7 +372,7 @@ class AutosubmitAction extends Action
     function showContent()
     {
         $this->raw('<p style="margin: 20px 80px">');
-        // @fixme this would be better using standard CSS class, but the present theme's a bit scary.
+        // @todo FIXME: This would be better using standard CSS class, but the present theme's a bit scary.
         $this->element('img', array('src' => Theme::path('images/icons/icon_processing.gif', 'base'),
                                     // for some reason the base CSS sets <img>s as block display?!
                                     'style' => 'display: inline'));

@@ -4,7 +4,7 @@
  * Copyright (C) 2010, StatusNet, Inc.
  *
  * Add a new bookmark
- * 
+ *
  * PHP version 5
  *
  * This program is free software: you can redistribute it and/or modify
@@ -43,7 +43,6 @@ if (!defined('STATUSNET')) {
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
  * @link      http://status.net/
  */
-
 class NewbookmarkAction extends Action
 {
     protected $user        = null;
@@ -59,10 +58,10 @@ class NewbookmarkAction extends Action
      *
      * @return string Action title
      */
-
     function title()
     {
-        return _('New bookmark');
+        // TRANS: Title for action to create a new bookmark.
+        return _m('New bookmark');
     }
 
     /**
@@ -72,15 +71,19 @@ class NewbookmarkAction extends Action
      *
      * @return boolean true
      */
-
     function prepare($argarray)
     {
         parent::prepare($argarray);
 
+        if ($this->boolean('ajax')) {
+            StatusNet::setApi(true);
+        }
+
         $this->user = common_current_user();
 
         if (empty($this->user)) {
-            throw new ClientException(_("Must be logged in to post a bookmark."),
+            // TRANS: Client exception thrown when trying to create a new bookmark while not logged in.
+            throw new ClientException(_m('Must be logged in to post a bookmark.'),
                                       403);
         }
 
@@ -103,7 +106,6 @@ class NewbookmarkAction extends Action
      *
      * @return void
      */
-
     function handle($argarray=null)
     {
         parent::handle($argarray);
@@ -122,32 +124,82 @@ class NewbookmarkAction extends Action
      *
      * @return void
      */
-
     function newBookmark()
     {
         try {
             if (empty($this->title)) {
-                throw new ClientException(_('Bookmark must have a title.'));
+                // TRANS: Client exception thrown when trying to create a new bookmark without a title.
+                throw new ClientException(_m('Bookmark must have a title.'));
             }
 
             if (empty($this->url)) {
-                throw new ClientException(_('Bookmark must have an URL.'));
+                // TRANS: Client exception thrown when trying to create a new bookmark without a URL.
+                throw new ClientException(_m('Bookmark must have an URL.'));
             }
 
+            $options = array();
+
+            ToSelector::fillOptions($this, $options);
 
             $saved = Bookmark::saveNew($this->user->getProfile(),
-                                              $this->title,
-                                              $this->url,
-                                              $this->tags,
-                                              $this->description);
+                                       $this->title,
+                                       $this->url,
+                                       $this->tags,
+                                       $this->description,
+                                       $options);
 
         } catch (ClientException $ce) {
-            $this->error = $ce->getMessage();
-            $this->showPage();
-            return;
+            if ($this->boolean('ajax')) {
+                header('Content-Type: text/xml;charset=utf-8');
+                $this->xw->startDocument('1.0', 'UTF-8');
+                $this->elementStart('html');
+                $this->elementStart('head');
+                // TRANS: Page title after an AJAX error occurs
+                $this->element('title', null, _('Ajax Error'));
+                $this->elementEnd('head');
+                $this->elementStart('body');
+                $this->element('p', array('id' => 'error'), $ce->getMessage());
+                $this->elementEnd('body');
+                $this->elementEnd('html');
+                return;
+            } else {
+                $this->error = $ce->getMessage();
+                $this->showPage();
+                return;
+            }
         }
 
-        common_redirect($saved->bestUrl(), 303);
+        if ($this->boolean('ajax')) {
+            header('Content-Type: text/xml;charset=utf-8');
+            $this->xw->startDocument('1.0', 'UTF-8');
+            $this->elementStart('html');
+            $this->elementStart('head');
+            // TRANS: Page title after posting a bookmark.
+            $this->element('title', null, _m('Bookmark posted'));
+            $this->elementEnd('head');
+            $this->elementStart('body');
+            $this->showNotice($saved);
+            $this->elementEnd('body');
+            $this->elementEnd('html');
+        } else {
+            common_redirect($saved->bestUrl(), 303);
+        }
+    }
+
+    /**
+     * Output a notice
+     *
+     * Used to generate the notice code for Ajax results.
+     *
+     * @param Notice $notice Notice that was saved
+     *
+     * @return void
+     */
+    function showNotice($notice)
+    {
+        class_exists('NoticeList'); // @fixme hack for autoloader
+        $nli = new NoticeListItem($notice, $this);
+        $nli->show();
     }
 
     /**
@@ -155,7 +207,6 @@ class NewbookmarkAction extends Action
      *
      * @return void
      */
-
     function showContent()
     {
         if (!empty($this->error)) {
@@ -182,7 +233,6 @@ class NewbookmarkAction extends Action
      *
      * @return boolean is read only action?
      */
-
     function isReadOnly($args)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'GET' ||
@@ -193,4 +243,3 @@ class NewbookmarkAction extends Action
         }
     }
 }
- 

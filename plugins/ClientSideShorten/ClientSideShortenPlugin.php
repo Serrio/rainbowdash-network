@@ -51,9 +51,11 @@ class ClientSideShortenPlugin extends Plugin
     }
 
     function onEndShowScripts($action){
-        $action->inlineScript('var Notice_maxContent = ' . Notice::maxContent());
         if (common_logged_in()) {
-            $action->script($this->path('shorten.js'));
+            $user = common_current_user();
+            $action->inlineScript('var maxNoticeLength = ' . User_urlshortener_prefs::maxNoticeLength($user));
+            $action->inlineScript('var maxUrlLength = ' . User_urlshortener_prefs::maxUrlLength($user));
+            $action->script('plugins/ClientSideShorten/shorten.js');
         }
     }
 
@@ -71,6 +73,7 @@ class ClientSideShortenPlugin extends Plugin
                             'author' => 'Craig Andrews',
                             'homepage' => 'http://status.net/wiki/Plugin:ClientSideShorten',
                             'rawdescription' =>
+                            // TRANS: Plugin description.
                             _m('ClientSideShorten causes the web interface\'s notice form to automatically shorten URLs as they entered, and before the notice is submitted.'));
         return true;
     }

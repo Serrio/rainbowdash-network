@@ -44,7 +44,6 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
  */
 class LogoutAction extends Action
 {
-
     /**
      * This is read only.
      *
@@ -66,7 +65,7 @@ class LogoutAction extends Action
     {
         parent::handle($args);
         if (!common_logged_in()) {
-            // TRANS: Client error displayed trying to log out when not logged in.
+            // TRANS: Error message displayed when trying to perform an action that requires a logged in user.
             $this->clientError(_('Not logged in.'));
         } else {
             if (Event::handle('StartLogout', array($this))) {
@@ -74,7 +73,13 @@ class LogoutAction extends Action
             }
             Event::handle('EndLogout', array($this));
 
-            common_redirect(common_local_url('public'), 303);
+            if (common_config('singleuser', 'enabled')) {
+                $user = User::singleUser();
+                common_redirect(common_local_url('showstream',
+                                                 array('nickname' => $user->nickname)));
+            } else {
+                common_redirect(common_local_url('public'), 303);
+            }
         }
     }
 

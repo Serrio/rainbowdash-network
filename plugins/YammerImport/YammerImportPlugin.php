@@ -34,9 +34,9 @@ class YammerImportPlugin extends Plugin
      */
     function onRouterInitialized($m)
     {
-        $m->connect('admin/yammer',
+        $m->connect('panel/yammer',
                     array('action' => 'yammeradminpanel'));
-        $m->connect('admin/yammer/auth',
+        $m->connect('panel/yammer/auth',
                     array('action' => 'yammerauth'));
         return true;
     }
@@ -95,8 +95,10 @@ class YammerImportPlugin extends Plugin
             $action_name = $nav->action->trimmed('action');
 
             $nav->out->menuItem(common_local_url('yammeradminpanel'),
-                                _m('Yammer'),
-                                _m('Yammer import'),
+                                // TRANS: Menu item for Yammer import.
+                                _m('MENU','Yammer'),
+                                // TRANS: Menu item title for Yammer import.
+                                _m('Yammer import module.'),
                                 $action_name == 'yammeradminpanel',
                                 'nav_yammer_admin_panel');
         }

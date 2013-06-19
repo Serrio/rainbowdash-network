@@ -49,13 +49,12 @@ class BookmarkpopupAction extends NewbookmarkAction
      *
      * @return void
      */
-
     function showTitle()
     {
-        // TRANS: Title for mini-posting window loaded from bookmarklet.
-        // TRANS: %s is the StatusNet site name.
-        $this->element('title', 
-                       null, sprintf(_('Bookmark on %s'), 
+        $this->element('title',
+                       // TRANS: Title for mini-posting window loaded from bookmarklet.
+                       // TRANS: %s is the StatusNet site name.
+                       null, sprintf(_m('Bookmark on %s'),
                                      common_config('site', 'name')));
     }
 
@@ -66,13 +65,12 @@ class BookmarkpopupAction extends NewbookmarkAction
      *
      * @return void
      */
-
     function showHeader()
     {
         $this->elementStart('div', array('id' => 'header'));
         $this->elementStart('address');
         $this->element('a', array('class' => 'url',
-                                  'href' => common_local_url('public')),
+                                  'href' => common_local_url('top')),
                          '');
         $this->elementEnd('address');
         if (common_logged_in()) {
@@ -86,10 +84,9 @@ class BookmarkpopupAction extends NewbookmarkAction
 
     /**
      * Hide the core section of the page
-     * 
+     *
      * @return void
      */
-
     function showCore()
     {
     }
@@ -99,7 +96,6 @@ class BookmarkpopupAction extends NewbookmarkAction
      *
      * @return void
      */
-
     function showFooter()
     {
     }

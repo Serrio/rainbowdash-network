@@ -1,7 +1,7 @@
 <?php
 /**
  * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008-2010, StatusNet, Inc.
+ * Copyright (C) 2008-2011, StatusNet, Inc.
  *
  * Subscription action.
  *
@@ -94,7 +94,7 @@ class SubscribeAction extends Action
         $this->user = common_current_user();
 
         if (empty($this->user)) {
-            // TRANS: Client error displayed trying to subscribe when not logged in.
+            // TRANS: Error message displayed when trying to perform an action that requires a logged in user.
             $this->clientError(_('Not logged in.'));
             return false;
         }
@@ -108,18 +108,6 @@ class SubscribeAction extends Action
         if (empty($this->other)) {
             // TRANS: Client error displayed trying to subscribe to a non-existing profile.
             $this->clientError(_('No such profile.'));
-            return false;
-        }
-
-        // OMB 0.1 doesn't have a mechanism for local-server-
-        // originated subscription.
-
-        $omb01 = Remote_profile::staticGet('id', $other_id);
-
-        if (!empty($omb01)) {
-            // TRANS: Client error displayed trying to subscribe to an OMB 0.1 remote profile.
-            $this->clientError(_('You cannot subscribe to an OMB 0.1'.
-                                 ' remote profile with this action.'));
             return false;
         }
 
@@ -139,8 +127,8 @@ class SubscribeAction extends Action
     {
         // Throws exception on error
 
-        Subscription::start($this->user->getProfile(),
-                            $this->other);
+        $sub = Subscription::start($this->user->getProfile(),
+                                   $this->other);
 
         if ($this->boolean('ajax')) {
             $this->startHTML('text/xml;charset=utf-8');
@@ -149,8 +137,12 @@ class SubscribeAction extends Action
             $this->element('title', null, _('Subscribed'));
             $this->elementEnd('head');
             $this->elementStart('body');
-            $unsubscribe = new UnsubscribeForm($this, $this->other);
-            $unsubscribe->show();
+            if ($sub instanceof Subscription) {
+                $form = new UnsubscribeForm($this, $this->other);
+            } else {
+                $form = new CancelSubscriptionForm($this, $this->other);
+            }
+            $form->show();
             $this->elementEnd('body');
             $this->elementEnd('html');
         } else {

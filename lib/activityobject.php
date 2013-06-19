@@ -64,9 +64,11 @@ class ActivityObject
     const BOOKMARK  = 'http://activitystrea.ms/schema/1.0/bookmark';
     const PERSON    = 'http://activitystrea.ms/schema/1.0/person';
     const GROUP     = 'http://activitystrea.ms/schema/1.0/group';
+    const _LIST     = 'http://activitystrea.ms/schema/1.0/list'; // LIST is reserved
     const PLACE     = 'http://activitystrea.ms/schema/1.0/place';
     const COMMENT   = 'http://activitystrea.ms/schema/1.0/comment';
     // ^^^^^^^^^^ tea!
+    const ACTIVITY = 'http://activitystrea.ms/schema/1.0/activity';
 
     // Atom elements we snarf
 
@@ -92,6 +94,7 @@ class ActivityObject
     public $title;
     public $summary;
     public $content;
+    public $owner;
     public $link;
     public $source;
     public $avatarLinks = array();
@@ -167,6 +170,10 @@ class ActivityObject
                 ActivityObject::MEDIA_DESCRIPTION,
                 Activity::MEDIA
             );
+        }
+        if ($this->type == self::_LIST) {
+            $owner = ActivityUtils::child($this->element, Activity::AUTHOR, Activity::SPEC);
+            $this->owner = new ActivityObject($owner);
         }
     }
 
@@ -420,17 +427,17 @@ class ActivityObject
     {
         $object = new ActivityObject();
 
-		if (Event::handle('StartActivityObjectFromNotice', array($notice, &$object))) {
+        if (Event::handle('StartActivityObjectFromNotice', array($notice, &$object))) {
 
-			$object->type    = ActivityObject::NOTE;
+            $object->type    = (empty($notice->object_type)) ? ActivityObject::NOTE : $notice->object_type;
 
-			$object->id      = $notice->uri;
-			$object->title   = $notice->content;
-			$object->content = $notice->rendered;
-			$object->link    = $notice->bestUrl();
+            $object->id      = $notice->uri;
+            $object->title   = $notice->content;
+            $object->content = $notice->rendered;
+            $object->link    = $notice->bestUrl();
 
-			Event::handle('EndActivityObjectFromNotice', array($notice, &$object));
-		}
+            Event::handle('EndActivityObjectFromNotice', array($notice, &$object));
+        }
 
         return $object;
     }
@@ -439,62 +446,61 @@ class ActivityObject
     {
         $object = new ActivityObject();
 
-		if (Event::handle('StartActivityObjectFromProfile', array($profile, &$object))) {
+        if (Event::handle('StartActivityObjectFromProfile', array($profile, &$object))) {
+            $object->type   = ActivityObject::PERSON;
+            $object->id     = $profile->getUri();
+            $object->title  = $profile->getBestName();
+            $object->link   = $profile->profileurl;
 
-			$object->type   = ActivityObject::PERSON;
-			$object->id     = $profile->getUri();
-			$object->title  = $profile->getBestName();
-			$object->link   = $profile->profileurl;
+            $orig = $profile->getOriginalAvatar();
 
-			$orig = $profile->getOriginalAvatar();
+            if (!empty($orig)) {
+                $object->avatarLinks[] = AvatarLink::fromAvatar($orig);
+            }
 
-			if (!empty($orig)) {
-				$object->avatarLinks[] = AvatarLink::fromAvatar($orig);
-			}
-
-			$sizes = array(
+            $sizes = array(
                 AVATAR_PROFILE_SIZE,
                 AVATAR_STREAM_SIZE,
                 AVATAR_MINI_SIZE
             );
 
-			foreach ($sizes as $size) {
-				$alink  = null;
-				$avatar = $profile->getAvatar($size);
+            foreach ($sizes as $size) {
+                $alink  = null;
+                $avatar = $profile->getAvatar($size);
 
-				if (!empty($avatar)) {
-					$alink = AvatarLink::fromAvatar($avatar);
-				} else {
-					$alink = new AvatarLink();
-					$alink->type   = 'image/png';
-					$alink->height = $size;
-					$alink->width  = $size;
-					$alink->url    = Avatar::defaultImage($size);
+                if (!empty($avatar)) {
+                    $alink = AvatarLink::fromAvatar($avatar);
+                } else {
+                    $alink = new AvatarLink();
+                    $alink->type   = 'image/png';
+                    $alink->height = $size;
+                    $alink->width  = $size;
+                    $alink->url    = Avatar::defaultImage($size);
 
-					if ($size == AVATAR_PROFILE_SIZE) {
-						// Hack for Twitter import: we don't have a 96x96 image,
-						// but we do have a 73x73 image. For now, fake it with that.
-						$avatar = $profile->getAvatar(73);
-						if ($avatar) {
-							$alink = AvatarLink::fromAvatar($avatar);
-							$alink->height= $size;
-							$alink->width = $size;
-						}
-					}
-				}
+                    if ($size == AVATAR_PROFILE_SIZE) {
+                        // Hack for Twitter import: we don't have a 96x96 image,
+                        // but we do have a 73x73 image. For now, fake it with that.
+                        $avatar = $profile->getAvatar(73);
+                        if ($avatar) {
+                            $alink = AvatarLink::fromAvatar($avatar);
+                            $alink->height= $size;
+                            $alink->width = $size;
+                        }
+                    }
+                }
 
-				$object->avatarLinks[] = $alink;
-			}
+                $object->avatarLinks[] = $alink;
+            }
 
-			if (isset($profile->lat) && isset($profile->lon)) {
-				$object->geopoint = (float)$profile->lat
-					. ' ' . (float)$profile->lon;
-			}
+            if (isset($profile->lat) && isset($profile->lon)) {
+                $object->geopoint = (float)$profile->lat
+                    . ' ' . (float)$profile->lon;
+            }
 
-			$object->poco = PoCo::fromProfile($profile);
+            $object->poco = PoCo::fromProfile($profile);
 
-			Event::handle('EndActivityObjectFromProfile', array($profile, &$object));
-		}
+            Event::handle('EndActivityObjectFromProfile', array($profile, &$object));
+        }
 
         return $object;
     }
@@ -503,133 +509,160 @@ class ActivityObject
     {
         $object = new ActivityObject();
 
-		if (Event::handle('StartActivityObjectFromGroup', array($group, &$object))) {
+        if (Event::handle('StartActivityObjectFromGroup', array($group, &$object))) {
 
-			$object->type   = ActivityObject::GROUP;
-			$object->id     = $group->getUri();
-			$object->title  = $group->getBestName();
-			$object->link   = $group->getUri();
+            $object->type   = ActivityObject::GROUP;
+            $object->id     = $group->getUri();
+            $object->title  = $group->getBestName();
+            $object->link   = $group->getUri();
 
-			$object->avatarLinks[] = AvatarLink::fromFilename($group->homepage_logo,
-															  AVATAR_PROFILE_SIZE);
+            $object->avatarLinks[] = AvatarLink::fromFilename($group->homepage_logo,
+                                                              AVATAR_PROFILE_SIZE);
 
-			$object->avatarLinks[] = AvatarLink::fromFilename($group->stream_logo,
-															  AVATAR_STREAM_SIZE);
+            $object->avatarLinks[] = AvatarLink::fromFilename($group->stream_logo,
+                                                              AVATAR_STREAM_SIZE);
 
-			$object->avatarLinks[] = AvatarLink::fromFilename($group->mini_logo,
-															  AVATAR_MINI_SIZE);
+            $object->avatarLinks[] = AvatarLink::fromFilename($group->mini_logo,
+                                                              AVATAR_MINI_SIZE);
 
-			$object->poco = PoCo::fromGroup($group);
-
-			Event::handle('EndActivityObjectFromGroup', array($group, &$object));
-		}
+            $object->poco = PoCo::fromGroup($group);
+            Event::handle('EndActivityObjectFromGroup', array($group, &$object));
+        }
 
         return $object;
     }
 
-	function outputTo($xo, $tag='activity:object')
-	{
-		if (!empty($tag)) {
-			$xo->elementStart($tag);
-		}
+    static function fromPeopletag($ptag)
+    {
+        $object = new ActivityObject();
+        if (Event::handle('StartActivityObjectFromPeopletag', array($ptag, &$object))) {
+            $object->type    = ActivityObject::_LIST;
 
-        $xo->element('activity:object-type', null, $this->type);
+            $object->id      = $ptag->getUri();
+            $object->title   = $ptag->tag;
+            $object->summary = $ptag->description;
+            $object->link    = $ptag->homeUrl();
+            $object->owner   = Profile::staticGet('id', $ptag->tagger);
+            $object->poco    = PoCo::fromProfile($object->owner);
+            Event::handle('EndActivityObjectFromPeopletag', array($ptag, &$object));
+        }
+        return $object;
+    }
 
-        // <author> uses URI
-
-        if ($tag == 'author') {
-            $xo->element(self::URI, null, $this->id);
-        } else {
-            $xo->element(self::ID, null, $this->id);
+    function outputTo($xo, $tag='activity:object')
+    {
+        if (!empty($tag)) {
+            $xo->elementStart($tag);
         }
 
-        if (!empty($this->title)) {
-            $name = common_xml_safe_str($this->title);
+        if (Event::handle('StartActivityObjectOutputAtom', array($this, $xo))) {
+            $xo->element('activity:object-type', null, $this->type);
+
+            // <author> uses URI
+
             if ($tag == 'author') {
-                // XXX: Backward compatibility hack -- atom:name should contain
-                // full name here, instead of nickname, i.e.: $name. Change
-                // this in the next version.
-                $xo->element(self::NAME, null, $this->poco->preferredUsername);
+                $xo->element(self::URI, null, $this->id);
             } else {
-                $xo->element(self::TITLE, null, $name);
+                $xo->element(self::ID, null, $this->id);
             }
-        }
 
-        if (!empty($this->summary)) {
-            $xo->element(
-                self::SUMMARY,
-                null,
-                common_xml_safe_str($this->summary)
-            );
-        }
+            if (!empty($this->title)) {
+                $name = common_xml_safe_str($this->title);
+                if ($tag == 'author') {
+                    // XXX: Backward compatibility hack -- atom:name should contain
+                    // full name here, instead of nickname, i.e.: $name. Change
+                    // this in the next version.
+                    $xo->element(self::NAME, null, $this->poco->preferredUsername);
+                } else {
+                    $xo->element(self::TITLE, null, $name);
+                }
+            }
 
-        if (!empty($this->content)) {
-            // XXX: assuming HTML content here
-            $xo->element(
-                ActivityUtils::CONTENT,
-                array('type' => 'html'),
-                common_xml_safe_str($this->content)
-            );
-        }
-
-        if (!empty($this->link)) {
-            $xo->element(
-                'link',
-                array(
-                    'rel' => 'alternate',
-                    'type' => 'text/html',
-                    'href' => $this->link
-                ),
-                null
-            );
-        }
-
-        if ($this->type == ActivityObject::PERSON
-            || $this->type == ActivityObject::GROUP) {
-
-            foreach ($this->avatarLinks as $avatar) {
+            if (!empty($this->summary)) {
                 $xo->element(
-                    'link', array(
-                        'rel'  => 'avatar',
-                        'type'         => $avatar->type,
-                        'media:width'  => $avatar->width,
-                        'media:height' => $avatar->height,
-                        'href' => $avatar->url
+                    self::SUMMARY,
+                    null,
+                    common_xml_safe_str($this->summary)
+                );
+            }
+
+            if (!empty($this->content)) {
+                // XXX: assuming HTML content here
+                $xo->element(
+                    ActivityUtils::CONTENT,
+                    array('type' => 'html'),
+                    common_xml_safe_str($this->content)
+                );
+            }
+
+            if (!empty($this->link)) {
+                $xo->element(
+                    'link',
+                    array(
+                        'rel' => 'alternate',
+                        'type' => 'text/html',
+                        'href' => $this->link
                     ),
                     null
                 );
             }
+
+            if(!empty($this->owner)) {
+                $owner = $this->owner->asActivityNoun(self::AUTHOR);
+                $xo->raw($owner);
+            }
+
+            if ($this->type == ActivityObject::PERSON
+                || $this->type == ActivityObject::GROUP) {
+
+                foreach ($this->avatarLinks as $avatar) {
+                    $xo->element(
+                        'link', array(
+                            'rel'  => 'avatar',
+                            'type'         => $avatar->type,
+                            'media:width'  => $avatar->width,
+                            'media:height' => $avatar->height,
+                            'href' => $avatar->url
+                        ),
+                        null
+                    );
+                }
+            }
+
+            if (!empty($this->geopoint)) {
+                $xo->element(
+                    'georss:point',
+                    null,
+                    $this->geopoint
+                );
+            }
+
+            if (!empty($this->poco)) {
+                $this->poco->outputTo($xo);
+            }
+
+            // @fixme there's no way here to make a tree; elements can only contain plaintext
+            // @fixme these may collide with JSON extensions
+            foreach ($this->extra as $el) {
+                list($extraTag, $attrs, $content) = $el;
+                $xo->element($extraTag, $attrs, $content);
+            }
+
+            Event::handle('EndActivityObjectOutputAtom', array($this, $xo));
         }
 
-        if (!empty($this->geopoint)) {
-            $xo->element(
-                'georss:point',
-                null,
-                $this->geopoint
-            );
+        if (!empty($tag)) {
+            $xo->elementEnd($tag);
         }
-
-        if (!empty($this->poco)) {
-            $this->poco->outputTo($xo);
-        }
-
-        foreach ($this->extra as $el) {
-            list($extraTag, $attrs, $content) = $el;
-            $xo->element($extraTag, $attrs, $content);
-        }
-
-		if (!empty($tag)) {
-			$xo->elementEnd($tag);
-		}
 
         return;
-	}
+    }
 
     function asString($tag='activity:object')
     {
         $xs = new XMLStringer(true);
 
-		$this->outputTo($xs, $tag);
+        $this->outputTo($xs, $tag);
 
         return $xs->getString();
     }
@@ -645,91 +678,103 @@ class ActivityObject
     {
         $object = array();
 
-        // XXX: attachedObjects are added by Activity
+        if (Event::handle('StartActivityObjectOutputJson', array($this, &$object))) {
+            // XXX: attachments are added by Activity
 
-        // displayName
-        $object['displayName'] = $this->title;
+            // author (Add object for author? Could be useful for repeats.)
 
-        // TODO: downstreamDuplicates
+            // content (Add rendered version of the notice?)
 
-        // embedCode (used for video)
+            // displayName
+            $object['displayName'] = $this->title;
 
-        // id
-        //
-        // XXX: Should we use URL here? or a crazy tag URI?
-        $object['id'] = $this->id;
+            // downstreamDuplicates
 
-        if ($this->type == ActivityObject::PERSON
-            || $this->type == ActivityObject::GROUP) {
+            // id
+            $object['id'] = $this->id;
+            //
+            // XXX: Should we use URL here? or a crazy tag URI?
+            $object['id'] = $this->id;
 
-            // XXX: Not sure what the best avatar is to use for the
-            // author's "image". For now, I'm using the large size.
+            if ($this->type == ActivityObject::PERSON
+                || $this->type == ActivityObject::GROUP) {
 
-            $avatarLarge      = null;
-            $avatarMediaLinks = array();
+                // XXX: Not sure what the best avatar is to use for the
+                // author's "image". For now, I'm using the large size.
 
-            foreach ($this->avatarLinks as $a) {
+                $imgLink          = null;
+                $avatarMediaLinks = array();
 
-                // Make a MediaLink for every other Avatar
-                $avatar = new ActivityStreamsMediaLink(
-                    $a->url,
-                    $a->width,
-                    $a->height,
-                    $a->type,
-                    'avatar'
-                );
+                foreach ($this->avatarLinks as $a) {
 
-                // Find the big avatar to use as the "image"
-                if ($a->height == AVATAR_PROFILE_SIZE) {
-                    $imgLink = $avatar;
+                    // Make a MediaLink for every other Avatar
+                    $avatar = new ActivityStreamsMediaLink(
+                        $a->url,
+                        $a->width,
+                        $a->height,
+                        $a->type,
+                        'avatar'
+                    );
+
+                    // Find the big avatar to use as the "image"
+                    if ($a->height == AVATAR_PROFILE_SIZE) {
+                        $imgLink = $avatar;
+                    }
+
+                    $avatarMediaLinks[] = $avatar->asArray();
                 }
 
-                $avatarMediaLinks[] = $avatar->asArray();
+                $object['avatarLinks'] = $avatarMediaLinks; // extension
+
+                // image
+                if (!empty($imgLink)) {
+                    $object['image']  = $imgLink->asArray();
+                }
             }
 
-            $object['avatarLinks'] = $avatarMediaLinks; // extension
+            // objectType
+            //
+            // We can probably use the whole schema URL here but probably the
+            // relative simple name is easier to parse
+            // @fixme this breaks extension URIs
+            $object['type'] = substr($this->type, strrpos($this->type, '/') + 1);
 
-            // image
-            $object['image']  = $imgLink->asArray();
+            // published (probably don't need. Might be useful for repeats.)
+
+            // summary
+            $object['summary'] = $this->summary;
+
+            // udpated (probably don't need this)
+
+            // TODO: upstreamDuplicates
+
+            // url (XXX: need to put the right thing here...)
+            $object['url'] = $this->id;
+
+            /* Extensions */
+            // @fixme these may collide with XML extensions
+            // @fixme multiple tags of same name will overwrite each other
+            // @fixme text content from XML extensions will be lost
+            foreach ($this->extra as $e) {
+                list($objectName, $props, $txt) = $e;
+                $object[$objectName] = $props;
+            }
+
+            if (!empty($this->geopoint)) {
+
+                list($lat, $long) = explode(' ', $this->geopoint);
+
+                $object['geopoint'] = array(
+                    'type'        => 'Point',
+                    'coordinates' => array($lat, $long)
+                );
+            }
+
+            if (!empty($this->poco)) {
+                $object['contact'] = array_filter($this->poco->asArray());
+            }
+            Event::handle('EndActivityObjectOutputJson', array($this, &$object));
         }
-
-        // objectType
-        //
-        // We can probably use the whole schema URL here but probably the
-        // relative simple name is easier to parse
-        $object['type'] = substr($this->type, strrpos($this->type, '/') + 1);
-
-        // summary
-        $object['summary'] = $this->summary;
-
-        // TODO: upstreamDuplicates
-
-        // url (XXX: need to put the right thing here...)
-        $object['url'] = $this->id;
-
-        /* Extensions */
-
-        foreach ($this->extra as $e) {
-            list($objectName, $props, $txt) = $e;
-            $object[$objectName] = $props;
-        }
-
-        // GeoJSON
-
-        if (!empty($this->geopoint)) {
-
-            list($lat, $long) = explode(' ', $this->geopoint);
-
-            $object['geopoint'] = array(
-                'type'        => 'Point',
-                'coordinates' => array($lat, $long)
-            );
-        }
-
-        if (!empty($this->poco)) {
-            $object['contact'] = $this->poco->asArray();
-        }
-
         return array_filter($object);
     }
 }

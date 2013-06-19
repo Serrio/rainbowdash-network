@@ -202,7 +202,7 @@ class ApiTimelineUserAction extends ApiBareAuthAction
             $this->showJsonTimeline($this->notices);
             break;
         case 'as':
-            header('Content-Type: application/json; charset=utf-8');
+            header('Content-Type: ' . ActivityStreamJSONDocument::CONTENT_TYPE);
             $doc = new ActivityStreamJSONDocument($this->auth_user);
             $doc->setTitle($atom->title);
             $doc->addLink($link, 'alternate', 'text/html');
@@ -213,7 +213,7 @@ class ApiTimelineUserAction extends ApiBareAuthAction
             $this->raw($doc->asString());
             break;
         default:
-            // TRANS: Client error displayed when trying to handle an unknown API method.
+            // TRANS: Client error displayed when coming across a non-supported API method.
             $this->clientError(_('API method not found.'), $code = 404);
             break;
         }
@@ -447,7 +447,7 @@ class ApiTimelineUserAction extends ApiBareAuthAction
                 } else {
                     $group = User_group::staticGet('uri', $uri);
                     if (!empty($group)) {
-                        $options['groups'][] = $uri;
+                        $options['groups'][] = $group->id;
                     } else {
                         // @fixme: hook for discovery here
                         common_log(LOG_WARNING, sprintf('AtomPub post with unknown attention URI %s', $uri));

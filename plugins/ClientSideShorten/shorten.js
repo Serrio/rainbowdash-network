@@ -16,7 +16,7 @@
                 function delayed () {
                     if (!execAsap)
                         func.apply(obj, args);
-                        timeout = null; 
+                        timeout = null;
                 };
 
                 if (timeout)
@@ -24,17 +24,28 @@
                 else if (execAsap)
                     func.apply(obj, args);
 
-                timeout = setTimeout(delayed, threshold || 100); 
+                timeout = setTimeout(delayed, threshold || 100);
             };
         }
         jQuery.fn[sr] = function(fn){  return fn ? this.bind('keypress', debounce(fn, 1000)) : this.trigger(sr); };
 
     })(jQuery,'smartkeypress');
 
+    function longestWordInString(string)
+    {
+        var words = string.split(/\s/);
+        var longestWord = 0;
+        for(var i=0;i<words.length;i++)
+            if(words[i].length > longestWord) longestWord = words[i].length;
+        return longestWord;
+    }
+
     function shorten()
     {
-        $noticeDataText = $('#'+SN.C.S.NoticeDataText);
-        if(Notice_maxContent > 0 && $noticeDataText.val().length > Notice_maxContent){
+        var $noticeDataText = $('#'+SN.C.S.NoticeDataText);
+        var noticeText = $noticeDataText.val();
+
+        if(noticeText.length > maxNoticeLength || longestWordInString(noticeText) > maxUrlLength) {
             var original = $noticeDataText.val();
             shortenAjax = $.ajax({
                 url: $('address .url')[0].href+'/plugins/ClientSideShorten/shorten',

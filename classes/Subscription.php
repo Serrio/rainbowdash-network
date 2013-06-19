@@ -24,9 +24,10 @@ if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
  */
 require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
 
-class Subscription extends Memcached_DataObject
+class Subscription extends Managed_DataObject
 {
     const CACHE_WINDOW = 201;
+    const FORCE = true;
 
     ###START_AUTOCODE
     /* the code below is auto generated do not remove the above tag */
@@ -38,8 +39,35 @@ class Subscription extends Memcached_DataObject
     public $sms;                             // tinyint(1)   default_1
     public $token;                           // varchar(255)
     public $secret;                          // varchar(255)
+    public $uri;                             // varchar(255)
     public $created;                         // datetime()   not_null
     public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+
+    public static function schemaDef()
+    {
+        return array(
+            'fields' => array(
+                'subscriber' => array('type' => 'int', 'not null' => true, 'description' => 'profile listening'),
+                'subscribed' => array('type' => 'int', 'not null' => true, 'description' => 'profile being listened to'),
+                'jabber' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'deliver jabber messages'),
+                'sms' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'deliver sms messages'),
+                'token' => array('type' => 'varchar', 'length' => 255, 'description' => 'authorization token'),
+                'secret' => array('type' => 'varchar', 'length' => 255, 'description' => 'token secret'),
+                'uri' => array('type' => 'varchar', 'length' => 255, 'description' => 'universally unique identifier'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+            ),
+            'primary key' => array('subscriber', 'subscribed'),
+            'unique keys' => array(
+                'subscription_uri_key' => array('uri'),
+            ),
+            'indexes' => array(
+                'subscription_subscriber_idx' => array('subscriber', 'created'),
+                'subscription_subscribed_idx' => array('subscribed', 'created'),
+                'subscription_token_idx' => array('token'),
+            ),
+        );
+    }    
 
     /* Static get */
     function staticGet($k,$v=null)
@@ -58,11 +86,12 @@ class Subscription extends Memcached_DataObject
      *
      * @param Profile $subscriber party to receive new notices
      * @param Profile $other      party sending notices; publisher
+     * @param bool    $force      pass Subscription::FORCE to override local subscription approval
      *
-     * @return Subscription new subscription
+     * @return mixed Subscription or Subscription_queue: new subscription info
      */
 
-    static function start($subscriber, $other)
+    static function start($subscriber, $other, $force=false)
     {
         // @fixme should we enforce this as profiles in callers instead?
         if ($subscriber instanceof User) {
@@ -88,35 +117,39 @@ class Subscription extends Memcached_DataObject
         }
 
         if (Event::handle('StartSubscribe', array($subscriber, $other))) {
-            $sub = self::saveNew($subscriber->id, $other->id);
-            $sub->notify();
-
-            self::blow('user:notices_with_friends:%d', $subscriber->id);
-
-            self::blow('subscription:by-subscriber:'.$subscriber->id);
-            self::blow('subscription:by-subscribed:'.$other->id);
-
-            $subscriber->blowSubscriptionCount();
-            $other->blowSubscriberCount();
-
             $otherUser = User::staticGet('id', $other->id);
+            if ($otherUser && $otherUser->subscribe_policy == User::SUBSCRIBE_POLICY_MODERATE && !$force) {
+                $sub = Subscription_queue::saveNew($subscriber, $other);
+                $sub->notify();
+            } else {
+                $sub = self::saveNew($subscriber->id, $other->id);
+                $sub->notify();
 
-            if (!empty($otherUser) &&
-                $otherUser->autosubscribe &&
-                !self::exists($other, $subscriber) &&
-                !$subscriber->hasBlocked($other)) {
+                self::blow('user:notices_with_friends:%d', $subscriber->id);
 
-                try {
-                    self::start($other, $subscriber);
-                } catch (Exception $e) {
-                    common_log(LOG_ERR, "Exception during autosubscribe of {$other->nickname} to profile {$subscriber->id}: {$e->getMessage()}");
+                self::blow('subscription:by-subscriber:'.$subscriber->id);
+                self::blow('subscription:by-subscribed:'.$other->id);
+
+                $subscriber->blowSubscriptionCount();
+                $other->blowSubscriberCount();
+
+                if (!empty($otherUser) &&
+                    $otherUser->autosubscribe &&
+                    !self::exists($other, $subscriber) &&
+                    !$subscriber->hasBlocked($other)) {
+
+                    try {
+                        self::start($other, $subscriber);
+                    } catch (Exception $e) {
+                        common_log(LOG_ERR, "Exception during autosubscribe of {$other->nickname} to profile {$subscriber->id}: {$e->getMessage()}");
+                    }
                 }
             }
 
             Event::handle('EndSubscribe', array($subscriber, $other));
         }
 
-        return true;
+        return $sub;
     }
 
     /**
@@ -132,6 +165,9 @@ class Subscription extends Memcached_DataObject
         $sub->jabber     = 1;
         $sub->sms        = 1;
         $sub->created    = common_sql_now();
+        $sub->uri        = self::newURI($sub->subscriber,
+                                        $sub->subscribed,
+                                        $sub->created);
 
         $result = $sub->insert();
 
@@ -146,9 +182,9 @@ class Subscription extends Memcached_DataObject
 
     function notify()
     {
-        # XXX: add other notifications (Jabber, SMS) here
-        # XXX: queue this and handle it offline
-        # XXX: Whatever happens, do it in Twitter-like API, too
+        // XXX: add other notifications (Jabber, SMS) here
+        // XXX: queue this and handle it offline
+        // XXX: Whatever happens, do it in Twitter-like API, too
 
         $this->notifyEmail();
     }
@@ -192,29 +228,6 @@ class Subscription extends Memcached_DataObject
 
             assert(!empty($sub));
 
-            // @todo: move this block to EndSubscribe handler for
-            // OMB plugin when it exists.
-
-            if (!empty($sub->token)) {
-
-                $token = new Token();
-
-                $token->tok    = $sub->token;
-
-                if ($token->find(true)) {
-
-                    $result = $token->delete();
-
-                    if (!$result) {
-                        common_log_db_error($token, 'DELETE', __FILE__);
-                        // TRANS: Exception thrown when the OMB token for a subscription could not deleted on the server.
-                        throw new Exception(_('Could not delete subscription OMB token.'));
-                    }
-                } else {
-                    common_log(LOG_ERR, "Couldn't find credentials with token {$token->tok}");
-                }
-            }
-
             $result = $sub->delete();
 
             if (!$result) {
@@ -255,14 +268,11 @@ class Subscription extends Memcached_DataObject
 
         // XXX: rationalize this with the URL
 
-        $act->id   = TagURI::mint('follow:%d:%d:%s',
-                                  $subscriber->id,
-                                  $subscribed->id,
-                                  common_date_iso8601($this->created));
+        $act->id   = $this->getURI();
 
         $act->time    = strtotime($this->created);
-        // TRANS: Activity tile when subscribing to another person.
-        $act->title   = _("Follow");
+        // TRANS: Activity title when subscribing to another person.
+        $act->title = _m('TITLE','Follow');
         // TRANS: Notification given when one person starts following another.
         // TRANS: %1$s is the subscriber, %2$s is the subscribed.
         $act->content = sprintf(_('%1$s is now following %2$s.'),
@@ -295,7 +305,6 @@ class Subscription extends Memcached_DataObject
      *
      * @return Subscription stream of subscriptions; use fetch() to iterate
      */
-
     static function bySubscriber($subscriberId,
                                  $offset = 0,
                                  $limit = PROFILES_PER_PAGE)
@@ -356,7 +365,6 @@ class Subscription extends Memcached_DataObject
      *
      * @return Subscription stream of subscriptions; use fetch() to iterate
      */
-
     static function bySubscribed($subscribedId,
                                  $offset = 0,
                                  $limit = PROFILES_PER_PAGE)
@@ -414,7 +422,6 @@ class Subscription extends Memcached_DataObject
      *
      * @return boolean success flag.
      */
-
     function update($orig=null)
     {
         $result = parent::update($orig);
@@ -423,5 +430,22 @@ class Subscription extends Memcached_DataObject
         self::blow('subscription:by-subscribed:'.$this->subscribed);
 
         return $result;
+    }
+
+    function getURI()
+    {
+        if (!empty($this->uri)) {
+            return $this->uri;
+        } else {
+            return self::newURI($this->subscriber, $this->subscribed, $this->created);
+        }
+    }
+
+    static function newURI($subscriber_id, $subscribed_id, $created)
+    {
+        return TagURI::mint('follow:%d:%d:%s',
+                            $subscriber_id,
+                            $subscribed_id,
+                            common_date_iso8601($created));
     }
 }

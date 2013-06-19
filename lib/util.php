@@ -1,7 +1,7 @@
 <?php
 /*
  * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
+ * Copyright (C) 2008-2011, StatusNet, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -157,22 +157,38 @@ function common_timezone()
     return common_config('site', 'timezone');
 }
 
+function common_valid_language($lang)
+{
+    if ($lang) {
+        // Validate -- we don't want to end up with a bogus code
+        // left over from some old junk.
+        foreach (common_config('site', 'languages') as $code => $info) {
+            if ($info['lang'] == $lang) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 function common_language()
 {
+    // Allow ?uselang=xx override, very useful for debugging
+    // and helping translators check usage and context.
+    if (isset($_GET['uselang'])) {
+        $uselang = strval($_GET['uselang']);
+        if (common_valid_language($uselang)) {
+            return $uselang;
+        }
+    }
+
     // If there is a user logged in and they've set a language preference
     // then return that one...
     if (_have_config() && common_logged_in()) {
         $user = common_current_user();
-        $user_language = $user->language;
 
-        if ($user->language) {
-            // Validate -- we don't want to end up with a bogus code
-            // left over from some old junk.
-            foreach (common_config('site', 'languages') as $code => $info) {
-                if ($info['lang'] == $user_language) {
-                    return $user_language;
-                }
-            }
+        if (common_valid_language($user->language)) {
+            return $user->language;
         }
     }
 
@@ -217,7 +233,13 @@ function common_check_user($nickname, $password)
     $authenticatedUser = false;
 
     if (Event::handle('StartCheckPassword', array($nickname, $password, &$authenticatedUser))) {
-        $user = User::staticGet('nickname', common_canonical_nickname($nickname));
+
+        if (common_is_email($nickname)) {
+            $user = User::staticGet('email', common_canonical_email($nickname));
+        } else {
+            $user = User::staticGet('nickname', common_canonical_nickname($nickname));
+        }
+
         if (!empty($user)) {
             if (!empty($password)) { // never allow login with blank password
                 if (0 == strcmp(common_munge_password($password, $user->id),
@@ -302,6 +324,7 @@ function common_set_user($user)
         if (Event::handle('StartSetUser', array(&$user))) {
             if (!empty($user)) {
                 if (!$user->hasRight(Right::WEBLOGIN)) {
+                    // TRANS: Authorisation exception thrown when a user a not allowed to login.
                     throw new AuthorizationException(_('Not allowed to log in.'));
                 }
                 common_ensure_session();
@@ -390,7 +413,7 @@ function common_remembered_user()
         return null;
     }
 
-    $rm = Remember_me::staticGet($code);
+    $rm = Remember_me::staticGet('code', $code);
 
     if (!$rm) {
         common_log(LOG_WARNING, 'No such remember code: ' . $code);
@@ -404,7 +427,7 @@ function common_remembered_user()
         return null;
     }
 
-    $user = User::staticGet($rm->user_id);
+    $user = User::staticGet('id', $rm->user_id);
 
     if (!$user) {
         common_log(LOG_WARNING, 'No such user for rememberme: ' . $rm->user_id);
@@ -621,7 +644,7 @@ function common_linkify_mention($mention)
 
         $xs->elementStart('span', 'vcard');
         $xs->elementStart('a', $attrs);
-        $xs->element('span', 'fn nickname', $mention['text']);
+        $xs->element('span', 'fn nickname mention', $mention['text']);
         $xs->elementEnd('a');
         $xs->elementEnd('span');
 
@@ -737,17 +760,19 @@ function common_find_mentions($text, $notice)
         foreach ($hmatches[1] as $hmatch) {
 
             $tag = common_canonical_tag($hmatch[0]);
+            $plist = Profile_list::getByTaggerAndTag($sender->id, $tag);
+            if (!empty($plist) && !$plist->private) {
+                $tagged = $sender->getTaggedSubscribers($tag);
 
-            $tagged = Profile_tag::getTagged($sender->id, $tag);
+                $url = common_local_url('showprofiletag',
+                                        array('tagger' => $sender->nickname,
+                                              'tag' => $tag));
 
-            $url = common_local_url('subscriptions',
-                                    array('nickname' => $sender->nickname,
-                                          'tag' => $tag));
-
-            $mentions[] = array('mentioned' => $tagged,
-                                'text' => $hmatch[0],
-                                'position' => $hmatch[1],
-                                'url' => $url);
+                $mentions[] = array('mentioned' => $tagged,
+                                    'text' => $hmatch[0],
+                                    'position' => $hmatch[1],
+                                    'url' => $url);
+            }
         }
 
         Event::handle('EndFindMentions', array($sender, $text, &$mentions));
@@ -851,7 +876,7 @@ function common_replace_urls_callback($text, $callback, $arg = null) {
  * @param callable $callback
  * @param mixed $arg optional argument to pass on as second param to callback
  * @return string
- * 
+ *
  * @access private
  */
 function callback_helper($matches, $callback, $arg=null) {
@@ -1015,9 +1040,15 @@ function common_linkify($url) {
  */
 function common_shorten_links($text, $always = false, User $user=null)
 {
-    $maxLength = Notice::maxContent();
-    if (!$always && ($maxLength == 0 || mb_strlen($text) <= $maxLength)) return $text;
-    return common_replace_urls_callback($text, array('File_redirection', 'makeShort'), $user);
+    $user = common_current_user();
+
+    $maxLength = User_urlshortener_prefs::maxNoticeLength($user);
+
+    if ($always || mb_strlen($text) > $maxLength) {
+        return common_replace_urls_callback($text, array('File_redirection', 'forceShort'), $user);
+    } else {
+        return common_replace_urls_callback($text, array('File_redirection', 'makeShort'), $user);
+    }
 }
 
 /**
@@ -1096,8 +1127,11 @@ function common_tag_link($tag)
 
 function common_canonical_tag($tag)
 {
+  // only alphanum
+  $tag = preg_replace('/[^\pL\pN]/u', '', $tag);
   $tag = mb_convert_case($tag, MB_CASE_LOWER, "UTF-8");
-  return str_replace(array('-', '_', '.'), '', $tag);
+  $tag = substr($tag, 0, 64);
+  return $tag;
 }
 
 function common_valid_profile_tag($str)
@@ -1125,7 +1159,7 @@ function common_group_link($sender_id, $nickname)
         $xs = new XMLStringer();
         $xs->elementStart('span', 'vcard');
         $xs->elementStart('a', $attrs);
-        $xs->element('span', 'fn nickname', $nickname);
+        $xs->element('span', 'fn nickname group', $nickname);
         $xs->elementEnd('a');
         $xs->elementEnd('span');
         return $xs->getString();
@@ -1196,19 +1230,22 @@ function common_relative_profile($sender, $nickname, $dt=null)
 
 function common_local_url($action, $args=null, $params=null, $fragment=null, $addSession=true)
 {
-    $r = Router::get();
-    $path = $r->build($action, $args, $params, $fragment);
+    if (Event::handle('StartLocalURL', array(&$action, &$params, &$fragment, &$addSession, &$url))) {
+        $r = Router::get();
+        $path = $r->build($action, $args, $params, $fragment);
 
-    $ssl = common_is_sensitive($action);
+        $ssl = common_is_sensitive($action);
 
-    if (common_config('site','fancy')) {
-        $url = common_path(mb_substr($path, 1), $ssl, $addSession);
-    } else {
-        if (mb_strpos($path, '/index.php') === 0) {
-            $url = common_path(mb_substr($path, 1), $ssl, $addSession);
+        if (common_config('site','fancy')) {
+            $url = common_path($path, $ssl, $addSession);
         } else {
-            $url = common_path('index.php'.$path, $ssl, $addSession);
+            if (mb_strpos($path, '/index.php') === 0) {
+                $url = common_path($path, $ssl, $addSession);
+            } else {
+                $url = common_path('index.php/'.$path, $ssl, $addSession);
+            }
         }
+        Event::handle('EndLocalURL', array(&$action, &$params, &$fragment, &$addSession, &$url));
     }
     return $url;
 }
@@ -1313,28 +1350,28 @@ function common_date_string($dt)
     } else if ($diff < 3300) {
         $minutes = round($diff/60);
         // TRANS: Used in notices to indicate when the notice was made compared to now.
-        return sprintf( ngettext('about one minute ago', 'about %d minutes ago', $minutes), $minutes);
+        return sprintf( _m('about one minute ago', 'about %d minutes ago', $minutes), $minutes);
     } else if ($diff < 5400) {
         // TRANS: Used in notices to indicate when the notice was made compared to now.
         return _('about an hour ago');
     } else if ($diff < 22 * 3600) {
         $hours = round($diff/3600);
         // TRANS: Used in notices to indicate when the notice was made compared to now.
-        return sprintf( ngettext('about one hour ago', 'about %d hours ago', $hours), $hours);
+        return sprintf( _m('about one hour ago', 'about %d hours ago', $hours), $hours);
     } else if ($diff < 37 * 3600) {
         // TRANS: Used in notices to indicate when the notice was made compared to now.
         return _('about a day ago');
     } else if ($diff < 24 * 24 * 3600) {
         $days = round($diff/(24*3600));
         // TRANS: Used in notices to indicate when the notice was made compared to now.
-        return sprintf( ngettext('about one day ago', 'about %d days ago', $days), $days);
+        return sprintf( _m('about one day ago', 'about %d days ago', $days), $days);
     } else if ($diff < 46 * 24 * 3600) {
         // TRANS: Used in notices to indicate when the notice was made compared to now.
         return _('about a month ago');
     } else if ($diff < 330 * 24 * 3600) {
         $months = round($diff/(30*24*3600));
         // TRANS: Used in notices to indicate when the notice was made compared to now.
-        return sprintf( ngettext('about one month ago', 'about %d months ago',$months), $months);
+        return sprintf( _m('about one month ago', 'about %d months ago',$months), $months);
     } else if ($diff < 480 * 24 * 3600) {
         // TRANS: Used in notices to indicate when the notice was made compared to now.
         return _('about a year ago');
@@ -1422,6 +1459,7 @@ function common_redirect($url, $code=307)
 
     header('HTTP/1.1 '.$code.' '.$status[$code]);
     header("Location: $url");
+    header("Connection: close");
 
     $xo = new XMLOutputter();
     $xo->startXML('a',
@@ -1432,18 +1470,11 @@ function common_redirect($url, $code=307)
     exit;
 }
 
-function common_broadcast_notice($notice, $remote=false)
-{
-    // DO NOTHING!
-}
+// Stick the notice on the queue
 
-/**
- * Stick the notice on the queue.
- */
 function common_enqueue_notice($notice)
 {
-    static $localTransports = array('omb',
-                                    'ping');
+    static $localTransports = array('ping');
 
     $transports = array();
     if (common_config('sms', 'enabled')) {
@@ -1453,18 +1484,9 @@ function common_enqueue_notice($notice)
         $transports[] = 'plugin';
     }
 
-    $xmpp = common_config('xmpp', 'enabled');
-
-    if ($xmpp) {
-        $transports[] = 'jabber';
-    }
-
     // We can skip these for gatewayed notices.
     if ($notice->isLocal()) {
         $transports = array_merge($transports, $localTransports);
-        if ($xmpp) {
-            $transports[] = 'public';
-        }
     }
 
     if (Event::handle('StartEnqueueNotice', array($notice, &$transports))) {
@@ -1483,16 +1505,18 @@ function common_enqueue_notice($notice)
 }
 
 /**
- * Broadcast profile updates to OMB and other remote subscribers.
+ * Legacy function to broadcast profile updates to OMB remote subscribers.
+ *
+ * XXX: This probably needs killing, but there are several bits of code
+ *      that broadcast profile changes that need to be dealt with. AFAIK
+ *      this function is only used for OMB. -z
  *
  * Since this may be slow with a lot of subscribers or bad remote sites,
  * this is run through the background queues if possible.
  */
 function common_broadcast_profile(Profile $profile)
 {
-    $qm = QueueManager::get();
-    $qm->enqueue($profile, "profile");
-    return true;
+    Event::handle('BroadcastProfile', array($profile));
 }
 
 function common_profile_url($nickname)
@@ -1847,6 +1871,30 @@ function common_config($main, $sub)
             array_key_exists($sub, $config[$main])) ? $config[$main][$sub] : false;
 }
 
+function common_config_set($main, $sub, $value)
+{
+    global $config;
+    if (!array_key_exists($main, $config)) {
+        $config[$main] = array();
+    }
+    $config[$main][$sub] = $value;
+}
+
+function common_config_append($main, $sub, $value)
+{
+    global $config;
+    if (!array_key_exists($main, $config)) {
+        $config[$main] = array();
+    }
+    if (!array_key_exists($sub, $config[$main])) {
+        $config[$main][$sub] = array();
+    }
+    if (!is_array($config[$main][$sub])) {
+        $config[$main][$sub] = array($config[$main][$sub]);
+    }
+    array_push($config[$main][$sub], $value);
+}
+
 /**
  * Pull arguments from a GET/POST/REQUEST array with first-level input checks:
  * strips "magic quotes" slashes if necessary, and kills invalid UTF-8 strings.
@@ -1918,30 +1966,68 @@ function common_confirmation_code($bits)
 
 // convert markup to HTML
 
-function common_markup_to_html($c)
+function common_markup_to_html($c, $args=null)
 {
+    if (is_null($args)) {
+        $args = array();
+    }
+
+    // XXX: not very efficient
+
+    foreach ($args as $name => $value) {
+        $c = preg_replace('/%%arg.'.$name.'%%/', $value, $c);
+    }
+
+    $c = preg_replace('/%%user.(\w+)%%/e', "common_user_property('\\1')", $c);
     $c = preg_replace('/%%action.(\w+)%%/e', "common_local_url('\\1')", $c);
     $c = preg_replace('/%%doc.(\w+)%%/e', "common_local_url('doc', array('title'=>'\\1'))", $c);
     $c = preg_replace('/%%(\w+).(\w+)%%/e', 'common_config(\'\\1\', \'\\2\')', $c);
     return Markdown($c);
 }
 
-function common_profile_uri($profile)
+function common_user_property($property)
 {
-    if (!$profile) {
+    $profile = Profile::current();
+
+    if (empty($profile)) {
         return null;
     }
-    $user = User::staticGet($profile->id);
-    if ($user) {
-        return $user->uri;
+
+    switch ($property) {
+    case 'profileurl':
+    case 'nickname':
+    case 'fullname':
+    case 'location':
+    case 'bio':
+        return $profile->$property;
+        break;
+    case 'avatar':
+        return $profile->getAvatar(AVATAR_STREAM_SIZE);
+        break;
+    case 'bestname':
+        return $profile->getBestName();
+        break;
+    default:
+        return null;
+    }
+}
+
+function common_profile_uri($profile)
+{
+    $uri = null;
+
+    if (!empty($profile)) {
+        if (Event::handle('StartCommonProfileURI', array($profile, &$uri))) {
+            $user = User::staticGet($profile->id);
+            if (!empty($user)) {
+                $uri = $user->uri;
+            }
+            Event::handle('EndCommonProfileURI', array($profile, &$uri));
+        }
     }
 
-    $remote = Remote_profile::staticGet($profile->id);
-    if ($remote) {
-        return $remote->uri;
-    }
     // XXX: this is a very bad profile!
-    return null;
+    return $uri;
 }
 
 function common_canonical_sms($sms)
@@ -2003,21 +2089,6 @@ function common_session_token()
     return $_SESSION['token'];
 }
 
-function common_cache_key($extra)
-{
-    return Cache::key($extra);
-}
-
-function common_keyize($str)
-{
-    return Cache::keyize($str);
-}
-
-function common_memcache()
-{
-    return Cache::instance();
-}
-
 function common_license_terms($uri)
 {
     if(preg_match('/creativecommons.org\/licenses\/([^\/]+)/', $uri, $matches)) {
@@ -2058,33 +2129,50 @@ function common_database_tablename($tablename)
 /**
  * Shorten a URL with the current user's configured shortening service,
  * or ur1.ca if configured, or not at all if no shortening is set up.
- * Length is not considered.
  *
- * @param string $long_url
+ * @param string  $long_url original URL
  * @param User $user to specify a particular user's options
+ * @param boolean $force    Force shortening (used when notice is too long)
  * @return string may return the original URL if shortening failed
  *
  * @fixme provide a way to specify a particular shortener
  */
-function common_shorten_url($long_url, User $user=null)
+function common_shorten_url($long_url, User $user=null, $force = false)
 {
     $long_url = trim($long_url);
-    if (empty($user)) {
-        // Current web session
-        $user = common_current_user();
-    }
-    if (empty($user)) {
-        // common current user does not find a user when called from the XMPP daemon
-        // therefore we'll set one here fix, so that XMPP given URLs may be shortened
-        $shortenerName = 'ur1.ca';
-    } else {
-        $shortenerName = $user->urlshorteningservice;
+
+    $user = common_current_user();
+
+    $maxUrlLength = User_urlshortener_prefs::maxUrlLength($user);
+
+    // $force forces shortening even if it's not strictly needed
+    // I doubt URL shortening is ever 'strictly' needed. - ESP
+
+    if (mb_strlen($long_url) < $maxUrlLength && !$force) {
+        return $long_url;
     }
 
-    if(Event::handle('StartShortenUrl', array($long_url,$shortenerName,&$shortenedUrl))){
-        //URL wasn't shortened, so return the long url
-        return $long_url;
-    }else{
+    $shortenerName = User_urlshortener_prefs::urlShorteningService($user);
+
+    if (Event::handle('StartShortenUrl',
+                      array($long_url, $shortenerName, &$shortenedUrl))) {
+        if ($shortenerName == 'internal') {
+            $f = File::processNew($long_url);
+            if (empty($f)) {
+                return $long_url;
+            } else {
+                $shortenedUrl = common_local_url('redirecturl',
+                                                 array('id' => $f->id));
+                if ((mb_strlen($shortenedUrl) < mb_strlen($long_url)) || $force) {
+                    return $shortenedUrl;
+                } else {
+                    return $long_url;
+                }
+            }
+        } else {
+            return $long_url;
+        }
+    } else {
         //URL was shortened, so return the result
         return trim($shortenedUrl);
     }
@@ -2131,7 +2219,7 @@ function common_url_to_nickname($url)
 
     $parts = parse_url($url);
 
-    # If any of these parts exist, this won't work
+    // If any of these parts exist, this won't work
 
     foreach ($bad as $badpart) {
         if (array_key_exists($badpart, $parts)) {
@@ -2139,15 +2227,15 @@ function common_url_to_nickname($url)
         }
     }
 
-    # We just have host and/or path
+    // We just have host and/or path
 
-    # If it's just a host...
+    // If it's just a host...
     if (array_key_exists('host', $parts) &&
         (!array_key_exists('path', $parts) || strcmp($parts['path'], '/') == 0))
     {
         $hostparts = explode('.', $parts['host']);
 
-        # Try to catch common idiom of nickname.service.tld
+        // Try to catch common idiom of nickname.service.tld
 
         if ((count($hostparts) > 2) &&
             (strlen($hostparts[count($hostparts) - 2]) > 3) && # try to skip .co.uk, .com.au
@@ -2155,12 +2243,12 @@ function common_url_to_nickname($url)
         {
             return common_nicknamize($hostparts[0]);
         } else {
-            # Do the whole hostname
+            // Do the whole hostname
             return common_nicknamize($parts['host']);
         }
     } else {
         if (array_key_exists('path', $parts)) {
-            # Strip starting, ending slashes
+            // Strip starting, ending slashes
             $path = preg_replace('@/$@', '', $parts['path']);
             $path = preg_replace('@^/@', '', $path);
             $path = basename($path);
@@ -2223,4 +2311,37 @@ function common_log_perf_counters()
             common_log(LOG_DEBUG, "PERF COUNTER: $key $count ($unique unique)");
         }
     }
+}
+
+function common_is_email($str)
+{
+    return (strpos($str, '@') !== false);
+}
+
+function common_init_stats()
+{
+    global $_mem, $_ts;
+
+    $_mem = memory_get_usage(true);
+    $_ts  = microtime(true);
+}
+
+function common_log_delta($comment=null)
+{
+    global $_mem, $_ts;
+
+    $mold = $_mem;
+    $told = $_ts;
+
+    $_mem = memory_get_usage(true);
+    $_ts  = microtime(true);
+
+    $mtotal = $_mem - $mold;
+    $ttotal = $_ts - $told;
+
+    if (empty($comment)) {
+        $comment = 'Delta';
+    }
+
+    common_debug(sprintf("%s: %d %d", $comment, $mtotal, round($ttotal * 1000000)));
 }

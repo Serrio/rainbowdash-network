@@ -1,7 +1,7 @@
 <?php
 /*
  * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008-2010 StatusNet, Inc.
+ * Copyright (C) 2008-2011 StatusNet, Inc.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,6 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
 }
 
 define('TWITTER_SERVICE', 1); // Twitter is foreign_service ID 1
-
-require_once INSTALLDIR . '/plugins/TwitterBridge/twitteroauthclient.php';
 
 function add_twitter_user($twitter_id, $screen_name)
 {
@@ -71,7 +69,6 @@ function save_twitter_user($twitter_id, $screen_name)
     $fuser = Foreign_user::getForeignUser($twitter_id, TWITTER_SERVICE);
 
     if (!empty($fuser)) {
-
         // Delete old record if Twitter user changed screen name
 
         if ($fuser->nickname != $screen_name) {
@@ -83,7 +80,6 @@ function save_twitter_user($twitter_id, $screen_name)
                                          $screen_name,
                                          $oldname));
         }
-
     } else {
         // Kill any old, invalid records for this screen name
         $fuser = Foreign_user::getByNickname($screen_name, TWITTER_SERVICE);
@@ -106,13 +102,26 @@ function save_twitter_user($twitter_id, $screen_name)
 }
 
 function is_twitter_bound($notice, $flink) {
+
+    // Don't send activity activities (at least for now)
+    if ($notice->object_type == ActivityObject::ACTIVITY) {
+        return false;
+    }
+
+    $allowedVerbs = array(ActivityVerb::POST, ActivityVerb::SHARE);
+
+    // Don't send things that aren't posts or repeats (at least for now)
+    if (!in_array($notice->verb, $allowedVerbs)) {
+        return false;
+    }
+
     // Check to see if notice should go to Twitter
-    if (!empty($flink) && ($flink->noticesync & FOREIGN_NOTICE_SEND)) {
+    if (!empty($flink) && ($flink->noticesync & FOREIGN_NOTICE_SEND == FOREIGN_NOTICE_SEND)) {
 
         // If it's not a Twitter-style reply, or if the user WANTS to send replies,
         // or if it's in reply to a twitter notice
         if (!preg_match('/^@[a-zA-Z0-9_]{1,15}\b/u', $notice->content) ||
-            ($flink->noticesync & FOREIGN_NOTICE_SEND_REPLY) ||
+            ($flink->noticesync & FOREIGN_NOTICE_SEND_REPLY == FOREIGN_NOTICE_SEND_REPLY) ||
             is_twitter_notice($notice->reply_to)) {
             return true;
         }
@@ -279,7 +288,6 @@ function broadcast_oauth($notice, $flink) {
     }
 
     if (empty($status)) {
-
         // This could represent a failure posting,
         // or the Twitter API might just be behaving flakey.
         $errmsg = sprintf('Twitter bridge - No data returned by Twitter API when ' .
@@ -320,7 +328,20 @@ function process_error($e, $flink, $notice)
 
     common_log(LOG_WARNING, $logmsg);
 
+    // http://dev.twitter.com/pages/responses_errors
     switch($code) {
+     case 400:
+         // Probably invalid data (bad Unicode chars or coords) that
+         // cannot be resolved by just sending again.
+         //
+         // It could also be rate limiting, but retrying immediately
+         // won't help much with that, so we'll discard for now.
+         // If a facility for retrying things later comes up in future,
+         // we can detect the rate-limiting headers and use that.
+         //
+         // Discard the message permanently.
+         return true;
+         break;
      case 401:
         // Probably a revoked or otherwise bad access token - nuke!
         remove_twitter_link($flink);
@@ -330,6 +351,13 @@ function process_error($e, $flink, $notice)
         // User has exceeder her rate limit -- toss the notice
         return true;
         break;
+     case 404:
+         // Resource not found. Shouldn't happen much on posting,
+         // but just in case!
+         //
+         // Consider it a matter for tossing the notice.
+         return true;
+         break;
      default:
 
         // For every other case, it's probably some flakiness so try
@@ -406,10 +434,14 @@ function mail_twitter_bridge_removed($user)
 
     common_switch_locale($user->language);
 
-    $subject = sprintf(_m('Your Twitter bridge has been disabled.'));
+    // TRANS: Mail subject after forwarding notices to Twitter has stopped working.
+    $subject = sprintf(_m('Your Twitter bridge has been disabled'));
 
     $site_name = common_config('site', 'name');
 
+    // TRANS: Mail body after forwarding notices to Twitter has stopped working.
+    // TRANS: %1$ is the name of the user the mail is sent to, %2$s is a URL to the
+    // TRANS: Twitter settings, %3$s is the StatusNet sitename.
     $body = sprintf(_m('Hi, %1$s. We\'re sorry to inform you that your ' .
         'link to Twitter has been disabled. We no longer seem to have ' .
     'permission to update your Twitter status. Did you maybe revoke ' .

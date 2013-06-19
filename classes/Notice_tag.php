@@ -19,7 +19,7 @@
 
 require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
 
-class Notice_tag extends Memcached_DataObject
+class Notice_tag extends Managed_DataObject
 {
     ###START_AUTOCODE
     /* the code below is auto generated do not remove the above tag */
@@ -36,50 +36,38 @@ class Notice_tag extends Memcached_DataObject
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
 
-    static function getStream($tag, $offset=0, $limit=20) {
-
-        $ids = Notice::stream(array('Notice_tag', '_streamDirect'),
-                              array($tag),
-                              'notice_tag:notice_ids:' . common_keyize($tag),
-                              $offset, $limit);
-
-        return Notice::getStreamByIds($ids);
-    }
-
-    function _streamDirect($tag, $offset, $limit, $since_id, $max_id)
+    public static function schemaDef()
     {
-        $nt = new Notice_tag();
-
-        $nt->tag = $tag;
-
-        $nt->selectAdd();
-        $nt->selectAdd('notice_id');
-
-        Notice::addWhereSinceId($nt, $since_id, 'notice_id');
-        Notice::addWhereMaxId($nt, $max_id, 'notice_id');
-
-        $nt->orderBy('created DESC, notice_id DESC');
-
-        if (!is_null($offset)) {
-            $nt->limit($offset, $limit);
-        }
-
-        $ids = array();
-
-        if ($nt->find()) {
-            while ($nt->fetch()) {
-                $ids[] = $nt->notice_id;
-            }
-        }
-
-        return $ids;
+        return array(
+            'description' => 'Hash tags',
+            'fields' => array(
+                'tag' => array('type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'),
+                'notice_id' => array('type' => 'int', 'not null' => true, 'description' => 'notice tagged'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+            ),
+            'primary key' => array('tag', 'notice_id'),
+            'foreign keys' => array(
+                'notice_tag_notice_id_fkey' => array('notice', array('notice_id' => 'id')),
+            ),
+            'indexes' => array(
+                'notice_tag_created_idx' => array('created'),
+                'notice_tag_notice_id_idx' => array('notice_id'),
+            ),
+        );
+    }
+    
+    static function getStream($tag, $offset=0, $limit=20, $sinceId=0, $maxId=0)
+    {
+        $stream = new TagNoticeStream($tag);
+        
+        return $stream->getNotices($offset, $limit, $sinceId, $maxId);
     }
 
     function blowCache($blowLast=false)
     {
-        self::blow('notice_tag:notice_ids:%s', common_keyize($this->tag));
+        self::blow('notice_tag:notice_ids:%s', Cache::keyize($this->tag));
         if ($blowLast) {
-            self::blow('notice_tag:notice_ids:%s;last', common_keyize($this->tag));
+            self::blow('notice_tag:notice_ids:%s;last', Cache::keyize($this->tag));
         }
     }
 

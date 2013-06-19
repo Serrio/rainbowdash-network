@@ -111,7 +111,7 @@ class TwitterBridgePlugin extends Plugin
      */
     function onRouterInitialized($m)
     {
-        $m->connect('admin/twitter', array('action' => 'twitteradminpanel'));
+        $m->connect('panel/twitter', array('action' => 'twitteradminpanel'));
 
         if (self::hasKeys()) {
             $m->connect(
@@ -148,8 +148,10 @@ class TwitterBridgePlugin extends Plugin
         if (self::hasKeys() && common_config('twitter', 'signin')) {
             $action->menuItem(
                 common_local_url('twitterlogin'),
-                _m('Twitter'),
-                _m('Login or register using Twitter'),
+                // TRANS: Menu item in login navigation.
+                _m('MENU','Twitter'),
+                // TRANS: Title for menu item in login navigation.
+                _m('Login or register using Twitter.'),
                 'twitterlogin' === $action_name
             );
         }
@@ -171,7 +173,9 @@ class TwitterBridgePlugin extends Plugin
 
             $action->menuItem(
                 common_local_url('twittersettings'),
-                _m('Twitter'),
+                // TRANS: Menu item in connection settings navigation.
+                _m('MENU','Twitter'),
+                // TRANS: Title for menu item in connection settings navigation.
                 _m('Twitter integration options'),
                 $action_name === 'twittersettings'
             );
@@ -228,7 +232,7 @@ class TwitterBridgePlugin extends Plugin
      */
     function onStartEnqueueNotice($notice, &$transports)
     {
-        if (self::hasKeys() && $notice->isLocal()) {
+        if (self::hasKeys() && $notice->isLocal() && $notice->inScope(null)) {
             // Avoid a possible loop
             if ($notice->source != 'twitter') {
                 array_push($transports, 'twitter');
@@ -284,6 +288,18 @@ class TwitterBridgePlugin extends Plugin
     }
 
     /**
+     * If the plugin's installed, this should be accessible to admins
+     */
+    function onAdminPanelCheck($name, &$isOK)
+    {
+        if ($name == 'twitter') {
+            $isOK = true;
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Add a Twitter tab to the admin panel
      *
      * @param Widget $nav Admin panel nav
@@ -299,8 +315,10 @@ class TwitterBridgePlugin extends Plugin
 
             $nav->out->menuItem(
                 common_local_url('twitteradminpanel'),
+                // TRANS: Menu item in administrative panel that leads to the Twitter bridge configuration.
                 _m('Twitter'),
-                _m('Twitter bridge configuration'),
+                // TRANS: Menu item title in administrative panel that leads to the Twitter bridge configuration.
+                _m('Twitter bridge configuration page.'),
                 $action_name == 'twitteradminpanel',
                 'nav_twitter_admin_panel'
             );
@@ -323,8 +341,8 @@ class TwitterBridgePlugin extends Plugin
             'version' => self::VERSION,
             'author' => 'Zach Copley, Julien C',
             'homepage' => 'http://status.net/wiki/Plugin:TwitterBridge',
-            'rawdescription' => _m(
-                'The Twitter "bridge" plugin allows integration ' .
+            // TRANS: Plugin description.
+            'rawdescription' => _m('The Twitter "bridge" plugin allows integration ' .
                 'of a StatusNet instance with ' .
                 '<a href="http://twitter.com/">Twitter</a>.'
             )
@@ -528,6 +546,15 @@ class TwitterBridgePlugin extends Plugin
             common_log(LOG_ERR, "Error attempting to unfavorite bridged notice on Twitter: " . $e->getMessage());
         }
 
+        return true;
+    }
+
+    function onStartGetProfileUri($profile, &$uri)
+    {
+        if (preg_match('!^https?://twitter.com/!', $profile->profileurl)) {
+            $uri = $profile->profileurl;
+            return false;
+        }
         return true;
     }
 }

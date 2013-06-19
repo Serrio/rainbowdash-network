@@ -49,6 +49,7 @@ class MobileProfilePlugin extends WAP20Plugin
 {
     public $DTD            = null;
     public $serveMobile    = false;
+    public $reallyMobile   = false;
     public $mobileFeatures = array();
 
     function __construct($DTD='http://www.wapforum.org/DTD/xhtml-mobile10.dtd')
@@ -110,6 +111,7 @@ class MobileProfilePlugin extends WAP20Plugin
                     'ipod',
                     'j2me',
                     'lg',
+                    'maemo',
                     'midp-',
                     'mobile',
                     'mot',
@@ -160,6 +162,7 @@ class MobileProfilePlugin extends WAP20Plugin
                         $this->setMobileFeatures($httpuseragent);
 
                         $this->serveMobile = true;
+                        $this->reallyMobile = true;
                         break;
                     }
                 }
@@ -193,6 +196,7 @@ class MobileProfilePlugin extends WAP20Plugin
             $type = common_negotiate_type($cp, $sp);
 
             if (!$type) {
+                // TRANS: Client exception thrown when requesting a not supported media type.
                 throw new ClientException(_m('This page is not available in a '.
                                             'media type you accept.'), 406);
             }
@@ -200,21 +204,28 @@ class MobileProfilePlugin extends WAP20Plugin
 
         header('Content-Type: '.$type);
 
-        $action->extraHeaders();
-        if (preg_match("/.*\/.*xml/", $type)) {
-            // Required for XML documents
-            $action->xw->startDocument('1.0', 'UTF-8');
-        }
-        $action->xw->writeDTD('html',
-                        '-//WAPFORUM//DTD XHTML Mobile 1.0//EN',
-                        $this->DTD);
+        if ($this->reallyMobile) {
 
-        $language = $action->getLanguage();
+           $action->extraHeaders();
+           if (preg_match("/.*\/.*xml/", $type)) {
+               // Required for XML documents
+               $action->xw->startDocument('1.0', 'UTF-8');
+           }
+           $action->xw->writeDTD('html',
+                           '-//WAPFORUM//DTD XHTML Mobile 1.0//EN',
+                           $this->DTD);
 
-        $action->elementStart('html', array('xmlns' => 'http://www.w3.org/1999/xhtml',
+            $language = $action->getLanguage();
+
+            $action->elementStart('html', array('xmlns' => 'http://www.w3.org/1999/xhtml',
                                             'xml:lang' => $language));
 
-        return false;
+            return false;
+
+        } else {
+        return true;
+        }
+
     }
 
     function setMobileFeatures($useragent)
@@ -241,16 +252,14 @@ class MobileProfilePlugin extends WAP20Plugin
 
         $action->primaryCssLink();
 
+        $action->cssLink($this->path('mp-screen.css'),null,'screen');
         if (file_exists(Theme::file('css/mp-screen.css'))) {
             $action->cssLink('css/mp-screen.css', null, 'screen');
-        } else {
-            $action->cssLink($this->path('mp-screen.css'),null,'screen');
         }
 
+        $action->cssLink($this->path('mp-handheld.css'),null,'handheld');
         if (file_exists(Theme::file('css/mp-handheld.css'))) {
             $action->cssLink('css/mp-handheld.css', null, 'handheld');
-        } else {
-            $action->cssLink($this->path('mp-handheld.css'),null,'handheld');
         }
 
         // Allow other plugins to load their styles.
@@ -276,10 +285,7 @@ class MobileProfilePlugin extends WAP20Plugin
 
         $action->elementStart('div', array('id' => 'header'));
         $this->_showLogo($action);
-        $this->_showPrimaryNav($action);
-        if (common_logged_in()) {
-            $action->showNoticeForm();
-        }
+        $action->showPrimaryNav();
         $action->elementEnd('div');
 
         return false;
@@ -288,8 +294,16 @@ class MobileProfilePlugin extends WAP20Plugin
     function _showLogo($action)
     {
         $action->elementStart('address', 'vcard');
+        if (common_config('singleuser', 'enabled')) {
+            $user = User::singleUser();
+            $url = common_local_url('showstream', array('nickname' => $user->nickname));
+        } else {
+            $url = common_local_url('public');
+        }
+
         $action->elementStart('a', array('class' => 'url home bookmark',
-                                       'href' => common_local_url('public')));
+                                         'href' => $url));
+
         if (common_config('site', 'mobilelogo') ||
             file_exists(Theme::file('logo.png')) ||
             file_exists(Theme::file('mobilelogo.png'))) {
@@ -304,79 +318,6 @@ class MobileProfilePlugin extends WAP20Plugin
         $action->elementEnd('address');
     }
 
-    function _showPrimaryNav($action)
-    {
-        $user    = common_current_user();
-        $action->elementStart('ul', array('id' => 'site_nav_global_primary'));
-        if ($user) {
-            $action->menuItem(common_local_url('all', array('nickname' => $user->nickname)),
-                            _m('Home'));
-            $action->menuItem(common_local_url('profilesettings'),
-                            _m('Account'));
-            $action->menuItem(common_local_url('oauthconnectionssettings'),
-                                _m('Connect'));
-            if ($user->hasRight(Right::CONFIGURESITE)) {
-                $action->menuItem(common_local_url('siteadminpanel'),
-                                _m('Admin'), _m('Change site configuration'), false, 'nav_admin');
-            }
-            if (common_config('invite', 'enabled')) {
-                $action->menuItem(common_local_url('invite'),
-                                _m('Invite'));
-            }
-            $action->menuItem(common_local_url('logout'),
-                            _m('Logout'));
-        } else {
-            if (!common_config('site', 'closed')) {
-                $action->menuItem(common_local_url('register'),
-                                _m('Register'));
-            }
-            $action->menuItem(common_local_url('login'),
-                            _m('Login'));
-        }
-        if ($user || !common_config('site', 'private')) {
-            $action->menuItem(common_local_url('peoplesearch'),
-                            _m('Search'));
-        }
-        $action->elementEnd('ul');
-    }
-
-    function onStartShowNoticeFormData($form)
-    {
-        if (!$this->serveMobile) {
-            return true;
-        }
-
-        $form->out->element('textarea', array('id' => 'notice_data-text',
-                                              'cols' => 15,
-                                              'rows' => 4,
-                                              'name' => 'status_textarea'),
-                            ($form->content) ? $form->content : '');
-
-        $contentLimit = Notice::maxContent();
-
-        if ($contentLimit > 0) {
-            $form->out->element('div', array('id' => 'notice_text-count'),
-                                $contentLimit);
-        }
-
-        if (common_config('attachments', 'uploads')) {
-            if ($this->mobileFeatures['inputfiletype']) {
-                $form->out->hidden('MAX_FILE_SIZE', common_config('attachments', 'file_quota'));
-                $form->out->element('label', array('for' => 'notice_data-attach'), _m('Attach'));
-                $form->out->element('input', array('id' => 'notice_data-attach',
-                                                   'type' => 'file',
-                                                   'name' => 'attach',
-                                                   'title' => _m('Attach a file')));
-            }
-        }
-        if ($form->action) {
-            $form->out->hidden('notice_return-to', $form->action, 'returnto');
-        }
-        $form->out->hidden('notice_in-reply-to', $form->inreplyto, 'inreplyto');
-
-        return false;
-    }
-
     function onStartShowAside($action)
     {
         if ($this->serveMobile) {
@@ -384,8 +325,18 @@ class MobileProfilePlugin extends WAP20Plugin
         }
     }
 
+    function onStartShowLocalNavBlock($action)
+    {
+        if ($this->serveMobile) {
+            // @todo FIXME: "Show Navigation" / "Hide Navigation" needs i18n
+            $action->element('a', array('href' => '#', 'id' => 'navtoggle'), 'Show Navigation');
+        return true;
+        }
+    }
+
     function onEndShowScripts($action)
     {
+        // @todo FIXME: "Show Navigation" / "Hide Navigation" needs i18n
         $action->inlineScript('
             $(function() {
                 $("#mobile-toggle-disable").click(function() {
@@ -398,8 +349,24 @@ class MobileProfilePlugin extends WAP20Plugin
                     window.location.reload();
                     return false;
                 });
+                $("#navtoggle").click(function () {
+                          $("#site_nav_local_views").fadeToggle();
+                          var text = $("#navtoggle").text();
+                          $("#navtoggle").text(
+                          text == "Show Navigation" ? "Hide Navigation" : "Show Navigation");
+                });
             });'
         );
+
+        if ($this->serveMobile) {
+            $action->inlineScript('
+                $(function() {
+        	        $(".checkbox-wrapper").unbind("click");
+                });'
+            );
+        }
+
+
     }
 
 
@@ -448,6 +415,7 @@ class MobileProfilePlugin extends WAP20Plugin
                             'author' => 'Sarven Capadisli',
                             'homepage' => 'http://status.net/wiki/Plugin:MobileProfile',
                             'rawdescription' =>
+                            // TRANS: Plugin description.
                             _m('XHTML MobileProfile output for supporting user agents.'));
         return true;
     }

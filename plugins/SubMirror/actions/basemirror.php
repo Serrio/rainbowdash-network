@@ -68,7 +68,9 @@ abstract class BaseMirrorAction extends Action
         if (common_valid_http_url($url)) {
             return $url;
         } else {
-            $this->clientError(_m("Invalid feed URL."));
+            // TRANS: Client error displayed when entering an invalid URL for a feed.
+            // TRANS: %s is the invalid feed URL.
+            $this->clientError(sprintf(_m("Invalid feed URL: %s."), $url));
         }
     }
 
@@ -79,8 +81,9 @@ abstract class BaseMirrorAction extends Action
         if ($profile && $profile->id != $this->user->id) {
             return $profile;
         }
-        // TRANS: Error message returned to user when setting up feed mirroring, but we were unable to resolve the given URL to a working feed.
-        $this->clientError(_m("Invalid profile for mirroring."));
+        // TRANS: Error message returned to user when setting up feed mirroring,
+        // TRANS: but we were unable to resolve the given URL to a working feed.
+        $this->clientError(_m('Invalid profile for mirroring.'));
     }
 
     /**
@@ -98,9 +101,10 @@ abstract class BaseMirrorAction extends Action
             $oprofile = Ostatus_profile::ensureFeedURL($url);
         }
         if ($oprofile->isGroup()) {
-            $this->clientError(_m("Can't mirror a StatusNet group at this time."));
+            // TRANS: Client error displayed when trying to mirror a StatusNet group feed.
+            $this->clientError(_m('Cannot mirror a StatusNet group at this time.'));
         }
-        $this->oprofile = $oprofile; // @fixme ugly side effect :D
+        $this->oprofile = $oprofile; // @todo FIXME: ugly side effect :D
         return $oprofile->localProfile();
     }
 
@@ -112,6 +116,7 @@ abstract class BaseMirrorAction extends Action
     {
         // Only allow POST requests
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+            // TRANS: Client error displayed when trying to use another method than POST.
             $this->clientError(_m('This action only accepts POST requests.'));
             return false;
         }
@@ -120,6 +125,7 @@ abstract class BaseMirrorAction extends Action
         $token = $this->trimmed('token');
 
         if (!$token || $token != common_session_token()) {
+            // TRANS: Client error displayed when the session token does not match or is not given.
             $this->clientError(_m('There was a problem with your session token.'.
                                  ' Try again, please.'));
             return false;
@@ -130,6 +136,7 @@ abstract class BaseMirrorAction extends Action
         $this->user = common_current_user();
 
         if (empty($this->user)) {
+            // TRANS: Error message displayed when trying to perform an action that requires a logged in user.
             $this->clientError(_m('Not logged in.'));
             return false;
         }
@@ -153,6 +160,7 @@ abstract class BaseMirrorAction extends Action
         if ($this->boolean('ajax')) {
             $this->startHTML('text/xml;charset=utf-8');
             $this->elementStart('head');
+            // TRANS: Page title for subscribed feed mirror.
             $this->element('title', null, _m('Subscribed'));
             $this->elementEnd('head');
             $this->elementStart('body');

@@ -29,7 +29,7 @@ require_once INSTALLDIR.'/classes/File_to_post.php';
 /**
  * Table Definition for file
  */
-class File extends Memcached_DataObject
+class File extends Managed_DataObject
 {
     ###START_AUTOCODE
     /* the code below is auto generated do not remove the above tag */
@@ -51,25 +51,30 @@ class File extends Memcached_DataObject
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
 
-    function isProtected($url) {
-        return 'http://www.facebook.com/login.php' === $url;
+    public static function schemaDef()
+    {
+        return array(
+            'fields' => array(
+                'id' => array('type' => 'serial', 'not null' => true),
+                'url' => array('type' => 'varchar', 'length' => 255, 'description' => 'destination URL after following redirections'),
+                'mimetype' => array('type' => 'varchar', 'length' => 50, 'description' => 'mime type of resource'),
+                'size' => array('type' => 'int', 'description' => 'size of resource when available'),
+                'title' => array('type' => 'varchar', 'length' => 255, 'description' => 'title of resource when available'),
+                'date' => array('type' => 'int', 'description' => 'date of resource according to http query'),
+                'protected' => array('type' => 'int', 'description' => 'true when URL is private (needs login)'),
+                'filename' => array('type' => 'varchar', 'length' => 255, 'description' => 'if a local file, name of the file'),
+
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+            ),
+            'primary key' => array('id'),
+            'unique keys' => array(
+                'file_url_key' => array('url'),
+            ),
+        );
     }
 
-    /**
-     * Get the attachments for a particlar notice.
-     *
-     * @param int $post_id
-     * @return array of File objects
-     */
-    static function getAttachments($post_id) {
-        $file = new File();
-        $query = "select file.* from file join file_to_post on (file_id = file.id) where post_id = " . $file->escape($post_id);
-        $file = Memcached_DataObject::cachedQuery('File', $query);
-        $att = array();
-        while ($file->fetch()) {
-            $att[] = clone($file);
-        }
-        return $att;
+    function isProtected($url) {
+        return 'http://www.facebook.com/login.php' === $url;
     }
 
     /**
@@ -80,14 +85,22 @@ class File extends Memcached_DataObject
      * @return File
      */
     function saveNew(array $redir_data, $given_url) {
-        $x = new File;
-        $x->url = $given_url;
-        if (!empty($redir_data['protected'])) $x->protected = $redir_data['protected'];
-        if (!empty($redir_data['title'])) $x->title = $redir_data['title'];
-        if (!empty($redir_data['type'])) $x->mimetype = $redir_data['type'];
-        if (!empty($redir_data['size'])) $x->size = intval($redir_data['size']);
-        if (isset($redir_data['time']) && $redir_data['time'] > 0) $x->date = intval($redir_data['time']);
-        $file_id = $x->insert();
+
+        // I don't know why we have to keep doing this but I'm adding this last check to avoid
+        // uniqueness bugs.
+
+        $x = File::staticGet('url', $given_url);
+        
+        if (empty($x)) {
+            $x = new File;
+            $x->url = $given_url;
+            if (!empty($redir_data['protected'])) $x->protected = $redir_data['protected'];
+            if (!empty($redir_data['title'])) $x->title = $redir_data['title'];
+            if (!empty($redir_data['type'])) $x->mimetype = $redir_data['type'];
+            if (!empty($redir_data['size'])) $x->size = intval($redir_data['size']);
+            if (isset($redir_data['time']) && $redir_data['time'] > 0) $x->date = intval($redir_data['time']);
+            $file_id = $x->insert();
+        }
 
         $x->saveOembed($redir_data, $given_url);
         return $x;
@@ -187,7 +200,7 @@ class File extends Memcached_DataObject
         }
 
         if (empty($x)) {
-            $x = File::staticGet($file_id);
+            $x = File::staticGet('id', $file_id);
             if (empty($x)) {
                 // @todo FIXME: This could possibly be a clearer message :)
                 // TRANS: Server exception thrown when... Robin thinks something is impossible!
@@ -449,52 +462,8 @@ class File extends Memcached_DataObject
 
     function stream($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $max_id=0)
     {
-        $ids = Notice::stream(array($this, '_streamDirect'),
-                              array(),
-                              'file:notice-ids:'.$this->url,
-                              $offset, $limit, $since_id, $max_id);
-
-        return Notice::getStreamByIds($ids);
-    }
-
-    /**
-     * Stream of notices linking to this URL
-     *
-     * @param integer $offset   Offset to show; default is 0
-     * @param integer $limit    Limit of notices to show
-     * @param integer $since_id Since this notice
-     * @param integer $max_id   Before this notice
-     *
-     * @return array ids of notices that link to this file
-     */
-
-    function _streamDirect($offset, $limit, $since_id, $max_id)
-    {
-        $f2p = new File_to_post();
-
-        $f2p->selectAdd();
-        $f2p->selectAdd('post_id');
-
-        $f2p->file_id = $this->id;
-
-        Notice::addWhereSinceId($f2p, $since_id, 'post_id', 'modified');
-        Notice::addWhereMaxId($f2p, $max_id, 'post_id', 'modified');
-
-        $f2p->orderBy('modified DESC, post_id DESC');
-
-        if (!is_null($offset)) {
-            $f2p->limit($offset, $limit);
-        }
-
-        $ids = array();
-
-        if ($f2p->find()) {
-            while ($f2p->fetch()) {
-                $ids[] = $f2p->post_id;
-            }
-        }
-
-        return $ids;
+        $stream = new FileNoticeStream($this);
+        return $stream->getNotices($offset, $limit, $since_id, $max_id);
     }
 
     function noticeCount()

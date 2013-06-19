@@ -47,13 +47,11 @@ require_once INSTALLDIR . '/lib/mediafile.php';
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
  */
-
 class NewnoticeAction extends Action
 {
     /**
      * Error message, if any
      */
-
     var $msg = null;
 
     /**
@@ -63,10 +61,10 @@ class NewnoticeAction extends Action
      *
      * @return string page title
      */
-
     function title()
     {
-        return _('New notice');
+        // TRANS: Page title for sending a new notice.
+        return _m('TITLE','New notice');
     }
 
     /**
@@ -85,6 +83,7 @@ class NewnoticeAction extends Action
     function handle($args)
     {
         if (!common_logged_in()) {
+            // TRANS: Error message displayed when trying to perform an action that requires a logged in user.
             $this->clientError(_('Not logged in.'));
         } else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // check for this before token since all POST and FILES data
@@ -102,6 +101,7 @@ class NewnoticeAction extends Action
             // CSRF protection
             $token = $this->trimmed('token');
             if (!$token || $token != common_session_token()) {
+                // TRANS: Client error displayed when the session token does not match or is not given.
                 $this->clientError(_('There was a problem with your session token. '.
                                      'Try again, please.'));
             }
@@ -127,7 +127,6 @@ class NewnoticeAction extends Action
      *
      * @return void
      */
-
     function saveNewNotice()
     {
         $user = common_current_user();
@@ -137,6 +136,7 @@ class NewnoticeAction extends Action
         Event::handle('StartSaveNewNoticeWeb', array($this, $user, &$content, &$options));
 
         if (!$content) {
+            // TRANS: Client error displayed trying to send a notice without content.
             $this->clientError(_('No content!'));
             return;
         }
@@ -181,6 +181,8 @@ class NewnoticeAction extends Action
 
             if (Notice::contentTooLong($content_shortened)) {
                 $upload->delete();
+                // TRANS: Client error displayed exceeding the maximum notice length.
+                // TRANS: %d is the maximum length for a notice.
                 $this->clientError(sprintf(_m('Maximum notice size is %d character, including attachment URL.',
                                               'Maximum notice size is %d characters, including attachment URL.',
                                               Notice::maxContent()),
@@ -210,6 +212,10 @@ class NewnoticeAction extends Action
         $author_id = $user->id;
         $text      = $content_shortened;
 
+        // Does the heavy-lifting for getting "To:" information
+
+        ToSelector::fillOptions($this, $options);
+
         if (Event::handle('StartNoticeSaveWeb', array($this, &$author_id, &$text, &$options))) {
 
             $notice = Notice::saveNew($user->id, $content_shortened, 'web', $options);
@@ -227,6 +233,7 @@ class NewnoticeAction extends Action
             $this->xw->startDocument('1.0', 'UTF-8');
             $this->elementStart('html');
             $this->elementStart('head');
+            // TRANS: Page title after sending a notice.
             $this->element('title', null, _('Notice posted'));
             $this->elementEnd('head');
             $this->elementStart('body');
@@ -256,15 +263,40 @@ class NewnoticeAction extends Action
      *
      * @return void
      */
-
     function ajaxErrorMsg($msg)
     {
         $this->startHTML('text/xml;charset=utf-8', true);
         $this->elementStart('head');
+        // TRANS: Page title after an AJAX error occurs on the send notice page.
         $this->element('title', null, _('Ajax Error'));
         $this->elementEnd('head');
         $this->elementStart('body');
         $this->element('p', array('id' => 'error'), $msg);
+        $this->elementEnd('body');
+        $this->elementEnd('html');
+    }
+
+    /**
+     * Show an Ajax-y notice form
+     *
+     * Goes back to the browser, where it's shown in a popup.
+     *
+     * @param string $msg Message to show
+     *
+     * @return void
+     */
+    function ajaxShowForm()
+    {
+        $this->startHTML('text/xml;charset=utf-8', true);
+        $this->elementStart('head');
+        // TRANS: Title for form to send a new notice.
+        $this->element('title', null, _m('TITLE','New notice'));
+        $this->elementEnd('head');
+        $this->elementStart('body');
+
+        $form = new NoticeForm($this);
+        $form->show();
+
         $this->elementEnd('body');
         $this->elementEnd('html');
     }
@@ -283,11 +315,14 @@ class NewnoticeAction extends Action
      *
      * @return void
      */
-
     function showForm($msg=null)
     {
-        if ($msg && $this->boolean('ajax')) {
-            $this->ajaxErrorMsg($msg);
+        if ($this->boolean('ajax')) {
+            if ($msg) {
+                $this->ajaxErrorMsg($msg);
+            } else {
+                $this->ajaxShowForm();
+            }
             return;
         }
 
@@ -296,13 +331,14 @@ class NewnoticeAction extends Action
     }
 
     /**
+     * // XXX: Should we be showing the notice form with microapps here?
+     *
      * Overload for replies or bad results
      *
      * We show content in the notice form if there were replies or results.
      *
      * @return void
      */
-
     function showNoticeForm()
     {
         $content = $this->trimmed('status_textarea');
@@ -318,8 +354,27 @@ class NewnoticeAction extends Action
             $inreplyto = null;
         }
 
-        $notice_form = new NoticeForm($this, '', $content, null, $inreplyto);
+        $this->elementStart('div', 'input_forms');
+        $this->elementStart(
+            'div',
+            array(
+                'id'    => 'input_form_status',
+                'class' => 'input_form current nonav'
+            )
+        );
+
+        $notice_form = new NoticeForm(
+            $this,
+            array(
+                'content' => $content,
+                'inreplyto' => $inreplyto
+            )
+        );
+
         $notice_form->show();
+
+        $this->elementEnd('div');
+        $this->elementEnd('div');
     }
 
     /**
@@ -331,7 +386,6 @@ class NewnoticeAction extends Action
      *
      * @todo maybe show some instructions?
      */
-
     function showPageNotice()
     {
         if ($this->msg) {
@@ -348,7 +402,6 @@ class NewnoticeAction extends Action
      *
      * @return void
      */
-
     function showNotice($notice)
     {
         $nli = new NoticeListItem($notice, $this);

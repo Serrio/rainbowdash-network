@@ -30,6 +30,7 @@ class UserxrdAction extends XrdAction
     function prepare($args)
     {
         parent::prepare($args);
+        global $config;
 
         $this->uri = $this->trimmed('uri');
         $this->uri = self::normalize($this->uri);
@@ -56,6 +57,7 @@ class UserxrdAction extends XrdAction
         }
 
         if (!$this->user) {
+            // TRANS: Client error displayed when user not found for an action.
             $this->clientError(_('No such user.'), 404);
             return false;
         }

@@ -101,6 +101,8 @@ class ApiTimelineRetweetsOfMeAction extends ApiAuthAction
         $profile = $this->auth_user->getProfile();
 
         $subtitle   = sprintf(
+            // TRANS: Subtitle of API time with retweets of me.
+            // TRANS: %1$s is the StatusNet sitename, %2$s is the user nickname, %3$s is the user profile name.
             _('%1$s notices that %2$s / %3$s has repeated.'),
             $sitename, $this->auth_user->nickname, $profile->getBestName()
         );
@@ -113,7 +115,15 @@ class ApiTimelineRetweetsOfMeAction extends ApiAuthAction
              array('nickname' => $this->auth_user->nickname)
         );
 
-        $strm = $this->auth_user->repeatsOfMe($offset, $limit, $this->since_id, $this->max_id);
+        // This is a really bad query for some reason
+
+        if (!common_config('performance', 'high')) {
+            $strm = $this->auth_user->repeatsOfMe($offset, $limit, $this->since_id, $this->max_id);
+        } else {
+            $strm = new Notice();
+            $strm->whereAdd('0 = 1');
+            $strm->find();
+        }
 
         switch ($this->format) {
         case 'xml':
@@ -135,7 +145,7 @@ class ApiTimelineRetweetsOfMeAction extends ApiAuthAction
             $this->raw($atom->getString());
             break;
         case 'as':
-            header('Content-Type: application/json; charset=utf-8');
+            header('Content-Type: ' . ActivityStreamJSONDocument::CONTENT_TYPE);
             $doc = new ActivityStreamJSONDocument($this->auth_user);
             $doc->setTitle($title);
             $doc->addLink($link, 'alternate', 'text/html');
@@ -143,7 +153,7 @@ class ApiTimelineRetweetsOfMeAction extends ApiAuthAction
             $this->raw($doc->asString());
             break;
         default:
-            // TRANS: Client error displayed when trying to handle an unknown API method.
+            // TRANS: Client error displayed when coming across a non-supported API method.
             $this->clientError(_('API method not found.'), 404);
             break;
         }

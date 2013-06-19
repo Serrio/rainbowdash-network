@@ -44,14 +44,6 @@ class OpenidloginAction extends Action
 
             oid_assert_allowed($openid_url);
 
-            # CSRF protection
-            $token = $this->trimmed('token');
-            if (!$token || $token != common_session_token()) {
-                // TRANS: Message given when there is a problem with the user's session token.
-                $this->showForm(_m('There was a problem with your session token. Try again, please.'), $openid_url);
-                return;
-            }
-
             $rememberme = $this->boolean('rememberme');
 
             common_ensure_session();
@@ -119,7 +111,7 @@ class OpenidloginAction extends Action
     function title()
     {
         // TRANS: OpenID plugin message. Title.
-        return _m('OpenID Login');
+        return _m('TITLE','OpenID Login');
     }
 
     function showForm($error=null, $openid_url)
@@ -137,15 +129,15 @@ class OpenidloginAction extends Action
                                            'action' => $formaction));
         $this->elementStart('fieldset');
         // TRANS: OpenID plugin logon form legend.
-        $this->element('legend', null, _m('OpenID login'));
-        $this->hidden('token', common_session_token());
+        $this->element('legend', null, _m('LEGEND','OpenID login'));
 
         $this->elementStart('ul', 'form_data');
         $this->elementStart('li');
         $provider = common_config('openid', 'trusted_provider');
         $appendUsername = common_config('openid', 'append_username');
         if ($provider) {
-            $this->element('label', array(), _m('OpenID provider'));
+            // TRANS: Field label.
+            $this->element('label', array(), _m('LABEL','OpenID provider'));
             $this->element('span', array(), $provider);
             if ($appendUsername) {
                 $this->element('input', array('id' => 'openid_username',
@@ -153,21 +145,23 @@ class OpenidloginAction extends Action
                                               'style' => 'float: none'));
             }
             $this->element('p', 'form_guide',
+                           // TRANS: Form guide.
                            ($appendUsername ? _m('Enter your username.') . ' ' : '') .
+                           // TRANS: Form guide.
                            _m('You will be sent to the provider\'s site for authentication.'));
             $this->hidden('openid_url', $provider);
         } else {
             // TRANS: OpenID plugin logon form field label.
             $this->input('openid_url', _m('OpenID URL'),
                          $this->openid_url,
-                        // TRANS: OpenID plugin logon form field instructions.
-                         _m('Your OpenID URL'));
+                        // TRANS: OpenID plugin logon form field title.
+                         _m('Your OpenID URL.'));
         }
         $this->elementEnd('li');
         $this->elementStart('li', array('id' => 'settings_rememberme'));
         // TRANS: OpenID plugin logon form checkbox label for setting to put the OpenID information in a cookie.
         $this->checkbox('rememberme', _m('Remember me'), false,
-                        // TRANS: OpenID plugin logon form field instructions.
+                        // TRANS: OpenID plugin logon form field title.
                         _m('Automatically login in the future; ' .
                            'not for shared computers!'));
         $this->elementEnd('li');
@@ -182,5 +176,13 @@ class OpenidloginAction extends Action
     {
         $nav = new LoginGroupNav($this);
         $nav->show();
+    }
+
+    function showNoticeForm()
+    {
+    }
+
+    function showProfileBlock()
+    {
     }
 }

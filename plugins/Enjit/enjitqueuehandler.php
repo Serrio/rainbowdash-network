@@ -23,7 +23,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
 
 /**
  * Queue handler for watching new notices and posting to enjit.
- * @fixme is this actually being used/functional atm?
+ * @todo FIXME: Is this actually being used/functional atm?
  */
 class EnjitQueueHandler extends QueueHandler
 {
@@ -45,7 +45,7 @@ class EnjitQueueHandler extends QueueHandler
         }
 
         #
-        # Build an Atom message from the notice
+        // Build an Atom message from the notice
         #
         $noticeurl = common_local_url('shownotice', array('notice' => $notice->id));
         $msg = $profile->nickname . ': ' . $notice->content;
@@ -73,7 +73,7 @@ class EnjitQueueHandler extends QueueHandler
         );
 
         #
-        # POST the message to $config['enjit']['apiurl']
+        // POST the message to $config['enjit']['apiurl']
         #
         $request = HTTPClient::start();
         $response = $request->post($url, null, $data);

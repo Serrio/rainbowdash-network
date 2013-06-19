@@ -31,6 +31,7 @@ class StatusNet
 {
     protected static $have_config;
     protected static $is_api;
+    protected static $is_ajax;
     protected static $plugins = array();
 
     /**
@@ -107,9 +108,15 @@ class StatusNet
      */
     public static function init($server=null, $path=null, $conffile=null)
     {
+        Router::clear();
+
         StatusNet::initDefaults($server, $path);
         StatusNet::loadConfigFile($conffile);
 
+        $sprofile = common_config('site', 'profile');
+        if (!empty($sprofile)) {
+            StatusNet::loadSiteProfile($sprofile);
+        }
         // Load settings from database; note we need autoload for this
         Config::loadSettings();
 
@@ -176,6 +183,11 @@ class StatusNet
     {
         // Load default plugins
         foreach (common_config('plugins', 'default') as $name => $params) {
+            $key = 'disable-' . $name;
+            if (common_config('plugins', $key)) {
+                continue;
+            }
+
             if (is_null($params)) {
                 addPlugin($name);
             } else if (is_array($params)) {
@@ -225,6 +237,16 @@ class StatusNet
         self::$is_api = $mode;
     }
 
+    public function isAjax()
+    {
+        return self::$is_ajax;
+    }
+
+    public function setAjax($mode)
+    {
+        self::$is_ajax = $mode;
+    }
+
     /**
      * Build default configuration array
      * @return array
@@ -240,7 +262,7 @@ class StatusNet
      * Establish default configuration based on given or default server and path
      * Sets global $_server, $_path, and $config
      */
-    protected static function initDefaults($server, $path)
+    public static function initDefaults($server, $path)
     {
         global $_server, $_path, $config;
 
@@ -278,14 +300,17 @@ class StatusNet
 
         $config['db'] = $default['db'];
 
-        // Backward compatibility
-
-        $config['site']['design'] =& $config['design'];
-
         if (function_exists('date_default_timezone_set')) {
             /* Work internally in UTC */
             date_default_timezone_set('UTC');
         }
+    }
+
+    public static function loadSiteProfile($name)
+    {
+        global $config;
+        $settings = SiteProfile::getSettings($name);
+        $config = array_merge($config, $settings);
     }
 
     protected function _sn_to_path($sn)
@@ -348,15 +373,7 @@ class StatusNet
                                         $config_files);
         }
 
-        // Fixup for statusnet.ini
-        $_db_name = substr($config['db']['database'], strrpos($config['db']['database'], '/') + 1);
-
-        if ($_db_name != 'statusnet' && !array_key_exists('ini_'.$_db_name, $config['db'])) {
-            $config['db']['ini_'.$_db_name] = INSTALLDIR.'/classes/statusnet.ini';
-        }
-
         // Backwards compatibility
-
         if (array_key_exists('memcached', $config)) {
             if ($config['memcached']['enabled']) {
                 addPlugin('Memcache', array('servers' => $config['memcached']['server']));
@@ -364,6 +381,21 @@ class StatusNet
 
             if (!empty($config['memcached']['base'])) {
                 $config['cache']['base'] = $config['memcached']['base'];
+            }
+        }
+        if (array_key_exists('xmpp', $config)) {
+            if ($config['xmpp']['enabled']) {
+                addPlugin('xmpp', array(
+                    'server' => $config['xmpp']['server'],
+                    'port' => $config['xmpp']['port'],
+                    'user' => $config['xmpp']['user'],
+                    'resource' => $config['xmpp']['resource'],
+                    'encryption' => $config['xmpp']['encryption'],
+                    'password' => $config['xmpp']['password'],
+                    'host' => $config['xmpp']['host'],
+                    'debug' => $config['xmpp']['debug'],
+                    'public' => $config['xmpp']['public']
+                ));
             }
         }
     }

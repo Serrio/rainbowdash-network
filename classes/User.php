@@ -28,8 +28,11 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
 require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
 require_once 'Validate.php';
 
-class User extends Memcached_DataObject
+class User extends Managed_DataObject
 {
+    const SUBSCRIBE_POLICY_OPEN = 0;
+    const SUBSCRIBE_POLICY_MODERATE = 1;
+
     ###START_AUTOCODE
     /* the code below is auto generated do not remove the above tag */
 
@@ -48,11 +51,6 @@ class User extends Memcached_DataObject
     public $language;                        // varchar(50)
     public $timezone;                        // varchar(50)
     public $emailpost;                       // tinyint(1)   default_1
-    public $jabber;                          // varchar(255)  unique_key
-    public $jabbernotify;                    // tinyint(1)
-    public $jabberreplies;                   // tinyint(1)
-    public $jabbermicroid;                   // tinyint(1)   default_1
-    public $updatefrompresence;              // tinyint(1)
     public $sms;                             // varchar(64)  unique_key
     public $carrier;                         // int(4)
     public $smsnotify;                       // tinyint(1)
@@ -60,10 +58,10 @@ class User extends Memcached_DataObject
     public $smsemail;                        // varchar(255)
     public $uri;                             // varchar(255)  unique_key
     public $autosubscribe;                   // tinyint(1)
+    public $subscribe_policy;                // tinyint(1)
     public $urlshorteningservice;            // varchar(50)   default_ur1.ca
     public $inboxed;                         // tinyint(1)
-    public $design_id;                       // int(4)
-    public $viewdesigns;                     // tinyint(1)   default_1
+    public $private_stream;                  // tinyint(1)   default_0
     public $created;                         // datetime()   not_null
     public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
 
@@ -73,13 +71,73 @@ class User extends Memcached_DataObject
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
 
+    public static function schemaDef()
+    {
+        return array(
+            'description' => 'local users',
+            'fields' => array(
+                'id' => array('type' => 'int', 'not null' => true, 'description' => 'foreign key to profile table'),
+                'nickname' => array('type' => 'varchar', 'length' => 64, 'description' => 'nickname or username, duped in profile'),
+                'password' => array('type' => 'varchar', 'length' => 255, 'description' => 'salted password, can be null for OpenID users'),
+                'email' => array('type' => 'varchar', 'length' => 255, 'description' => 'email address for password recovery etc.'),
+                'incomingemail' => array('type' => 'varchar', 'length' => 255, 'description' => 'email address for post-by-email'),
+                'emailnotifysub' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'Notify by email of subscriptions'),
+                'emailnotifyfav' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'Notify by email of favorites'),
+                'emailnotifynudge' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'Notify by email of nudges'),
+                'emailnotifymsg' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'Notify by email of direct messages'),
+                'emailnotifyattn' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'Notify by email of @-replies'),
+                'emailmicroid' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'whether to publish email microid'),
+                'language' => array('type' => 'varchar', 'length' => 50, 'description' => 'preferred language'),
+                'timezone' => array('type' => 'varchar', 'length' => 50, 'description' => 'timezone'),
+                'emailpost' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'Post by email'),
+                'sms' => array('type' => 'varchar', 'length' => 64, 'description' => 'sms phone number'),
+                'carrier' => array('type' => 'int', 'description' => 'foreign key to sms_carrier'),
+                'smsnotify' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'whether to send notices to SMS'),
+                'smsreplies' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'whether to send notices to SMS on replies'),
+                'smsemail' => array('type' => 'varchar', 'length' => 255, 'description' => 'built from sms and carrier'),
+                'uri' => array('type' => 'varchar', 'length' => 255, 'description' => 'universally unique identifier, usually a tag URI'),
+                'autosubscribe' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'automatically subscribe to users who subscribe to us'),
+                'subscribe_policy' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => '0 = anybody can subscribe; 1 = require approval'),
+                'urlshorteningservice' => array('type' => 'varchar', 'length' => 50, 'default' => 'internal', 'description' => 'service to use for auto-shortening URLs'),
+                'inboxed' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'has an inbox been created for this user?'),
+                'private_stream' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'whether to limit all notices to followers only'),
+
+                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+            ),
+            'primary key' => array('id'),
+            'unique keys' => array(
+                'user_nickname_key' => array('nickname'),
+                'user_email_key' => array('email'),
+                'user_incomingemail_key' => array('incomingemail'),
+                'user_sms_key' => array('sms'),
+                'user_uri_key' => array('uri'),
+            ),
+            'foreign keys' => array(
+                'user_id_fkey' => array('profile', array('id' => 'id')),
+                'user_carrier_fkey' => array('sms_carrier', array('carrier' => 'id')),
+            ),
+            'indexes' => array(
+                'user_smsemail_idx' => array('smsemail'),
+            ),
+        );
+    }
+
+    protected $_profile = -1;
+
+    /**
+     * @return Profile
+     */
     function getProfile()
     {
-        $profile = Profile::staticGet('id', $this->id);
-        if (empty($profile)) {
-            throw new UserNoProfileException($this);
+        if (is_int($this->_profile) && $this->_profile == -1) { // invalid but distinct from null
+            $this->_profile = Profile::staticGet('id', $this->id);
+            if (empty($this->_profile)) {
+                throw new UserNoProfileException($this);
+            }
         }
-        return $profile;
+
+        return $this->_profile;
     }
 
     function isSubscribed($other)
@@ -88,13 +146,19 @@ class User extends Memcached_DataObject
         return $profile->isSubscribed($other);
     }
 
+    function hasPendingSubscription($other)
+    {
+        $profile = $this->getProfile();
+        return $profile->hasPendingSubscription($other);
+    }
+
     // 'update' won't write key columns, so we have to do it ourselves.
 
     function updateKeys(&$orig)
     {
         $this->_connect();
         $parts = array();
-        foreach (array('nickname', 'email', 'jabber', 'incomingemail', 'sms', 'carrier', 'smsemail', 'language', 'timezone') as $k) {
+        foreach (array('nickname', 'email', 'incomingemail', 'sms', 'carrier', 'smsemail', 'language', 'timezone') as $k) {
             if (strcmp($this->$k, $orig->$k) != 0) {
                 $parts[] = $k . ' = ' . $this->_quote($this->$k);
             }
@@ -249,6 +313,8 @@ class User extends Memcached_DataObject
 
         $user->nickname = $nickname;
 
+        $invite = null;
+
         // Users who respond to invite email have proven their ownership of that address
 
         if (!empty($code)) {
@@ -277,7 +343,6 @@ class User extends Memcached_DataObject
         $user->emailmicroid = 1;
         $user->emailpost = 1;
         $user->jabbermicroid = 1;
-        $user->viewdesigns = 1;
 
         $user->created = common_sql_now();
 
@@ -337,6 +402,12 @@ class User extends Memcached_DataObject
             if (!$result) {
                 common_log_db_error($subscription, 'INSERT', __FILE__);
                 return false;
+            }
+
+            // Mark that this invite was converted
+
+            if (!empty($invite)) {
+                $invite->convert($user);
             }
 
             if (!empty($email) && !$user->email) {
@@ -450,8 +521,7 @@ class User extends Memcached_DataObject
 
     function getReplies($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
     {
-        $ids = Reply::stream($this->id, $offset, $limit, $since_id, $before_id);
-        return Notice::getStreamByIds($ids);
+        return Reply::stream($this->id, $offset, $limit, $since_id, $before_id);
     }
 
     function getTaggedNotices($tag, $offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0) {
@@ -467,28 +537,48 @@ class User extends Memcached_DataObject
 
     function favoriteNotices($own=false, $offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $max_id=0)
     {
-        $ids = Fave::stream($this->id, $offset, $limit, $own, $since_id, $max_id);
-        return Notice::getStreamByIds($ids);
-    }
-
-    function noticesWithFriends($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
-    {
-        return Inbox::streamNotices($this->id, $offset, $limit, $since_id, $before_id, false);
+        return Fave::stream($this->id, $offset, $limit, $own, $since_id, $max_id);
     }
 
     function noticeInbox($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
     {
-        return Inbox::streamNotices($this->id, $offset, $limit, $since_id, $before_id, true);
+        $stream = new InboxNoticeStream($this);
+        return $stream->getNotices($offset, $limit, $since_id, $before_id);
     }
+
+    // DEPRECATED, use noticeInbox()
+
+    function noticesWithFriends($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
+    {
+        return $this->noticeInbox($offset, $limit, $since_id, $before_id);
+    }
+
+    // DEPRECATED, use noticeInbox()
+
+    function noticesWithFriendsThreaded($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
+    {
+        return $this->noticeInbox($offset, $limit, $since_id, $before_id);
+    }
+
+    // DEPRECATED, use noticeInbox()
+
+    function noticeInboxThreaded($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
+    {
+        return $this->noticeInbox($offset, $limit, $since_id, $before_id);
+    }
+
+    // DEPRECATED, use noticeInbox()
 
     function friendsTimeline($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
     {
-        return Inbox::streamNotices($this->id, $offset, $limit, $since_id, $before_id, false);
+        return $this->noticeInbox($offset, $limit, $since_id, $before_id);
     }
+
+    // DEPRECATED, use noticeInbox()
 
     function ownFriendsTimeline($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
     {
-        return Inbox::streamNotices($this->id, $offset, $limit, $since_id, $before_id, true);
+        $this->noticeInbox($offset, $limit, $since_id, $before_id);
     }
 
     function blowFavesCache()
@@ -499,12 +589,12 @@ class User extends Memcached_DataObject
 
     function getSelfTags()
     {
-        return Profile_tag::getTags($this->id, $this->id);
+        return Profile_tag::getTagsArray($this->id, $this->id, $this->id);
     }
 
-    function setSelfTags($newtags)
+    function setSelfTags($newtags, $privacy)
     {
-        return Profile_tag::setTags($this->id, $this->id, $newtags);
+        return Profile_tag::setTags($this->id, $this->id, $newtags, $privacy);
     }
 
     function block($other)
@@ -591,6 +681,30 @@ class User extends Memcached_DataObject
         return $profile->getGroups($offset, $limit);
     }
 
+    /**
+     * Request to join the given group.
+     * May throw exceptions on failure.
+     *
+     * @param User_group $group
+     * @return Group_member
+     */
+    function joinGroup(User_group $group)
+    {
+        $profile = $this->getProfile();
+        return $profile->joinGroup($group);
+    }
+
+    /**
+     * Leave a group that this user is a member of.
+     *
+     * @param User_group $group
+     */
+    function leaveGroup(User_group $group)
+    {
+        $profile = $this->getProfile();
+        return $profile->leaveGroup($group);
+    }
+
     function getSubscriptions($offset=0, $limit=null)
     {
         $profile = $this->getProfile();
@@ -647,11 +761,6 @@ class User extends Memcached_DataObject
         $profile->query(sprintf($qry, $this->id, $tag));
 
         return $profile;
-    }
-
-    function getDesign()
-    {
-        return Design::staticGet('id', $this->design_id);
     }
 
     function hasRight($right)
@@ -737,99 +846,23 @@ class User extends Memcached_DataObject
 
     function repeatedByMe($offset=0, $limit=20, $since_id=null, $max_id=null)
     {
-        $ids = Notice::stream(array($this, '_repeatedByMeDirect'),
-                              array(),
-                              'user:repeated_by_me:'.$this->id,
-                              $offset, $limit, $since_id, $max_id, null);
-
-        return Notice::getStreamByIds($ids);
+        $stream = new RepeatedByMeNoticeStream($this);
+        return $stream->getNotices($offset, $limit, $since_id, $max_id);
     }
 
-    function _repeatedByMeDirect($offset, $limit, $since_id, $max_id)
-    {
-        $notice = new Notice();
-
-        $notice->selectAdd(); // clears it
-        $notice->selectAdd('id');
-
-        $notice->profile_id = $this->id;
-        $notice->whereAdd('repeat_of IS NOT NULL');
-
-        $notice->orderBy('created DESC, id DESC');
-
-        if (!is_null($offset)) {
-            $notice->limit($offset, $limit);
-        }
-
-        Notice::addWhereSinceId($notice, $since_id);
-        Notice::addWhereMaxId($notice, $max_id);
-
-        $ids = array();
-
-        if ($notice->find()) {
-            while ($notice->fetch()) {
-                $ids[] = $notice->id;
-            }
-        }
-
-        $notice->free();
-        $notice = NULL;
-
-        return $ids;
-    }
 
     function repeatsOfMe($offset=0, $limit=20, $since_id=null, $max_id=null)
     {
-        $ids = Notice::stream(array($this, '_repeatsOfMeDirect'),
-                              array(),
-                              'user:repeats_of_me:'.$this->id,
-                              $offset, $limit, $since_id, $max_id);
+        $stream = new RepeatsOfMeNoticeStream($this);
 
-        return Notice::getStreamByIds($ids);
+        return $stream->getNotices($offset, $limit, $since_id, $max_id);
     }
 
-    function _repeatsOfMeDirect($offset, $limit, $since_id, $max_id)
-    {
-        $qry =
-          'SELECT DISTINCT original.id AS id ' .
-          'FROM notice original JOIN notice rept ON original.id = rept.repeat_of ' .
-          'WHERE original.profile_id = ' . $this->id . ' ';
-
-        $since = Notice::whereSinceId($since_id, 'original.id', 'original.created');
-        if ($since) {
-            $qry .= "AND ($since) ";
-        }
-
-        $max = Notice::whereMaxId($max_id, 'original.id', 'original.created');
-        if ($max) {
-            $qry .= "AND ($max) ";
-        }
-
-        $qry .= 'ORDER BY original.created, original.id DESC ';
-
-        if (!is_null($offset)) {
-            $qry .= "LIMIT $limit OFFSET $offset";
-        }
-
-        $ids = array();
-
-        $notice = new Notice();
-
-        $notice->query($qry);
-
-        while ($notice->fetch()) {
-            $ids[] = $notice->id;
-        }
-
-        $notice->free();
-        $notice = NULL;
-
-        return $ids;
-    }
 
     function repeatedToMe($offset=0, $limit=20, $since_id=null, $max_id=null)
     {
-        throw new Exception("Not implemented since inbox change.");
+        // TRANS: Exception thrown when trying view "repeated to me".
+        throw new Exception(_('Not implemented since inbox change.'));
     }
 
     function shareLocation()
@@ -948,7 +981,7 @@ class User extends Memcached_DataObject
             return $user->nickname;
         } catch (Exception $e) {
             if (common_config('singleuser', 'enabled') && common_config('singleuser', 'nickname')) {
-                common_log(LOG_WARN, "Warning: code attempting to pull single-user nickname when the account does not exist. If this is not setup time, this is probably a bug.");
+                common_log(LOG_WARNING, "Warning: code attempting to pull single-user nickname when the account does not exist. If this is not setup time, this is probably a bug.");
                 return common_config('singleuser', 'nickname');
             }
             throw $e;
@@ -1003,4 +1036,148 @@ class User extends Memcached_DataObject
         return $apps;
     }
 
+    /**
+     * Magic function called at serialize() time.
+     *
+     * We use this to drop a couple process-specific references
+     * from DB_DataObject which can cause trouble in future
+     * processes.
+     *
+     * @return array of variable names to include in serialization.
+     */
+
+    function __sleep()
+    {
+        $vars = parent::__sleep();
+        $skip = array('_profile');
+        return array_diff($vars, $skip);
+    }
+
+    static function recoverPassword($nore)
+    {
+        $user = User::staticGet('email', common_canonical_email($nore));
+
+        if (!$user) {
+            try {
+                $user = User::staticGet('nickname', common_canonical_nickname($nore));
+            } catch (NicknameException $e) {
+                // invalid
+            }
+        }
+
+        // See if it's an unconfirmed email address
+
+        if (!$user) {
+            // Warning: it may actually be legit to have multiple folks
+            // who have claimed, but not yet confirmed, the same address.
+            // We'll only send to the first one that comes up.
+            $confirm_email = new Confirm_address();
+            $confirm_email->address = common_canonical_email($nore);
+            $confirm_email->address_type = 'email';
+            $confirm_email->find();
+            if ($confirm_email->fetch()) {
+                $user = User::staticGet($confirm_email->user_id);
+            } else {
+                $confirm_email = null;
+            }
+        } else {
+            $confirm_email = null;
+        }
+
+        if (!$user) {
+            // TRANS: Information on password recovery form if no known username or e-mail address was specified.
+            throw new ClientError(_('No user with that email address or username.'));
+            return;
+        }
+
+        // Try to get an unconfirmed email address if they used a user name
+
+        if (!$user->email && !$confirm_email) {
+            $confirm_email = new Confirm_address();
+            $confirm_email->user_id = $user->id;
+            $confirm_email->address_type = 'email';
+            $confirm_email->find();
+            if (!$confirm_email->fetch()) {
+                $confirm_email = null;
+            }
+        }
+
+        if (!$user->email && !$confirm_email) {
+            // TRANS: Client error displayed on password recovery form if a user does not have a registered e-mail address.
+            throw new ClientException(_('No registered email address for that user.'));
+            return;
+        }
+
+        // Success! We have a valid user and a confirmed or unconfirmed email address
+
+        $confirm = new Confirm_address();
+        $confirm->code = common_confirmation_code(128);
+        $confirm->address_type = 'recover';
+        $confirm->user_id = $user->id;
+        $confirm->address = (!empty($user->email)) ? $user->email : $confirm_email->address;
+
+        if (!$confirm->insert()) {
+            common_log_db_error($confirm, 'INSERT', __FILE__);
+            // TRANS: Server error displayed if e-mail address confirmation fails in the database on the password recovery form.
+            throw new ServerException(_('Error saving address confirmation.'));
+            return;
+        }
+
+         // @todo FIXME: needs i18n.
+        $body = "Hey, $user->nickname.";
+        $body .= "\n\n";
+        $body .= 'Someone just asked for a new password ' .
+                 'for this account on ' . common_config('site', 'name') . '.';
+        $body .= "\n\n";
+        $body .= 'If it was you, and you want to confirm, use the URL below:';
+        $body .= "\n\n";
+        $body .= "\t".common_local_url('recoverpassword',
+                                   array('code' => $confirm->code));
+        $body .= "\n\n";
+        $body .= 'If not, just ignore this message.';
+        $body .= "\n\n";
+        $body .= 'Thanks for your time, ';
+        $body .= "\n";
+        $body .= common_config('site', 'name');
+        $body .= "\n";
+
+        $headers = _mail_prepare_headers('recoverpassword', $user->nickname, $user->nickname);
+        // TRANS: Subject for password recovery e-mail.
+        mail_to_user($user, _('Password recovery requested'), $body, $headers, $confirm->address);
+    }
+
+    function streamModeOnly()
+    {
+        if (common_config('oldschool', 'enabled')) {
+            $osp = Old_school_prefs::staticGet('user_id', $this->id);
+            if (!empty($osp)) {
+                return $osp->stream_mode_only;
+            } 
+        }
+
+        return false;
+    }
+
+    function conversationTree()
+    {
+        if (common_config('oldschool', 'enabled')) {
+            $osp = Old_school_prefs::staticGet('user_id', $this->id);
+            if (!empty($osp)) {
+                return $osp->conversation_tree;
+            }
+        }
+
+        return false;
+    }
+
+    function streamNicknames()
+    {
+        if (common_config('oldschool', 'enabled')) {
+            $osp = Old_school_prefs::staticGet('user_id', $this->id);
+            if (!empty($osp)) {
+                return $osp->stream_nicknames;
+            }
+        }
+        return false;
+    }
 }

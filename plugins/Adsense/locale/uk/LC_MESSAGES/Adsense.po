@@ -9,94 +9,94 @@ msgid ""
 msgstr ""
 "Project-Id-Version: StatusNet - Adsense\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-29 21:45+0000\n"
-"PO-Revision-Date: 2011-01-29 21:49:14+0000\n"
-"Language-Team: Ukrainian <http://translatewiki.net/wiki/Portal:uk>\n"
+"POT-Creation-Date: 2011-09-25 21:42+0000\n"
+"PO-Revision-Date: 2011-09-25 21:42:55+0000\n"
+"Language-Team: Ukrainian <https://translatewiki.net/wiki/Portal:uk>\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-POT-Import-Date: 2011-01-15 11:03:12+0000\n"
-"X-Generator: MediaWiki 1.18alpha (r81195); Translate extension (2010-09-17)\n"
-"X-Translation-Project: translatewiki.net at http://translatewiki.net\n"
+"X-POT-Import-Date: 2011-06-18 16:18:37+0000\n"
+"X-Generator: MediaWiki 1.19alpha (r98079); Translate extension (2011-09-22)\n"
+"X-Translation-Project: translatewiki.net at https://translatewiki.net\n"
 "X-Language-Code: uk\n"
 "X-Message-Group: #out-statusnet-plugin-adsense\n"
 "Plural-Forms: nplurals=3; plural=(n%10 == 1 && n%100 != 11) ? 0 : ( (n%10 >= "
 "2 && n%10 <= 4 && (n%100 < 10 || n%100 >= 20)) ? 1 : 2 );\n"
 
 #. TRANS: Menu item title/tooltip
-#: AdsensePlugin.php:194
 msgid "AdSense configuration"
 msgstr "Конфігурація AdSense"
 
 #. TRANS: Menu item for site administration
-#: AdsensePlugin.php:196
+msgctxt "MENU"
 msgid "AdSense"
 msgstr "AdSense"
 
-#: AdsensePlugin.php:209
+#. TRANS: Plugin description.
 msgid "Plugin to add Google AdSense to StatusNet sites."
 msgstr "Додаток для відображення Google AdSense на сторінці сайту StatusNet."
 
-#: adsenseadminpanel.php:52
+#. TRANS: Title of AdSense administrator panel.
 msgctxt "TITLE"
 msgid "AdSense"
 msgstr "AdSense"
 
-#: adsenseadminpanel.php:62
+#. TRANS: Instructions for AdSense administrator panel.
 msgid "AdSense settings for this StatusNet site"
 msgstr "Налаштування AdSense на даному сайті StatusNet"
 
-#: adsenseadminpanel.php:164
+#. TRANS: Field label in AdSense administration panel.
 msgid "Client ID"
 msgstr "ІД клієнта"
 
-#: adsenseadminpanel.php:165
-msgid "Google client ID"
-msgstr "ІД клієнта Google"
+#. TRANS: Field title in AdSense administration panel.
+msgid "Google client ID."
+msgstr "Ідентифікатор клієнта Google."
 
-#: adsenseadminpanel.php:170
+#. TRANS: Field label in AdSense administration panel.
 msgid "Ad script URL"
 msgstr "Адреса скрипту AdSense"
 
-#: adsenseadminpanel.php:171
-msgid "Script URL (advanced)"
-msgstr "Адреса скрипту (розширена опція)"
+#. TRANS: Field title in AdSense administration panel.
+msgid "Script URL (advanced)."
+msgstr "URL-адреса сценарію (розширена опція)."
 
-#: adsenseadminpanel.php:176
+#. TRANS: Field label in AdSense administration panel.
 msgid "Medium rectangle"
 msgstr "Середній прямокутник"
 
-#: adsenseadminpanel.php:177
-msgid "Medium rectangle slot code"
-msgstr "Слот-код середнього прямокутника"
+#. TRANS: Field title in AdSense administration panel.
+msgid "Medium rectangle slot code."
+msgstr "Слот-код середнього прямокутника."
 
-#: adsenseadminpanel.php:182
+#. TRANS: Field label in AdSense administration panel.
 msgid "Rectangle"
 msgstr "Прямокутник"
 
-#: adsenseadminpanel.php:183
-msgid "Rectangle slot code"
-msgstr "Слот-код прямокутника"
+#. TRANS: Field title in AdSense administration panel.
+msgid "Rectangle slot code."
+msgstr "Слот-код прямокутника."
 
-#: adsenseadminpanel.php:188
+#. TRANS: Field label in AdSense administration panel.
 msgid "Leaderboard"
 msgstr "Банер"
 
-#: adsenseadminpanel.php:189
-msgid "Leaderboard slot code"
-msgstr "Слот-код банеру"
+#. TRANS: Field title in AdSense administration panel.
+msgid "Leaderboard slot code."
+msgstr "Слот-код банеру."
 
-#: adsenseadminpanel.php:194
+#. TRANS: Field label in AdSense administration panel.
 msgid "Skyscraper"
 msgstr "Хмарочос"
 
-#: adsenseadminpanel.php:195
-msgid "Wide skyscraper slot code"
-msgstr "Слот-код хмарочосу"
+#. TRANS: Field title in AdSense administration panel.
+msgid "Wide skyscraper slot code."
+msgstr "Слот-код хмарочосу."
 
-#: adsenseadminpanel.php:208
+#. TRANS: Button text to save settings in AdSense administration panel.
+msgctxt "BUTTON"
 msgid "Save"
 msgstr "Зберегти"
 
-#: adsenseadminpanel.php:208
-msgid "Save AdSense settings"
-msgstr "Зберегти налаштування AdSense"
+#. TRANS: Button title to save settings in AdSense administration panel.
+msgid "Save AdSense settings."
+msgstr "Зберегти налаштування AdSense."

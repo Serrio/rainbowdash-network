@@ -80,7 +80,7 @@ class OpenIDPlugin extends Plugin
         $m->connect('index.php?action=finishaddopenid',
                     array('action' => 'finishaddopenid'));
         $m->connect('main/openidserver', array('action' => 'openidserver'));
-        $m->connect('admin/openid', array('action' => 'openidadminpanel'));
+        $m->connect('panel/openid', array('action' => 'openidadminpanel'));
 
         return true;
     }
@@ -135,7 +135,8 @@ class OpenIDPlugin extends Plugin
                     common_redirect(common_local_url('openidsettings'));
                     exit(0);
                 } else if ($action == 'recoverpassword') {
-                    throw new ClientException('Unavailable action');
+                    // TRANS: Client exception thrown when an action is not available.
+                    throw new ClientException(_m('Unavailable action.'));
                 }
             }
         }
@@ -215,7 +216,7 @@ class OpenIDPlugin extends Plugin
     {
         if (common_config('site', 'openidonly') && !common_logged_in()) {
             // TRANS: Tooltip for main menu option "Login"
-            $tooltip = _m('TOOLTIP', 'Login to the site');
+            $tooltip = _m('TOOLTIP', 'Login to the site.');
             $action->menuItem(common_local_url('openidlogin'),
                               // TRANS: Main menu option when not logged in to log in
                               _m('MENU', 'Login'),
@@ -232,7 +233,7 @@ class OpenIDPlugin extends Plugin
                               'nav_help');
             if (!common_config('site', 'private')) {
                 // TRANS: Tooltip for main menu option "Search"
-                $tooltip = _m('TOOLTIP', 'Search for people or text');
+                $tooltip = _m('TOOLTIP', 'Search for people or text.');
                 $action->menuItem(common_local_url('peoplesearch'),
                                   // TRANS: Main menu option when logged in or when the StatusNet instance is not private
                                   _m('MENU', 'Search'), $tooltip, false, 'nav_search');
@@ -294,7 +295,7 @@ class OpenIDPlugin extends Plugin
                           // TRANS: OpenID plugin menu item on site logon page.
                           _m('MENU', 'OpenID'),
                           // TRANS: OpenID plugin tooltip for logon menu item.
-                          _m('Login or register with OpenID'),
+                          _m('Login or register with OpenID.'),
                           $action_name === 'openidlogin');
     }
 
@@ -330,7 +331,7 @@ class OpenIDPlugin extends Plugin
                           // TRANS: OpenID plugin menu item on user settings page.
                           _m('MENU', 'OpenID'),
                           // TRANS: OpenID plugin tooltip for user settings menu item.
-                          _m('Add or remove OpenIDs'),
+                          _m('Add or remove OpenIDs.'),
                           $action_name === 'openidsettings');
 
         return true;
@@ -478,18 +479,24 @@ class OpenIDPlugin extends Plugin
         {
         case 'register':
             if (common_logged_in()) {
-                $instr = '(Have an [OpenID](http://openid.net/)? ' .
-                  '[Add an OpenID to your account](%%action.openidsettings%%)!';
+                // TRANS: Page notice for logged in users to try and get them to add an OpenID account to their StatusNet account.
+                // TRANS: This message contains Markdown links in the form (description)[link].
+                $instr = _m('(Have an [OpenID](http://openid.net/)? ' .
+                  '[Add an OpenID to your account](%%action.openidsettings%%)!');
             } else {
-                $instr = '(Have an [OpenID](http://openid.net/)? ' .
+                // TRANS: Page notice for anonymous users to try and get them to register with an OpenID account.
+                // TRANS: This message contains Markdown links in the form (description)[link].
+                $instr = _m('(Have an [OpenID](http://openid.net/)? ' .
                   'Try our [OpenID registration]'.
-                  '(%%action.openidlogin%%)!)';
+                  '(%%action.openidlogin%%)!)');
             }
             break;
         case 'login':
-            $instr = '(Have an [OpenID](http://openid.net/)? ' .
+            // TRANS: Page notice on the login page to try and get them to log on with an OpenID account.
+            // TRANS: This message contains Markdown links in the form (description)[link].
+            $instr = _m('(Have an [OpenID](http://openid.net/)? ' .
               'Try our [OpenID login]'.
-              '(%%action.openidlogin%%)!)';
+              '(%%action.openidlogin%%)!)');
             break;
         default:
             return true;
@@ -529,14 +536,12 @@ class OpenIDPlugin extends Plugin
      *
      * @return boolean hook value
      */
-    function onEndLoadDoc($title, &$output)
-    {
-        if ($title == 'help') {
-            $menuitem = '* [OpenID](%%doc.openid%%) - what OpenID is and how to use it with this service';
-
-            $output .= common_markup_to_html($menuitem);
-        }
-
+    function onEndDocsMenu(&$items) {
+        $items[] = array('doc', 
+                         array('title' => 'openid'),
+                         _m('MENU', 'OpenID'),
+                         _('Logging in with OpenID'),
+                         'nav_doc_openid');
         return true;
     }
 
@@ -568,6 +573,33 @@ class OpenIDPlugin extends Plugin
                                    new ColumnDef('created', 'datetime',
                                                  null, false),
                                    new ColumnDef('modified', 'timestamp')));
+
+        /* These are used by JanRain OpenID library */
+
+        $schema->ensureTable('oid_associations',
+                             array(
+                                 'fields' => array(
+                                     'server_url' => array('type' => 'blob', 'not null' => true),
+                                     'handle' => array('type' => 'varchar', 'length' => 255, 'not null' => true, 'default' => ''), // character set latin1,
+                                     'secret' => array('type' => 'blob'),
+                                     'issued' => array('type' => 'int'),
+                                     'lifetime' => array('type' => 'int'),
+                                     'assoc_type' => array('type' => 'varchar', 'length' => 64),
+                                 ),
+                                 'primary key' => array(array('server_url', 255), 'handle'),
+                             ));
+        $schema->ensureTable('oid_nonces',
+                             array(
+                                 'fields' => array(
+                                     'server_url' => array('type' => 'varchar', 'length' => 2047),
+                                     'timestamp' => array('type' => 'int'),
+                                     'salt' => array('type' => 'char', 'length' => 40),
+                                 ),
+                                 'unique keys' => array(
+                                     'oid_nonces_server_url_timestamp_salt_key' => array(array('server_url', 255), 'timestamp', 'salt'),
+                                 ),
+                             ));
+
         return true;
     }
 
@@ -604,13 +636,35 @@ class OpenIDPlugin extends Plugin
                 // TRANS: OpenID configuration menu item.
                 _m('MENU','OpenID'),
                 // TRANS: Tooltip for OpenID configuration menu item.
-                _m('OpenID configuration'),
+                _m('OpenID configuration.'),
                 $action_name == 'openidadminpanel',
                 'nav_openid_admin_panel'
             );
         }
 
         return true;
+    }
+
+    /**
+     * Add OpenID information to the Account Management Control Document
+     * Event supplied by the Account Manager plugin
+     *
+     * @param array &$amcd Array that expresses the AMCD
+     *
+     * @return boolean hook value
+     */
+
+    function onEndAccountManagementControlDocument(&$amcd)
+    {
+        $amcd['auth-methods']['openid'] = array(
+            'connect' => array(
+                'method' => 'POST',
+                'path' => common_local_url('openidlogin'),
+                'params' => array(
+                    'identity' => 'openid_url'
+                )
+            )
+        );
     }
 
     /**
@@ -627,7 +681,7 @@ class OpenIDPlugin extends Plugin
                             'author' => 'Evan Prodromou, Craig Andrews',
                             'homepage' => 'http://status.net/wiki/Plugin:OpenID',
                             'rawdescription' =>
-                            // TRANS: OpenID plugin description.
+                            // TRANS: Plugin description.
                             _m('Use <a href="http://openid.net/">OpenID</a> to login to the site.'));
         return true;
     }
@@ -655,7 +709,7 @@ class OpenIDPlugin extends Plugin
     {
         $action->elementStart('fieldset');
         // TRANS: OpenID plugin logon form legend.
-        $action->element('legend', null, _m('OpenID login'));
+        $action->element('legend', null, _m('LEGEND','OpenID login'));
 
         $action->elementStart('ul', 'form_data');
         $action->elementStart('li');
@@ -681,7 +735,7 @@ class OpenIDPlugin extends Plugin
             $action->input('openid_url', _m('OpenID URL'),
                          '',
                         // TRANS: OpenID plugin logon form field instructions.
-                         _m('Your OpenID URL'));
+                         _m('Your OpenID URL.'));
         }
         $action->elementEnd('li');
         $action->elementEnd('ul');
@@ -738,26 +792,26 @@ class OpenIDPlugin extends Plugin
 
     /**
      * Add link in user's XRD file to allow OpenID login.
-     * 
+     *
      * This link in the XRD should let users log in with their
      * Webfinger identity to services that support it. See
      * http://webfinger.org/login for an example.
      *
      * @param XRD  &$xrd Currently-displaying XRD object
      * @param User $user The user that it's for
-     * 
+     *
      * @return boolean hook value (always true)
      */
 
     function onEndXrdActionLinks(&$xrd, $user)
     {
         $profile = $user->getProfile();
-	
+
         if (!empty($profile)) {
             $xrd->links[] = array('rel' => 'http://specs.openid.net/auth/2.0/provider',
                                   'href' => $profile->profileurl);
         }
-	
+
         return true;
     }
 }

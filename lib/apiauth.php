@@ -199,11 +199,17 @@ class ApiAuthAction extends ApiAction
                         $user = User::staticGet('id', $appUser->profile_id);
                         if (!empty($user)) {
                             if (!$user->hasRight(Right::API)) {
+                                // TRANS: Authorization exception thrown when a user without API access tries to access the API.
                                 throw new AuthorizationException(_('Not allowed to use API.'));
                             }
                         }
                         $this->auth_user = $user;
-                        Event::handle('EndSetApiUser', array($user));
+                        // FIXME: setting the value returned by common_current_user()
+                        // There should probably be a better method for this. common_set_user()
+                        // does lots of session stuff.
+                        global $_cur;
+                        $_cur = $this->auth_user;
+                        Event::handle('EndSetApiUser', array($user)); 
                     }
 
                     $msg = "API OAuth authentication for user '%s' (id: %d) on behalf of " .
@@ -225,7 +231,7 @@ class ApiAuthAction extends ApiAction
                     throw new OAuthException(_('Bad access token.'));
                 }
             } else {
-                // Also should not happen
+                // Also should not happen.
                 // TRANS: OAuth exception given when no user was found for a given token (no token was found).
                 throw new OAuthException(_('No user for that token.'));
             }
@@ -281,6 +287,7 @@ class ApiAuthAction extends ApiAction
 
                 if (!empty($user)) {
                     if (!$user->hasRight(Right::API)) {
+                        // TRANS: Authorization exception thrown when a user without API access tries to access the API.
                         throw new AuthorizationException(_('Not allowed to use API.'));
                     }
                     $this->auth_user = $user;

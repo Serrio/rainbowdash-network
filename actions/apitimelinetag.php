@@ -153,7 +153,7 @@ class ApiTimelineTagAction extends ApiPrivateAuthAction
             $this->showJsonTimeline($this->notices);
             break;
         case 'as':
-            header('Content-Type: application/json; charset=utf-8');
+            header('Content-Type: ' . ActivityStreamJSONDocument::CONTENT_TYPE);
             $doc = new ActivityStreamJSONDocument($this->auth_user);
             $doc->setTitle($title);
             $doc->addLink($link, 'alternate', 'text/html');
@@ -161,7 +161,7 @@ class ApiTimelineTagAction extends ApiPrivateAuthAction
             $this->raw($doc->asString());
             break;
         default:
-            // TRANS: Client error displayed when trying to handle an unknown API method.
+            // TRANS: Client error displayed when coming across a non-supported API method.
             $this->clientError(_('API method not found.'), $code = 404);
             break;
         }

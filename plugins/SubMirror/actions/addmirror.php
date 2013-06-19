@@ -59,9 +59,26 @@ class AddMirrorAction extends BaseMirrorAction
     function prepare($args)
     {
         parent::prepare($args);
-        $this->feedurl = $this->validateFeedUrl($this->trimmed('feedurl'));
+        $feedurl = $this->getFeedUrl();
+        $this->feedurl = $this->validateFeedUrl($feedurl);
         $this->profile = $this->profileForFeed($this->feedurl);
         return true;
+    }
+
+    function getFeedUrl()
+    {
+        $provider = $this->trimmed('provider');
+        switch ($provider) {
+        case 'feed':
+            return $this->trimmed('feedurl');
+        case 'twitter':
+            $screenie = $this->trimmed('screen_name');
+            $base = 'http://api.twitter.com/1/statuses/user_timeline.atom?screen_name=';
+            return $base . urlencode($screenie);
+        default:
+            // TRANS: Exception thrown when a feed provider could not be recognised.
+            throw new Exception(_m('Internal form error: Unrecognized feed provider.'));
+        }
     }
 
     function saveMirror()
@@ -69,7 +86,8 @@ class AddMirrorAction extends BaseMirrorAction
         if ($this->oprofile->subscribe()) {
             SubMirror::saveMirror($this->user, $this->profile);
         } else {
-            $this->serverError(_m("Could not subscribe to feed."));
+            // TRANS: Exception thrown when a subscribing to a feed fails.
+            $this->serverError(_m('Could not subscribe to feed.'));
         }
     }
 }

@@ -47,7 +47,7 @@ class GroupsByPostsSection extends GroupSection
         $qry = 'SELECT user_group.*, count(*) as value ' .
           'FROM user_group JOIN group_inbox '.
           'ON user_group.id = group_inbox.group_id ' .
-          'GROUP BY user_group.id,user_group.nickname,user_group.fullname,user_group.homepage,user_group.description,user_group.location,user_group.original_logo,user_group.homepage_logo,user_group.stream_logo,user_group.mini_logo,user_group.created,user_group.modified,user_group.design_id ' .
+          'GROUP BY user_group.id,user_group.nickname,user_group.fullname,user_group.homepage,user_group.description,user_group.location,user_group.original_logo,user_group.homepage_logo,user_group.stream_logo,user_group.mini_logo,user_group.created,user_group.modified ' .
           'ORDER BY value DESC ';
 
         $limit = GROUPS_PER_SECTION;
@@ -68,7 +68,7 @@ class GroupsByPostsSection extends GroupSection
     function title()
     {
         // TRANS: Title for groups with the most posts section.
-        return _('Groups with most posts');
+        return _('Active groups');
     }
 
     function divId()

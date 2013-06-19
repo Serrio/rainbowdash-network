@@ -41,8 +41,7 @@ define('RSSCLOUDPLUGIN_VERSION', '0.1');
  * @author   Zach Copley <zach@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
- **/
-
+ */
 class RSSCloudPlugin extends Plugin
 {
     /**
@@ -61,7 +60,6 @@ class RSSCloudPlugin extends Plugin
      *
      * @return void
      */
-
     function onInitializePlugin()
     {
         $this->domain   = common_config('rsscloud', 'domain');
@@ -104,7 +102,6 @@ class RSSCloudPlugin extends Plugin
      *
      * @return boolean hook return
      */
-
     function onRouterInitialized($m)
     {
         $m->connect('/main/rsscloud/request_notify',
@@ -127,7 +124,6 @@ class RSSCloudPlugin extends Plugin
      * @return boolean hook return
      *
      */
-
     function onAutoload($cls)
     {
         switch ($cls)
@@ -159,7 +155,6 @@ class RSSCloudPlugin extends Plugin
      *
      * @return void
      */
-
     function onStartApiRss($action)
     {
         if (get_class($action) == 'ApiTimelineUserAction') {
@@ -209,19 +204,16 @@ class RSSCloudPlugin extends Plugin
     {
         $schema = Schema::get();
         $schema->ensureTable('rsscloud_subscription',
-                             array(new ColumnDef('subscribed', 'integer',
-                                                 null, false, 'PRI'),
-                                   new ColumnDef('url', 'varchar',
-                                                 '255', false, 'PRI'),
-                                   new ColumnDef('failures', 'integer',
-                                                 null, false, null, 0),
-                                   new ColumnDef('created', 'datetime',
-                                                 null, false),
-                                   new ColumnDef('modified', 'timestamp',
-                                                 null, false, null,
-                                                 'CURRENT_TIMESTAMP',
-                                                 'on update CURRENT_TIMESTAMP')
-                                   ));
+            array(
+                'fields' => array(
+                    'subscribed' => array('type' => 'int', 'not null' => true),
+                    'url' => array('type' => 'varchar', 'length' => '255', 'not null' => true),
+                    'failures' => array('type' => 'int', 'not null' => true, 'default' => 0),
+                    'created' => array('type' => 'datetime', 'not null' => true),
+                    'modified' => array('type' => 'timestamp', 'not null' => true),
+                ),
+                'primary key' => array('subscribed', 'url'),
+            ));
          return true;
     }
 
@@ -245,11 +237,11 @@ class RSSCloudPlugin extends Plugin
                             'author' => 'Zach Copley',
                             'homepage' => 'http://status.net/wiki/Plugin:RSSCloud',
                             'rawdescription' =>
+                            // TRANS: Plugin description.
                             _m('The RSSCloud plugin enables your StatusNet instance to publish ' .
                                'real-time updates for profile RSS feeds using the ' .
                                '<a href="http://rsscloud.org/">RSSCloud protocol</a>.'));
 
         return true;
     }
-
 }

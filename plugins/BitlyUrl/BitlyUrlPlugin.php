@@ -33,19 +33,18 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-require_once INSTALLDIR.'/plugins/UrlShortener/UrlShortenerPlugin.php';
-
 class BitlyUrlPlugin extends UrlShortenerPlugin
 {
     public $shortenerName = 'bit.ly';
-    public $serviceUrl = 'http://bit.ly/api?method=shorten&version=2.0.1&longUrl=%s';
+    public $serviceUrl = 'http://api.bit.ly/v3/shorten?longUrl=%s';
     public $login; // To set a site-default when admins or users don't override it.
     public $apiKey;
 
     function onInitializePlugin(){
         parent::onInitializePlugin();
         if(!isset($this->serviceUrl)){
-            throw new Exception(_m("You must specify a serviceUrl for bit.ly shortening."));
+            // TRANS: Exception thrown when bit.ly URL shortening plugin was configured incorrectly.
+            throw new Exception(_m('You must specify a serviceUrl for bit.ly URL shortening.'));
         }
     }
 
@@ -70,12 +69,10 @@ class BitlyUrlPlugin extends UrlShortenerPlugin
      * @return string shortened version of the url, or null if URL shortening failed
      */
     protected function shorten($url) {
+	common_log(LOG_INFO, "bit.ly call for $url");
         $response = $this->query($url);
-        if ($this->isOk($url, $response)) {
-            return $this->decode($url, $response->getBody());
-        } else {
-            return null;
-        }
+	common_log(LOG_INFO, "bit.ly answer for $url is ".$response->getBody());
+	return $this->decode($url, $response);
     }
 
     /**
@@ -127,42 +124,25 @@ class BitlyUrlPlugin extends UrlShortenerPlugin
     /**
      * JSON decode for API result
      */
-    protected function decode($url, $body)
+    protected function decode($url, $response)
     {
-        $json = json_decode($body, true);
-        return $json['results'][$url]['shortUrl'];
-    }
-
-    /**
-     * JSON decode for API result
-     */
-    protected function isOk($url, $response)
-    {
-        $code = 'unknown';
-        $msg = '';
+        $msg = "bit.ly returned unknown response with unknown message for $url";
         if ($response->isOk()) {
             $body = $response->getBody();
             common_log(LOG_INFO, $body);
             $json = json_decode($body, true);
-            if ($json['statusCode'] == 'OK') {
-                if (!isset($json['results'][$url])) {
-                    common_log(LOG_ERR, "bit.ly returned OK response, but didn't find expected URL $url in $body");
-                    return false;
+            if ($json['status_code'] == 200) {
+                if (isset($json['data']['url'])) {
+					common_log(LOG_INFO, "bit.ly returned ".$json['data']['url']." as short URL for $url");
+                    return $json['data']['url'];
                 }
-                $data = $json['results'][$url];
-                if (isset($data['shortUrl'])) {
-                    return true;
-                } else if (isset($data['statusCode']) && $data['statusCode'] == 'ERROR') {
-                    $code = $data['errorCode'];
-                    $msg = $data['errorMessage'];
-                }
-            } else if ($json['statusCode'] == 'ERROR') {
-                $code = $json['errorCode'];
-                $msg = $json['errorMessage'];
-            }
-            common_log(LOG_ERR, "bit.ly returned error $code $msg for $url");
-        }
-        return false;
+				$msg = "bit.ly returned ".$json['status_code']." response, but didn't find expected URL $url in $body";
+			}else{
+				$msg = "bit.ly returned ".$json['status_code']." response with ".$json['status_txt']." for $url";
+			}
+		}
+		common_log(LOG_ERR, $msg);
+		return null;
     }
 
     function onPluginVersion(&$versions)
@@ -172,6 +152,7 @@ class BitlyUrlPlugin extends UrlShortenerPlugin
                             'author' => 'Craig Andrews, Brion Vibber',
                             'homepage' => 'http://status.net/wiki/Plugin:BitlyUrl',
                             'rawdescription' =>
+                            // TRANS: Plugin description. %1$s is the URL shortening service base URL (for example "bit.ly").
                             sprintf(_m('Uses <a href="http://%1$s/">%1$s</a> URL-shortener service.'),
                                     $this->shortenerName));
 
@@ -186,7 +167,7 @@ class BitlyUrlPlugin extends UrlShortenerPlugin
      */
     function onRouterInitialized($m)
     {
-        $m->connect('admin/bitly',
+        $m->connect('panel/bitly',
                     array('action' => 'bitlyadminpanel'));
         return true;
     }
@@ -213,8 +194,10 @@ class BitlyUrlPlugin extends UrlShortenerPlugin
             $action_name = $nav->action->trimmed('action');
 
             $nav->out->menuItem(common_local_url('bitlyadminpanel'),
+                                // TRANS: Menu item in administration menus for bit.ly URL shortening settings.
                                 _m('bit.ly'),
-                                _m('bit.ly URL shortening'),
+                                // TRANS: Title for menu item in administration menus for bit.ly URL shortening settings.
+                                _m('bit.ly URL shortening.'),
                                 $action_name == 'bitlyadminpanel',
                                 'nav_bitly_admin_panel');
         }

@@ -45,7 +45,7 @@ class FinishopenidloginAction extends Action
             if ($this->arg('create')) {
                 if (!$this->boolean('license')) {
                     // TRANS: Message given if user does not agree with the site's license.
-                    $this->showForm(_m('You can\'t register if you don\'t agree to the license.'),
+                    $this->showForm(_m('You cannot register if you do not agree to the license.'),
                                     $this->trimmed('newname'));
                     return;
                 }
@@ -70,14 +70,14 @@ class FinishopenidloginAction extends Action
             $this->element('div', 'instructions',
                            // TRANS: Instructions given after a first successful logon using OpenID.
                            // TRANS: %s is the site name.
-                           sprintf(_m('This is the first time you\'ve logged into %s so we must connect your OpenID to a local account. You can either create a new account, or connect with your existing account, if you have one.'), common_config('site', 'name')));
+                           sprintf(_m('This is the first time you have logged into %s so we must connect your OpenID to a local account. You can either create a new account, or connect with your existing account, if you have one.'), common_config('site', 'name')));
         }
     }
 
     function title()
     {
         // TRANS: Title
-        return _m('OpenID Account Setup');
+        return _m('TITLE','OpenID Account Setup');
     }
 
     function showForm($error=null, $username=null)
@@ -114,8 +114,10 @@ class FinishopenidloginAction extends Action
         $this->hidden('token', common_session_token());
         $this->elementStart('fieldset', array('id' => 'form_openid_createaccount'));
         $this->element('legend', null,
+                       // TRANS: Fieldset legend.
                        _m('Create new account'));
         $this->element('p', null,
+                       // TRANS: Form guide.
                        _m('Create a new user with this nickname.'));
         $this->elementStart('ul', 'form_data');
 
@@ -123,14 +125,18 @@ class FinishopenidloginAction extends Action
         Event::handle('StartRegistrationFormData', array($this));
 
         $this->elementStart('li');
+        // TRANS: Field label.
         $this->input('newname', _m('New nickname'),
                      ($this->username) ? $this->username : '',
-                     _m('1-64 lowercase letters or numbers, no punctuation or spaces'));
+                     // TRANS: Field title.
+                     _m('1-64 lowercase letters or numbers, no punctuation or spaces.'));
         $this->elementEnd('li');
         $this->elementStart('li');
-        $this->input('email', _('Email'), $this->getEmail(),
-                     _('Used only for updates, announcements, '.
-                       'and password recovery'));
+        // TRANS: Field label.
+        $this->input('email', _m('Email'), $this->getEmail(),
+                     // TRANS: Field title.
+                     _m('Used only for updates, announcements, '.
+                       'and password recovery.'));
         $this->elementEnd('li');
 
         // Hook point for captcha etc
@@ -145,8 +151,8 @@ class FinishopenidloginAction extends Action
         $this->elementStart('label', array('for' => 'license',
                                           'class' => 'checkbox'));
         // TRANS: OpenID plugin link text.
-        // TRANS: %s is a link to a licese with the license name as link text.
-        $message = _('My text and files are available under %s ' .
+        // TRANS: %s is a link to a license with the license name as link text.
+        $message = _m('My text and files are available under %s ' .
                      'except this private data: password, ' .
                      'email address, IM address, and phone number.');
         $link = '<a href="' .
@@ -187,7 +193,7 @@ class FinishopenidloginAction extends Action
         $this->password('password', _m('Password'));
         $this->elementEnd('li');
         $this->elementEnd('ul');
-        // TRANS: Button label in form in which to connect an OpenID to an existing user on the site.
+        // TRANS: Button text in form in which to connect an OpenID to an existing user on the site.
         $this->submit('connect', _m('BUTTON', 'Connect'));
         $this->elementEnd('fieldset');
         $this->elementEnd('form');
@@ -238,7 +244,7 @@ class FinishopenidloginAction extends Action
             return;
         } else if ($response->status == Auth_OpenID_FAILURE) {
             // TRANS: OpenID authentication failed; display the error message. %s is the error message.
-            $this->message(sprintf(_m('OpenID authentication failed: %s'), $response->message));
+            $this->message(sprintf(_m('OpenID authentication failed: %s.'), $response->message));
         } else if ($response->status == Auth_OpenID_SUCCESS) {
             // This means the authentication succeeded; extract the
             // identity URL and Simple Registration data (if it was
@@ -258,7 +264,8 @@ class FinishopenidloginAction extends Action
 
             // Launchpad teams extension
             if (!oid_check_teams($response)) {
-                $this->message(_m('OpenID authentication aborted: you are not allowed to login to this site.'));
+                // TRANS: Message displayed when OpenID authentication is aborted.
+                $this->message(_m('OpenID authentication aborted: You are not allowed to login to this site.'));
                 return;
             }
 
@@ -266,9 +273,9 @@ class FinishopenidloginAction extends Action
 
             if ($user) {
                 oid_set_last($display);
-                # XXX: commented out at @edd's request until better
-                # control over how data flows from OpenID provider.
-                # oid_update_user($user, $sreg);
+                // XXX: commented out at @edd's request until better
+                // control over how data flows from OpenID provider.
+                // oid_update_user($user, $sreg);
                 common_set_user($user);
                 common_real_login(true);
                 if (isset($_SESSION['openid_rememberme']) && $_SESSION['openid_rememberme']) {
@@ -306,7 +313,7 @@ class FinishopenidloginAction extends Action
 
     function createNewUser()
     {
-        # FIXME: save invite code before redirect, and check here
+        // FIXME: save invite code before redirect, and check here
 
         if (!Event::handle('StartRegistrationTry', array($this))) {
             return;
@@ -364,7 +371,7 @@ class FinishopenidloginAction extends Action
             return;
         }
 
-        # Possible race condition... let's be paranoid
+        // Possible race condition... let's be paranoid
 
         $other = oid_get_user($canonical);
 
@@ -379,8 +386,8 @@ class FinishopenidloginAction extends Action
         $location = '';
         if (!empty($sreg['country'])) {
             if ($sreg['postcode']) {
-                # XXX: use postcode to get city and region
-                # XXX: also, store postcode somewhere -- it's valuable!
+                // XXX: use postcode to get city and region
+                // XXX: also, store postcode somewhere -- it's valuable!
                 $location = $sreg['postcode'] . ', ' . $sreg['country'];
             } else {
                 $location = $sreg['country'];
@@ -395,8 +402,8 @@ class FinishopenidloginAction extends Action
 
         $email = $this->getEmail();
 
-        # XXX: add language
-        # XXX: add timezone
+        // XXX: add language
+        // XXX: add timezone
 
         $args = array('nickname' => $nickname,
                       'email' => $email,
@@ -438,7 +445,7 @@ class FinishopenidloginAction extends Action
             return;
         }
 
-        # They're legit!
+        // They're legit!
 
         $user = User::staticGet('nickname', $nickname);
 
@@ -477,7 +484,7 @@ class FinishopenidloginAction extends Action
     {
         $url = common_get_returnto();
         if ($url) {
-            # We don't have to return to it again
+            // We don't have to return to it again
             common_set_returnto(null);
 	    $url = common_inject_session($url);
         } else {
@@ -490,8 +497,7 @@ class FinishopenidloginAction extends Action
 
     function bestNewNickname($display, $sreg)
     {
-
-        # Try the passed-in nickname
+        // Try the passed-in nickname
 
         if (!empty($sreg['nickname'])) {
             $nickname = $this->nicknamize($sreg['nickname']);
@@ -500,7 +506,7 @@ class FinishopenidloginAction extends Action
             }
         }
 
-        # Try the full name
+        // Try the full name
 
         if (!empty($sreg['fullname'])) {
             $fullname = $this->nicknamize($sreg['fullname']);
@@ -509,7 +515,7 @@ class FinishopenidloginAction extends Action
             }
         }
 
-        # Try the URL
+        // Try the URL
 
         $from_url = $this->openidToNickname($display);
 
@@ -517,7 +523,7 @@ class FinishopenidloginAction extends Action
             return $from_url;
         }
 
-        # XXX: others?
+        // XXX: others?
 
         return null;
     }
@@ -545,11 +551,10 @@ class FinishopenidloginAction extends Action
         }
     }
 
-    # We try to use an OpenID URL as a legal StatusNet user name in this order
-    # 1. Plain hostname, like http://evanp.myopenid.com/
-    # 2. One element in path, like http://profile.typekey.com/EvanProdromou/
-    #    or http://getopenid.com/evanprodromou
-
+    // We try to use an OpenID URL as a legal StatusNet user name in this order
+    // 1. Plain hostname, like http://evanp.myopenid.com/
+    // 2. One element in path, like http://profile.typekey.com/EvanProdromou/
+    //    or http://getopenid.com/evanprodromou
     function urlToNickname($openid)
     {
         return common_url_to_nickname($openid);
@@ -562,8 +567,8 @@ class FinishopenidloginAction extends Action
         if (!$base) {
             return null;
         } else {
-            # =evan.prodromou
-            # or @gratis*evan.prodromou
+            // =evan.prodromou
+            // or @gratis*evan.prodromou
             $parts = explode('*', substr($base, 1));
             return $this->nicknamize(array_pop($parts));
         }
@@ -578,8 +583,7 @@ class FinishopenidloginAction extends Action
         }
     }
 
-    # Given a string, try to make it work as a nickname
-
+    // Given a string, try to make it work as a nickname
     function nicknamize($str)
     {
         return common_nicknamize($str);

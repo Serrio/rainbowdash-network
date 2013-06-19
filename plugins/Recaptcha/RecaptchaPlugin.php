@@ -41,7 +41,8 @@ class RecaptchaPlugin extends Plugin
     var $failed;
     var $ssl;
 
-    function onInitializePlugin(){
+    function onInitializePlugin()
+    {
         if(!isset($this->private_key)) {
             common_log(LOG_ERR, 'Recaptcha: Must specify private_key in config.php');
         }
@@ -50,17 +51,10 @@ class RecaptchaPlugin extends Plugin
         }
     }
 
-    function checkssl(){
-        if(common_config('site', 'ssl') === 'sometimes' || common_config('site', 'ssl') === 'always') {
-            return true;
-        }
-        return false;
-    }
-
-
     function onEndRegistrationFormData($action)
     {
         $action->elementStart('li');
+        // TRANS: Field label.
         $action->raw('<label for="recaptcha">'._m('Captcha').'</label>');
 
         // AJAX API will fill this div out.
@@ -77,10 +71,10 @@ class RecaptchaPlugin extends Plugin
     {
         if (isset($action->recaptchaPluginNeedsOutput) && $action->recaptchaPluginNeedsOutput) {
             // Load the AJAX API
-            if ($this->checkssl()) {
-                $url = "https://api-secure.recaptcha.net/js/recaptcha_ajax.js";
+            if (StatusNet::isHTTPS()) {
+                $url = "https://www.google.com/recaptcha/api/js/recaptcha_ajax.js";
             } else {
-                $url = "http://api.recaptcha.net/js/recaptcha_ajax.js";
+                $url = "http://www.google.com/recaptcha/api/js/recaptcha_ajax.js";
             }
             $action->script($url);
 
@@ -100,9 +94,12 @@ class RecaptchaPlugin extends Plugin
 
         if (!$resp->is_valid) {
             if($this->display_errors) {
-                $action->showForm(sprintf(_("(reCAPTCHA error: %s)", $resp->error)));
+                // TRANS: Error message displayed if there is in error communicating with the
+                // TRANS: reCAPTCHA server. %s is the error.
+                $action->showForm(sprintf(_m('(reCAPTCHA error: %s)', $resp->error)));
             }
-            $action->showForm(_m("Captcha does not match!"));
+            // TRANS: Error message displayed if a provided captcha response does not match.
+            $action->showForm(_m('Captcha does not match!'));
             return false;
         }
     }
@@ -114,6 +111,7 @@ class RecaptchaPlugin extends Plugin
                             'author' => 'Eric Helgeson',
                             'homepage' => 'http://status.net/wiki/Plugin:Recaptcha',
                             'rawdescription' =>
+                            // TRANS: Plugin description.
                             _m('Uses <a href="http://recaptcha.org/">Recaptcha</a> service to add a  '.
                                'captcha to the registration page.'));
         return true;

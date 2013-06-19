@@ -28,12 +28,12 @@
  */
 
 $default =
-  array('site' =>
+    array('site' =>
         array('name' => 'Just another StatusNet microblog',
               'nickname' => 'statusnet',
               'wildcard' => null,
               'server' => $_server,
-              'theme' => 'default',
+              'theme' => 'neo',
               'path' => $_path,
               'logfile' => null,
               'logo' => null,
@@ -52,17 +52,18 @@ $default =
               'timezone' => 'UTC',
               'broughtbyurl' => null,
               'closed' => false,
-              'inviteonly' => false,
-              'private' => false,
+              'inviteonly' => true,
+              'private' => true,
               'ssl' => 'never',
               'sslserver' => null,
               'shorturllength' => 30,
               'dupelimit' => 60, // default for same person saying the same thing
-              'textlimit' => 140,
+              'textlimit' => 0, // in chars; 0 == no limit
               'indent' => true,
               'use_x_sendfile' => false,
               'notice' => null, // site wide notice text
               'build' => 1, // build number, for code-dependent cache
+              'minify' => true, // true to use the minified versions of JS files; false to use orig files. Can aid during development
               ),
         'db' =>
         array('database' => 'YOU HAVE TO SET THIS IN config.php',
@@ -78,7 +79,8 @@ $default =
               'schemacheck' => 'runtime', // 'runtime' or 'script'
               'annotate_queries' => false, // true to add caller comments to queries, eg /* POST Notice::saveNew */
               'log_queries' => false, // true to log all DB queries
-              'log_slow_queries' => 0), // if set, log queries taking over N seconds
+              'log_slow_queries' => 0, // if set, log queries taking over N seconds
+              'mysql_foreign_keys' => false), // if set, enables experimental foreign key support on MySQL
         'syslog' =>
         array('appname' => 'statusnet', # for syslog
               'priority' => 'debug', # XXX: currently ignored
@@ -189,9 +191,9 @@ $default =
               'user' => false,
               'group' => false),
         'emailpost' =>
-        array('enabled' => true),
+        array('enabled' => false),
         'sms' =>
-        array('enabled' => true),
+        array('enabled' => false),
         'twitterimport' =>
         array('enabled' => false),
         'integration' =>
@@ -267,27 +269,26 @@ $default =
         array('desclimit' => null),
         'group' =>
         array('maxaliases' => 3,
+              'desclimit' => null,
+              'addtag' => false),
+        'peopletag' =>
+        array('maxtags' => 100, // maximum number of tags a user can create.
+              'maxpeople' => 500, // maximum no. of people with the same tag by the same user
+              'allow_tagging' => array('all' => true), // equivalent to array('local' => true, 'remote' => true)
               'desclimit' => null),
-        'oohembed' => array('endpoint' => 'http://oohembed.com/oohembed/'),
+        'oembed' =>
+        array('endpoint' => 'https://noembed.com/embed/',
+              'order' => array('built-in', 'well-known', 'service', 'discovery'),
+        ),
         'search' =>
-        array('type' => 'fulltext'),
+        array('type' => 'like'),
         'sessions' =>
         array('handle' => false,   // whether to handle sessions ourselves
               'debug' => false,    // debugging output for sessions
               'gc_limit' => 1000), // max sessions to expire at a time
-        'design' =>
-        array('backgroundcolor' => null, // null -> 'use theme default'
-              'contentcolor' => null,
-              'sidebarcolor' => null,
-              'textcolor' => null,
-              'linkcolor' => null,
-              'backgroundimage' => null,
-              'disposition' => null),
-        'custom_css' =>
-        array('enabled' => true,
-              'css' => ''),
         'notice' =>
-        array('contentlimit' => null),
+        array('contentlimit' => null,
+              'defaultscope' => null), // null means 1 if site/private, 0 otherwise
         'message' =>
         array('contentlimit' => null),
         'location' =>
@@ -298,30 +299,28 @@ $default =
         'logincommand' =>
         array('disabled' => true),
         'plugins' =>
-        array('default' => array('LilUrl' => array('shortenerName'=>'ur1.ca',
-                                                   'freeService' => true,
-                                                   'serviceUrl'=>'http://ur1.ca/'),
-                                 'PtitUrl' => array('shortenerName' => 'ptiturl.com',
-                                                    'serviceUrl' => 'http://ptiturl.com/?creer=oui&action=Reduire&url=%1$s'),
-                                 'SimpleUrl' => array(array('shortenerName' => 'is.gd', 'serviceUrl' => 'http://is.gd/api.php?longurl=%1$s'),
-                                                      array('shortenerName' => 'snipr.com', 'serviceUrl' => 'http://snipr.com/site/snip?r=simple&link=%1$s'),
-                                                      array('shortenerName' => 'metamark.net', 'serviceUrl' => 'http://metamark.net/api/rest/simple?long_url=%1$s'),
-                                                      array('shortenerName' => 'tinyurl.com', 'serviceUrl' => 'http://tinyurl.com/api-create.php?url=%1$s')),
-                                 'TightUrl' => array('shortenerName' => '2tu.us', 'freeService' => true,'serviceUrl'=>'http://2tu.us/?save=y&url=%1$s'),
-                                 'Geonames' => null,
-                                 'Mapstraction' => null,
-                                 'OStatus' => null,
-                                 'WikiHashtags' => null,
-                                 'RSSCloud' => null,
-                                 'OpenID' => null),
+        array('default' => array('Geonames' => null,
+                                 'ClientSideShorten' => null,
+                                 'StrictTransportSecurity' => null,
+                                 'Bookmark' => null,
+                                 'Event' => null,
+                                 'Poll' => null,
+                                 'QnA' => null,
+                                 'SearchSub' => null,
+                                 'TagSub' => null,
+                                 'OpenID' => null,
+                                 'Directory' => null,
+                                 'ExtendedProfile' => null,
+                                 'Activity' => null),
               'locale_path' => false, // Set to a path to use *instead of* each plugin's own locale subdirectories
               'server' => null,
               'sslserver' => null,
               'path' => null,
               'sslpath' => null,
               ),
+        'pluginlist' => array(),
         'admin' =>
-        array('panels' => array('design', 'site', 'user', 'paths', 'access', 'sessions', 'sitenotice', 'license')),
+        array('panels' => array('site', 'user', 'paths', 'access', 'sessions', 'sitenotice', 'license', 'plugins')),
         'singleuser' =>
         array('enabled' => false,
               'nickname' => null),
@@ -336,6 +335,10 @@ $default =
               'members' => true,
               'peopletag' => true,
               'external' => 'sometimes'), // Options: 'sometimes', 'never', default = 'sometimes'
+        'url' =>
+        array('shortener' => 'ur1.ca',
+              'maxlength' => 25,
+              'maxnoticelength' => -1),
         'http' => // HTTP client settings when contacting other sites
         array('ssl_cafile' => false, // To enable SSL cert validation, point to a CA bundle (eg '/usr/lib/ssl/certs/ca-certificates.crt')
               'curl' => false, // Use CURL backend for HTTP fetches if available. (If not, PHP's socket streams will be used.)
@@ -345,6 +348,9 @@ $default =
               'proxy_password' => null,
               'proxy_auth_scheme' => null,
               ),
-	'router' =>
-	array('cache' => true), // whether to cache the router object. Defaults to true, turn off for devel
-        );
+        'router' =>
+        array('cache' => true), // whether to cache the router object. Defaults to true, turn off for devel
+        'discovery' =>
+          array('cors' => false), // Allow Cross-Origin Resource Sharing for service discovery (host-meta, XRD, etc.)
+        'performance' => array('high' => false) // disable some features for higher performance; default false
+    );
