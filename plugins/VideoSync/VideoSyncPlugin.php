@@ -116,7 +116,7 @@ class VideoSyncPlugin extends Plugin
         return true;
     }
 
-    function onStartShowNoticeForm($action) {
+    function onEndShowHeader($action) {
         $user = common_current_user();
 
         if($action instanceof PublicAction) {

@@ -519,9 +519,12 @@ padding: 2px;
 cursor: pointer;
 }
 
-#videosync_btn, #videosync_box {
-width: 640px;
+#videosync, #videosync_btn, #videosync_box {
 margin: 5px;
+width: 100%;
+}
+
+#videosync_btn, #videosync_box {
 display: hidden;
 }
 
