@@ -114,13 +114,6 @@ class PersonalGroupNav extends Menu
                              _m('MENU','Media'),
                              // TRANS: Tooltip for personal group navigation menu option when logged in for viewing own favourited notices.
                              sprintf(_('%s\'s media'), ($user_profile) ? $name : _('User')),
-                             $action == 'showstream', 'nav_timeline_media');
-            $this->out->menuItem(common_local_url('showstream', array('nickname' =>
-                                                                  $nickname)) . '?images=1',
-                             // TRANS: Personal group navigation menu option when logged in for viewing own favourited notices.
-                             _m('MENU','Media'),
-                             // TRANS: Tooltip for personal group navigation menu option when logged in for viewing own favourited notices.
-                             sprintf(_('%s\'s media'), ($user_profile) ? $name : _('User')),
                              $action == 'showstream_media', 'nav_timeline_media');
 
             $cur = common_current_user();
