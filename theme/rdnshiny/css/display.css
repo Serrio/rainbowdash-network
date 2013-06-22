@@ -313,6 +313,7 @@ margin-bottom: 0;
 margin-left: 15px;
 }
 
+/*
 .form_notice {
 background: #ccc;
 margin-bottom: 30px;
@@ -322,6 +323,7 @@ margin-top: 0px;
 margin-left: 5px;
 padding: 0px;
 }
+*/
 
 #header .form_notice {
 background-color: transparent;
@@ -341,7 +343,6 @@ float: left;
 padding: 6px;
 position: relative;
 z-index: 9;
-width: 100%;
 -webkit-box-sizing: border-box;
 -moz-box-sizing: border-box;
 box-sizing: border-box;
@@ -351,7 +352,6 @@ border-radius: 4px;
 -moz-border-radius: 4px;
 -webkit-border-radius: 4px;
 position: relative;
-resize: none;
 }
 
 .entity_send-a-message .form_notice legend {
