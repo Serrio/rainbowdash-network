@@ -1656,7 +1656,6 @@ function common_request_id()
 
 function common_log($priority, $msg, $filename=null)
 {
-    die($msg);
     if(Event::handle('StartLog', array(&$priority, &$msg, &$filename))){
 	$msg = (empty($filename)) ? $msg : basename($filename) . ' - ' . $msg;
         $msg = '[' . common_request_id() . '] ' . $msg;
