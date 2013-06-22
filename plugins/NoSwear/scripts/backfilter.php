@@ -50,14 +50,14 @@ $notice->find();
 while($notice->fetch()) {
     if(!have_option('t', 'test')) {
         $orig = clone($notice);
-        $plugin->onStartNoticeSave(&$notice);
+        $plugin->onStartNoticeSave($notice);
         if($orig->content != $notice->content) {
             $notice->update($orig);
         }
     }
     else {
         $orig = clone($notice);
-        $plugin->onStartNoticeSave(&$notice);
+        $plugin->onStartNoticeSave($notice);
         if($orig->content != $notice->content) {
             print $orig->content . "\n";
             print $notice->content . "\n";

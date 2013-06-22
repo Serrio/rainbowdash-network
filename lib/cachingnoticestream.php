@@ -58,7 +58,7 @@ class CachingNoticeStream extends NoticeStream
         $this->cachekey = $cachekey;
     }
 
-    function getNoticeIds($offset, $limit, $sinceId, $maxId, $images)
+    function getNoticeIds($offset, $limit, $sinceId, $maxId)
     {
         $cache = Cache::instance();
 
@@ -69,7 +69,7 @@ class CachingNoticeStream extends NoticeStream
             $sinceId != 0 || $maxId != 0 ||
             is_null($limit) ||
             ($offset + $limit) > self::CACHE_WINDOW) {
-            return $this->stream->getNoticeIds($offset, $limit, $sinceId, $maxId, $images);
+            return $this->stream->getNoticeIds($offset, $limit, $sinceId, $maxId);
         }
 
         // Check the cache to see if we have the stream.

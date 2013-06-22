@@ -1885,7 +1885,7 @@ class Notice extends Managed_DataObject
         // Scope is same as this one's
 
         $options =           array('repeat_of' => $this->id,
-                                   'scope' => $this->scope));
+                                   'scope' => $this->scope);
 
         if(!empty($finish)) {
             $options = array_merge($options, array('finish' => $finish));

@@ -338,6 +338,10 @@ class Action extends HTMLOutputter // lawsuit
                 if (common_config('javascript', 'bustframes')) {
                     $this->inlineScript('if (window.top !== window.self) { document.write = ""; window.top.location = window.self.location; setTimeout(function () { document.body.innerHTML = ""; }, 1); window.self.onload = function () { document.body.innerHTML = ""; }; }');
                 }
+
+                Event::handle('EndShowStatusNetScripts', array($this));
+                Event::handle('EndShowLaconicaScripts', array($this));
+            }
             Event::handle('EndShowScripts', array($this));
         }
     }
@@ -1526,3 +1530,4 @@ class Action extends HTMLOutputter // lawsuit
         return ($_SERVER['REQUEST_METHOD'] == 'POST');
     }
 }
+
