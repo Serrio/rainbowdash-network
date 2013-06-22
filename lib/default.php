@@ -334,7 +334,7 @@ $default =
               ),
         'pluginlist' => array(),
         'admin' =>
-        array('panels' => array('site', 'user', 'paths', 'access', 'sessions', 'sitenotice', 'license', 'plugins')),
+        array('panels' => array('site', 'user', 'paths', 'access', 'design', 'sessions', 'sitenotice', 'license', 'plugins')),
         'singleuser' =>
         array('enabled' => false,
               'nickname' => null),

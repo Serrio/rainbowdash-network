@@ -56,15 +56,8 @@ class PrimaryNav extends Menu
                 $tmpisadmin = 1;
             }
         }
-        if ($tmpisadmin == 1) {
-            $this->elementStart('dl', array('id' => 'site_nav_global_primary', 'style' => 'font-size: 11px;'));
-        } else {
-            $this->elementStart('dl', array('id' => 'site_nav_global_primary' ));
-        }
 
         // TRANS: DT element for primary navigation menu. String is hidden in default CSS.
-        $this->element('dt', null, _('Primary site navigation'));
-        $this->elementStart('dd');
         $this->elementStart('ul', array('class' => 'nav'));
 
         if (Event::handle('StartPrimaryNav', array($this->action))) {
@@ -217,7 +210,5 @@ class PrimaryNav extends Menu
             Event::handle('EndPrimaryNav', array($this->action));
         }
         $this->elementEnd('ul');
-        $this->elementEnd('dd');
-        $this->elementEnd('dl');
     }
 }

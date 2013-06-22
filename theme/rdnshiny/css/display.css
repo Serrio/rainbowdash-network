@@ -8,7 +8,7 @@
 */
 
 /* Modified for RDN by RedEnchilada and Bit Shift */
-
+@import url("../../base/css/display.css");
 @media screen, projection, tv {
 
 * {margin: 0; padding: 0; vertical-align: baseline;}
@@ -65,6 +65,7 @@ line-height: 1.4;
 }
 
 #wrap {
+border: 0;
 width: 960px;
 margin: 0px auto;
 padding: 0px 8px 10px 8px;
@@ -98,6 +99,11 @@ float: left;
 margin-right: 20px;
 margin-top: 0px;
 margin-bottom: 10px;
+z-index: auto;
+}
+
+address img {
+max-width: none;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -119,6 +125,7 @@ font-size: 1.4em;
 font-weight: normal;
 text-shadow:0 1px 0 rgba(255,255,255,0.4);
 margin: -4px 0px 15px 0px;
+clear: both;
 }
 
 #header {
@@ -185,21 +192,19 @@ top: 0px;
 left: -21px;
 }
 
-#site_nav_global_primary dt {
-display: none;
-}
-
 #site_nav_global_primary ul.nav {
-width: 98%;
+width: 715px;
 text-align: right;
 text-transform: uppercase;
 margin: 0 1%;
+float: left;
 }
 
 #site_nav_global_primary ul.nav > li {
 display: inline;
 margin-right: 0px;
 margin-left: 0px;
+float: left;
 }
 
 #site_nav_global_primary ul.nav > li > a,
@@ -233,7 +238,6 @@ position: absolute;
 top: 18px;
 left: 0px;
 list-style-type: none;
-min-width: 100%;
 text-align: left;
 border-top: 1px solid #666;
 display: none;
@@ -609,9 +613,8 @@ padding-right: 2em;
 #site_nav_local_views {
 position: relative;
 z-index: 9;
-float: right;
-margin: 0px;
-width: 290px;
+margin: 3px;
+padding: 0px;
 }
 
 #site_nav_local_views dt {
@@ -707,8 +710,6 @@ border-radius: 4px;
 border-top-right-radius: 0px;
 -moz-border-radius-topright: 0px;
 -webkit-border-top-right-radius: 0px;
-padding: 14px 10px 20px 10px;
-width: 634px;
 min-height: 300px;
 background-color: #EDEAEB;
 }
@@ -857,19 +858,17 @@ display:none;
 
 #aside_primary {
 float: right;
+padding: 15px 10px 40px;
 position: relative;
-width: 290px;
-margin-top: 15px;
+margin: 0;
 }
 
 #aside_primary .section {
 position: relative;
 clear: both;
-padding: 6px;
 padding-bottom: 12px;
-margin: 0px 15px 20px;
-width: 248px;
 float: right;
+margin: 5px;
 }
 
 #aside_primary .section H2 {
@@ -2523,15 +2522,10 @@ margin: 8pt 8px;
 z-index: 999;
 }
 
-/* At the bottom for quick reference and change */
-#site_nav_global_primary ul {
-text-align: right;
-width: 98%;
-}
 .entity_profile .note{white-space: pre-wrap}
 
-#site_nav_global_primary > * > ul > li {
-float: left;
+#site_nav_global_primary li {
+margin: 0;
 }
 
 #site_nav_global_primary ul.nav > #nav_personal,

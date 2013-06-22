@@ -804,6 +804,7 @@ class Router
             $m->connect('panel/site', array('action' => 'siteadminpanel'));
             $m->connect('panel/user', array('action' => 'useradminpanel'));
 	        $m->connect('panel/access', array('action' => 'accessadminpanel'));
+            $m->connect('panel/design', array('action' => 'designadminpanel'));
             $m->connect('panel/paths', array('action' => 'pathsadminpanel'));
             $m->connect('panel/sessions', array('action' => 'sessionsadminpanel'));
             $m->connect('panel/sitenotice', array('action' => 'sitenoticeadminpanel'));

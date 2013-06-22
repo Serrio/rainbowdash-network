@@ -110,6 +110,14 @@ class AdminPanelNav extends Menu
                                      $menu_title, $action_name == 'accessadminpanel', 'nav_access_admin_panel');
             }
 
+            if (AdminPanelAction::canAdmin('design')) {
+                // TRANS: Menu item title in administrator navigation panel.
+                $menu_title = _('Design configuration');
+                // TRANS: Menu item in administrator navigation panel.
+                $this->out->menuItem(common_local_url('designadminpanel'), _m('MENU','Design'),
+                                     $menu_title, $action_name == 'designadminpanel', 'nav_design_admin_panel');
+            }
+
             if (AdminPanelAction::canAdmin('paths')) {
                 // TRANS: Menu item title in administrator navigation panel.
                 $menu_title = _('Paths configuration');
