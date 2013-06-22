@@ -37,6 +37,8 @@
  * @license  GNU Affero General Public License http://www.gnu.org/licenses/
  */
 
+die('This branch is not ready. If you want to use this you will need to remove this line.');
+
 $_startTime = microtime(true);
 $_perfCounters = array();
 
