@@ -256,6 +256,29 @@ padding: 2px;
 color: white;
 font-size: 9pt;
 width: 170px;
+margin-top: 1px;
+padding-right: 20px;
+}
+
+#header-search input[type=submit] {
+width: 18px;
+height: 18px;
+background-color: transparent;
+border: none;
+opacity: 0.7;
+position: relative;
+top: 0px;
+right: 24px;
+text-indent: 100%;
+overflow: hidden;
+white-space: nowrap;
+background-image: url(../images/searchicon.png);
+margin-right: -24px;
+}
+
+#header-search input[type=submit]:hover {
+opacity: 1;
+cursor: pointer;
 }
 
 #site_nav_global_primary ul.nav {
