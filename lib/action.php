@@ -520,6 +520,7 @@ class Action extends HTMLOutputter // lawsuit
     {
         $this->elementStart('div', array('id' => 'header'));
         $this->showLogo();
+		$this->showUserBox();
         $this->showPrimaryNav();
         if (Event::handle('StartShowSiteNotice', array($this))) {
             $this->showSiteNotice();
@@ -544,10 +545,10 @@ class Action extends HTMLOutputter // lawsuit
                 $user = User::singleUser();
                 $url = common_local_url('showstream',
                                         array('nickname' => $user->nickname));
-            } else if (common_logged_in()) {
+            } else /*if (common_logged_in()) {
                 $cur = common_current_user();
                 $url = common_local_url('all', array('nickname' => $cur->nickname));
-            } else {
+            } else*/ {
                 $url = common_local_url('public');
             }
 
@@ -590,6 +591,109 @@ class Action extends HTMLOutputter // lawsuit
         }
         $this->elementEnd('address');
     }
+	
+	function showUserBox() {
+        $user = common_current_user();
+		$this->elementStart('div', array('id' => 'user_info_card'));
+		
+		if ($user) {
+            $block = new DefaultProfileBlock($this);
+            $block->show();
+
+			// TRANS: Tooltip for main menu option "Personal".
+			$tooltip = _m('TOOLTIP', 'Personal profile and friends timeline');
+			$this->element('a', array(
+				'href' => common_local_url('all', array('nickname' => $user->nickname)),
+				'title' => $tooltip,
+				'id' => 'usercard_personal'
+			), _('Personal'));
+
+			$tooltip = _m('TOOLTIP', 'Your incoming messages');
+			$this->element('a', array(
+				'href' => common_local_url('inbox', array('nickname' => $user->nickname)),
+				'title' => $tooltip,
+				'id' => 'usercard_dmcounter'
+			), _('Inbox'));
+			/*
+			$tooltip = _m('TOOLTIP', 'View replies');
+			$this->menuItem(common_local_url('replies', array('nickname' => $user->nickname)),
+				_('Replies'), $tooltip, false, 'nav_replies');
+
+			// TRANS: Tooltip for main menu option "Services".
+			$tooltip = _m('TOOLTIP', 'Connect to services');
+			$this->menuItem(common_local_url('oauthconnectionssettings'),
+				// TRANS: Main menu option when logged in and connection are possible for access to options to connect to other services.
+				_('Connect'), $tooltip, false, 'nav_connect');
+
+			if(common_config('invite', 'enabled')) {
+				// TRANS: Tooltip for main menu option "Invite".
+				$tooltip = _m('TOOLTIP', 'Invite friends and colleagues to join you on %s');
+				$this->menuItem(common_local_url('invite'),
+					_m('MENU', 'Invite'),
+					sprintf($tooltip,
+					common_config('site', 'name')),
+					false, 'nav_invitecontact');
+			}*/
+
+			// TRANS: Tooltip for main menu option "Account".
+			$tooltip = _m('TOOLTIP', 'Change your email, avatar, password, profile');
+			$this->element('a', array(
+				'href' => common_local_url('profilesettings'),
+				'title' => $tooltip,
+				'id' => 'usercard_account'
+			), _('Account'));
+
+			// TRANS: Tooltip for main menu option "Logout"
+			$tooltip = _m('TOOLTIP', 'Logout from the site');
+			$this->element('a', array(
+				'href' => common_local_url('logout'),
+				'title' => $tooltip,
+				'id' => 'usercard_logout'
+			), _m('MENU', 'Logout'));
+		}
+		else {
+			
+			$this->elementStart('form', array('method' => 'post',
+											  'id' => 'form_login',
+											  'class' => 'form_settings',
+											  'action' => common_local_url('login')));
+			$this->elementStart('fieldset');
+			// TRANS: Form legend on login page.
+			$this->element('legend', null, _('Login to site'));
+			$this->elementStart('ul', 'form_data');
+			$this->elementStart('li');
+			// TRANS: Field label on login page.
+			$this->input('nickname', _('Username'));
+			$this->elementEnd('li');
+			$this->elementStart('li');
+			// TRANS: Field label on login page.
+			$this->password('password', _('Password'));
+			$this->elementEnd('li');
+			$this->elementStart('li');
+			// TRANS: Checkbox label label on login page.
+			$this->checkbox('rememberme', _('Remember me'), false);
+			$this->elementEnd('li');
+			$this->elementEnd('ul');
+			// TRANS: Button text for log in on login page.
+			$this->submit('submit', _m('BUTTON','Login'));
+			$this->elementEnd('fieldset');
+			$this->elementEnd('form');
+				
+			if (!common_config('site', 'closed') && !common_config('site', 'inviteonly')) {
+				// TRANS: Tooltip for main menu option "Register".
+				$tooltip = _m('TOOLTIP', 'Create an account');
+				$this->element('a', array(
+					'href'=>common_local_url('register'),
+					'title'=>$tooltip, 
+					'id'=>'usercard_register'
+					),
+					// TRANS: Main menu option when not logged in to register a new account.
+					_m('MENU', 'Register'));
+			}
+		}
+		
+		$this->elementEnd('div');
+	}
 
     /**
      * Show primary navigation.
@@ -650,7 +754,10 @@ class Action extends HTMLOutputter // lawsuit
         if ($text) {
             $this->elementStart('div', array('id' => 'site_notice',
                                             'class' => 'system_notice'));
-            $this->raw($text);
+			$this->element('span', array('id'=>'totw_title'), _('Topic of the Week'));
+            $this->raw($text . ' &ndash; ');
+			$this->element('a', array('id'=>'totw_redirect',
+						'href'=>'/tag/totw'), _('Click here to tell us what you think'));
             $this->elementEnd('div');
         }
     }
@@ -753,10 +860,10 @@ class Action extends HTMLOutputter // lawsuit
      */
     function showCore()
     {
-        $this->elementStart('div', array('id' => 'core'));
+        $this->elementStart('div', array('id' => 'core'));/*
         $this->elementStart('div', array('id' => 'aside_primary_wrapper'));
         $this->elementStart('div', array('id' => 'content_wrapper'));
-        $this->elementStart('div', array('id' => 'site_nav_local_views_wrapper'));
+        $this->elementStart('div', array('id' => 'site_nav_local_views_wrapper'));*/
         if (Event::handle('StartShowLocalNavBlock', array($this))) {
             $this->showLocalNavBlock();
             $this->flush();
@@ -771,10 +878,10 @@ class Action extends HTMLOutputter // lawsuit
             $this->showAside();
             $this->flush();
             Event::handle('EndShowAside', array($this));
-        }
+        }/*
         $this->elementEnd('div');
         $this->elementEnd('div');
-        $this->elementEnd('div');
+        $this->elementEnd('div');*/
         $this->elementEnd('div');
     }
 
@@ -799,11 +906,11 @@ class Action extends HTMLOutputter // lawsuit
      * @return nothing
      */
     function showProfileBlock()
-    {
+    {/*
         if (common_logged_in()) {
             $block = new DefaultProfileBlock($this);
             $block->show();
-        }
+        }*/
     }
 
     /**
@@ -868,6 +975,7 @@ class Action extends HTMLOutputter // lawsuit
                 Event::handle('EndShowNoticeForm', array($this));
             }
         }
+        $this->showProfileBlock();
         if (Event::handle('StartShowPageTitle', array($this))) {
             $this->showPageTitle();
             Event::handle('EndShowPageTitle', array($this));
@@ -949,7 +1057,6 @@ class Action extends HTMLOutputter // lawsuit
     {
         $this->elementStart('div', array('id' => 'aside_primary',
                                          'class' => 'aside'));
-        $this->showProfileBlock();
         if (Event::handle('StartShowObjectNavBlock', array($this))) {
             $this->showObjectNavBlock();
             Event::handle('EndShowObjectNavBlock', array($this));

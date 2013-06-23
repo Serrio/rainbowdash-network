@@ -63,9 +63,9 @@ class PrimaryNav extends Menu
         if (Event::handle('StartPrimaryNav', array($this->action))) {
 
             // TRANS: Tooltip for main menu option "Home".
-            $tooltip = _m('TOOLTIP', 'Home');
+            $tooltip = _m('TOOLTIP', 'Public timeline');
             $this->menuItem(common_local_url('public'),
-                _m('MENU', 'Home'), $tooltip, false, 'nav_home');
+                _m('MENU', 'Public'), $tooltip, false, 'nav_public');
 
             // TRANS: Tooltip for main menu option "Rules".
             $tooltip = _m('TOOLTIP', 'Site rules');
@@ -140,7 +140,7 @@ class PrimaryNav extends Menu
                     $this->endDropdown();
                 }
             }
-
+/*
             if ($user) {
 
                 if (Event::handle('StartUserDropdown', array($this))) {
@@ -205,7 +205,7 @@ class PrimaryNav extends Menu
                 $this->menuItem(common_local_url('login'),
                     // TRANS: Main menu option when not logged in to log in.
                     _m('MENU', 'Login'), $tooltip, false, 'nav_login');
-            }
+            }*/
 
             Event::handle('EndPrimaryNav', array($this->action));
         }
