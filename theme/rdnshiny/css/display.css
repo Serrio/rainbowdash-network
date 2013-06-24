@@ -8,7 +8,8 @@
 */
 
 /* Modified for RDN by RedEnchilada and Bit Shift */
-@import url("../../base/css/display.css");
+/*FIXME should be using base css*/
+/*@import url("../../base/css/display.css");*/
 @media screen, projection, tv {
 
 * {margin: 0; padding: 0; vertical-align: baseline;}
@@ -96,8 +97,8 @@ text-decoration: none;
 
 address {
 float: left;
-margin-right: 20px;
-margin-top: 0px;
+margin-right: 0;
+margin-top: 0;
 margin-bottom: 10px;
 z-index: auto;
 }
@@ -445,6 +446,15 @@ margin-left: 15px;
 	padding: 210px 15px 15px;
 }
 
+.form_notice {
+background: #ccc;
+margin-bottom: 30px;
+float: left;
+width: 640px;   
+margin-top: 0px;
+margin-left: 5px;
+padding: 0px;
+}
 
 .form_notice {
 background-color: transparent;
@@ -464,15 +474,14 @@ float: left;
 padding: 6px;
 position: relative;
 z-index: 9;
--webkit-box-sizing: border-box;
--moz-box-sizing: border-box;
-box-sizing: border-box;
+width: 633px;
 height: 70px;
 border: 1px solid #bbb;
 border-radius: 4px;
 -moz-border-radius: 4px;
 -webkit-border-radius: 4px;
 position: relative;
+resize: none;
 }
 
 .entity_send-a-message .form_notice legend {
@@ -591,7 +600,7 @@ font-size:0.8em;
 padding:2px 6px 0;
 position:absolute;
 width: 50px;
-top: 98px;
+top: 110px;
 right: 0px;
 width: 52px;
 height: 24px;
@@ -830,8 +839,9 @@ margin: 0 8px 16px;
 #site_nav_local_views {
 position: relative;
 z-index: 9;
-margin: 3px;
-padding: 0px;
+float: right;
+margin: 0px;
+width: 290px;
 }
 
 #site_nav_local_views dt {
@@ -1077,17 +1087,21 @@ display:none;
 
 #aside_primary {
 float: right;
+clear: right;
 padding: 15px 10px 40px;
 position: relative;
-margin: 0;
+width: 290px;
+margin-top: 15px;
 }
 
 #aside_primary .section {
 position: relative;
 clear: both;
+padding: 6px;
 padding-bottom: 12px;
+margin: 0px 15px 20px;
+width: 248px;
 float: right;
-margin: 5px;
 }
 
 #aside_primary .section H2 {
