@@ -649,7 +649,6 @@ border: none !important;
 border-bottom-right-radius: 4px;
 padding: 3px;
 cursor: pointer;
-position: absolute;
 left: -21px;
 top: 32px;
 background-color: rgba(34,34,34,0.4);
@@ -664,7 +663,6 @@ z-index: 999 !important;
 margin: 5px;
 width: 940px;
 display: hidden;
-padding: 0 168px !important;
 background-image: url(../images/streambg.png);
 box-shadow: 0 4px 2px rgba(0,0,0,0.4);
 }
