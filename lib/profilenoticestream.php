@@ -47,8 +47,9 @@ if (!defined('STATUSNET')) {
 
 class ProfileNoticeStream extends ScopingNoticeStream
 {
-    function __construct($profile, $userProfile = -1)
+    function __construct($profile, $userProfile = -1, $images=false)
     {
+        $this->images = $images;
         if (is_int($userProfile) && $userProfile == -1) {
             $userProfile = Profile::current();
         }

@@ -53,11 +53,20 @@ class DefaultLocalNav extends Menu
         $this->action->elementStart('ul', array('id' => 'nav_local_default'));
 
         if (Event::handle('StartDefaultLocalNav', array($this, $user))) {
-
             if (!empty($user)) {
                 $pn = new PersonalGroupNav($this->action);
                 // TRANS: Menu item in default local navigation panel.
                 $this->submenu(_m('MENU','Home'), $pn);
+            }
+
+            if(($this->action instanceof ShowstreamAction ||
+                $this->action instanceof ShowfavoritesAction ||
+                $this->action instanceof AllAction ||
+                $this->action instanceof RepliesAction) &&
+                (empty($user) || $this->action->user->nickname != $user->nickname)) {
+                $on = new OtherGroupNav($this->action);
+
+                $this->submenu(_m('MENU','Current'), $on);
             }
 
             $bn = new PublicGroupNav($this->action);

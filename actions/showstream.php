@@ -64,12 +64,12 @@ class ShowstreamAction extends ProfileAction
         $p = Profile::current();
 
         if (empty($this->tag)) {
-            $stream = new ProfileNoticeStream($this->profile, $p);
+            $stream = new ProfileNoticeStream($this->profile, $p, $this->images);
         } else {
-            $stream = new TaggedProfileNoticeStream($this->profile, $this->tag, $p);
+            $stream = new TaggedProfileNoticeStream($this->profile, $this->tag, $p, $this->images);
         }
 
-        $this->notice = $stream->getNotices(($this->page-1)*NOTICES_PER_PAGE, NOTICES_PER_PAGE + 1, null , null, $this->images);
+        $this->notice = $stream->getNotices(($this->page-1)*NOTICES_PER_PAGE, NOTICES_PER_PAGE + 1, null , null);
 
         return true;
     }
