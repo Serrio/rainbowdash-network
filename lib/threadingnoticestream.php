@@ -67,7 +67,7 @@ class ThreadingNoticeStream extends FilteringNoticeStream
             $seen = false;
         }
         if(!empty($this->images)) {
-            $seen && count($notice->attachments());
+            return $seen && count($notice->attachments());
         }
         else {
             return $seen;
