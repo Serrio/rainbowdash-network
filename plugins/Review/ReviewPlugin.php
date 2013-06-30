@@ -35,11 +35,11 @@ class ReviewPlugin extends Plugin
 
     function menuItem($action) {
         $tooltip = _m('TOOLTIP', 'View deleted notices');
-        $action->menuItem(common_local_url('deletednotices'),
+        $action->menuItem(common_local_url('deletednotices', array('file' => $this->filename)),
             _m('MENU', 'Deleted'), $tooltip, false, 'nav_deleted');
     }
 
-    function onRouterInitialized($m) {
+    function onStartInitializeRouter(&$m) {
         $m->connect('main/deletednotices',
             array('action' => 'deletednotices',
             'file' => $this->filename,
