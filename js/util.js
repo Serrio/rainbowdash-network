@@ -735,6 +735,8 @@ var SN = { // StatusNet
          * @param {String} initialText
          */
         NoticeInlineReplyTrigger: function(notice, initialText) {
+            if(typeof initialText === 'undefined') initialText = '@' + $('.author .url', notice).attr('href').split('/').pop()
+
             // Find the notice we're replying to...
             var id = $($('.notice_id', notice)[0]).text();
             var parentNotice = notice;
