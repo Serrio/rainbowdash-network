@@ -93,7 +93,7 @@ class RealtimePlugin extends Plugin
      * @param Net_URL_Mapper $m path-to-action mapper
      * @return boolean hook return
      */
-    function onRouterInitialized($m)
+    function onStartInitializeRouter($m)
     {
         $m->connect('notice/:notice/r', array('action' => 'noticeonly'), array('notice' => '[0-9]+'));
         $m->connect('main/channel/:channelkey/keepalive',
