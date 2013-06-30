@@ -293,7 +293,32 @@ class ThreadedNoticeListSubItem extends NoticeListItem
 
     function showContext()
     {
-        //
+        if ($this->notice->hasConversation()) {
+            $conv = Conversation::staticGet(
+                'id',
+                $this->notice->conversation
+            );
+            $convurl = $conv->uri;
+            if (!empty($convurl)) {
+                $this->out->text(' ');
+                $this->out->element(
+                    'a',
+                    array(
+                    'href' => $convurl.'#notice-'.$this->notice->id,
+                    'class' => 'response'),
+                    // TRANS: Addition in notice list item if notice is part of a conversation.
+                    _('in context')
+                );
+            } else {
+                $msg = sprintf(
+                    "Couldn't find Conversation ID %d to make 'in context'"
+                    . "link for Notice ID %d",
+                    $this->notice->conversation,
+                    $this->notice->id
+                );
+                common_log(LOG_WARNING, $msg);
+            }
+        }
     }
 
     function getReplyProfiles()

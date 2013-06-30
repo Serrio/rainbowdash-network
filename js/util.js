@@ -406,7 +406,6 @@ var SN = { // StatusNet
                 dataType: 'xml',
                 timeout: '60000',
                 beforeSend: function(formData) {
-                    // FIXME widget need to change NoticeDataAttachSelected variable
                     if(!form.find('.notice a.attachment').val()) {
                         var file = form.find('.attach-status img');
                         if(file.length) {
@@ -680,7 +679,6 @@ var SN = { // StatusNet
                 SN.U.NoticeInlineReplyTrigger(notice);
                 return false;
             });
-            SN.U.NoticeContextRollover(notice);
         },
 
         /**
@@ -707,15 +705,11 @@ var SN = { // StatusNet
          * @param {jQuery} notice: jQuery object containing one or more notices
          * @access private
          */
-        NoticeContextRollover: function(notice) {
-            var context = notice.find('a.response');
-            if(context.length === 0) return;
-            context = context.filter(':first');
-
-            context.bind('mouseover', function() {
+        NoticeContextRollover: function() {
+            $('a.response').live('mouseover', function() {
                 if($('body').attr('id') == 'conversation') return false;
 
-                var contextNoticeId = notice.attr('class').match(/inreplyto-([0-9]+)/);
+                var contextNoticeId = $(this).closest('.notice').attr('class').match(/inreplyto-([0-9]+)/);
                 if(!contextNoticeId) return false;
                 contextNoticeId = contextNoticeId[1];
 
@@ -728,7 +722,7 @@ var SN = { // StatusNet
 
                 return false;
             });
-            context.bind('mouseout', function() {
+            $('a.response').live('mouseout', function() {
                 $(this).closest('li').find('ol.notices.context').remove();
                 return false;
             });
@@ -1020,8 +1014,6 @@ var SN = { // StatusNet
                     return false;
                 }
 
-                // FIXME widget: 
-<<<<<<< HEAD
                 var attachStatus = $('<div class="attach-status '+SN.C.S.Success+'"><code></code> <button class="close">&#215;</button></div>');
                 attachStatus.find('code').text(filename);
                 attachStatus.find('button').click(function(){
@@ -1032,10 +1024,6 @@ var SN = { // StatusNet
                 });
                 form.append(attachStatus);
 
-=======
-                SN.U.NoticeDataAttachSelected(filename);
-
->>>>>>> AJAX file drop
                 if (typeof this.files == "object") {
                     // Some newer browsers will let us fetch the files for preview.
                     for (var i = 0; i < this.files.length; i++) {
@@ -1674,6 +1662,7 @@ var SN = { // StatusNet
                 }
                 SN.U.NoticeRepeat();
                 SN.U.NoticeReply();
+                SN.U.NoticeContextRollover();
                 SN.U.NoticeInlineReplySetup();
             }
 
