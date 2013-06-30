@@ -92,8 +92,8 @@ class PromoteAction extends Action
             return;
         }
 
-        $notice->blowStream('promote:notice_ids');
-        $notice->blowStream('promote:notice_ids;last');
+        Promote::blow('promote');
+        Promote::blow('promote;last');
         if ($this->boolean('ajax')) {
             $this->startHTML('text/xml;charset=utf-8');
             $this->elementStart('head');

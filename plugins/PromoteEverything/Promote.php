@@ -74,16 +74,21 @@ class Promote extends Memcached_DataObject
 
     static function getStream($offset=0, $limit=20) {
 
-        $ids = Notice::stream(array('Promote', '_streamDirect'),
-            array(),
-            'promote:notice_ids',
-            $offset, $limit);
+        $pns = new PromoteNoticeStream();
 
-        return Notice::getStreamByIds($ids);
+        return $pns->getNotices($offset, $limit);
     }
+}
 
-    function _streamDirect($offset=0, $limit=20, $since_id=0, $max_id=0)
-    {
+class PromoteNoticeStream extends ScopingNoticeStream {
+    function __construct() {
+        parent::__construct(new CachingNoticeStream(new RawPromoteNoticeStream(),
+                                                    'promote'));
+    }
+}
+
+class RawPromoteNoticeStream extends NoticeStream {
+    function getNoticeIds($offset, $limit, $since_id, $max_id) {
         $promote = new Promote();
         
         $promote->orderBy("FIELD(type, 'tag', 'group', 'profile', 'notice'), created DESC, id DESC");
@@ -130,5 +135,6 @@ class Promote extends Memcached_DataObject
 
         return $ids;
     }
-
 }
+
+
