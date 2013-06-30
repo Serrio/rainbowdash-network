@@ -44,10 +44,12 @@ class FeaturedUsersSection extends ProfileSection
 {
     function show()
     {
+        /*
         $featured_nicks = common_config('nickname', 'featured');
         if (empty($featured_nicks)) {
             return;
         }
+         */
         parent::show();
     }
 
