@@ -177,6 +177,7 @@ Videosync = {
         var V = Videosync;
         if(V.active) {
             $('#' + V.trigger).val("\u25B2 Hide #" + V.streamTag + " \u25B2");
+			$('#header').toggleClass('videosync', true);
             V.initPlayer();
             V.setupReset();
             V.addTag();
@@ -186,6 +187,7 @@ Videosync = {
         }
         else {
             $('#' + V.trigger).val("\u25BC Watch videos together on the #" + V.streamTag + "! \u25BC");
+			$('#header').toggleClass('videosync', false);
             $('#' + V.videoFrame).replaceWith('<div id="' + V.videoFrame + '"></div>');
             V.player = null;
             V.setupReset();
