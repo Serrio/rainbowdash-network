@@ -285,7 +285,7 @@ class SearchSubPlugin extends Plugin
         $commands["tracking"] = _m('COMMANDHELP', "List all your search subscriptions.");
     }
 
-    function onEndDefaultLocalNav($menu, $user)
+    function onEndUsercardNav($menu, $user)
     {
         $user = common_current_user();
 

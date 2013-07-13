@@ -207,7 +207,7 @@ class TagSubPlugin extends Plugin
         return true;
     }
 
-    function onEndDefaultLocalNav($menu, $user)
+    function onEndUsercardNav($menu, $user)
     {
         $user = common_current_user();
 

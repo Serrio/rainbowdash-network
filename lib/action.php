@@ -599,21 +599,57 @@ class Action extends HTMLOutputter // lawsuit
 		if ($user) {
             $block = new DefaultProfileBlock($this);
             $block->show();
-
+			$this->elementStart('ul');
+			
 			// TRANS: Tooltip for main menu option "Personal".
-			$tooltip = _m('TOOLTIP', 'Personal profile and friends timeline');
-			$this->element('a', array(
+			$tooltip = _('Watched');
+			$this->elementStart('li', array('id' => 'usercard_watched'));
+			$this->elementStart('a', array(
+				'href' => '#',
+				'onclick' => '$(\'#nav_usercard\').toggleClass(\'opened\')',
+				'title' => $tooltip
+			));
+			$this->element('span', array(), $tooltip);
+			$this->elementEnd('a');
+			
+			$nav = new UserCardNav($this);
+			$nav->show();
+			
+			$this->elementEnd('li');
+			
+			
+			// TRANS: Tooltip for main menu option "Personal".
+			$tooltip = _('Personal');
+			$this->elementStart('li', array('id' => 'usercard_personal'));
+			$this->elementStart('a', array(
 				'href' => common_local_url('all', array('nickname' => $user->nickname)),
-				'title' => $tooltip,
-				'id' => 'usercard_personal'
-			), _('Personal'));
+				'title' => $tooltip
+			));
+			$this->element('span', array(), _('Personal'));
+			$this->elementEnd('a');
+			$this->elementEnd('li');
+			
+			$tooltip = _('Replies');
+			$this->elementStart('li', array('id' => 'usercard_replies'));
+			$this->elementStart('a', array(
+				'href' => common_local_url('replies', array('nickname' => $user->nickname)),
+				'title' => $tooltip
+			));
+			$this->element('span', array(), _('Replies'));
+			$this->elementEnd('a');
+			$this->elementEnd('li');
 
-			$tooltip = _m('TOOLTIP', 'Your incoming messages');
-			$this->element('a', array(
+			$tooltip = _('Inbox');
+			$this->elementStart('li', array('id' => 'usercard_dmcounter'));
+			$this->elementStart('a', array(
 				'href' => common_local_url('inbox', array('nickname' => $user->nickname)),
-				'title' => $tooltip,
-				'id' => 'usercard_dmcounter'
-			), _('Inbox'));
+				'title' => $tooltip
+			));
+			$this->element('span', array(), _('Inbox'));
+			$this->element('span', array('id' => 'dmcounter'), '');
+			$this->elementEnd('a');
+			$this->elementEnd('li');
+
 			/*
 			$tooltip = _m('TOOLTIP', 'View replies');
 			$this->menuItem(common_local_url('replies', array('nickname' => $user->nickname)),
@@ -634,22 +670,30 @@ class Action extends HTMLOutputter // lawsuit
 					common_config('site', 'name')),
 					false, 'nav_invitecontact');
 			}*/
-
+			
 			// TRANS: Tooltip for main menu option "Account".
-			$tooltip = _m('TOOLTIP', 'Change your email, avatar, password, profile');
-			$this->element('a', array(
+			$tooltip = _('Account');
+			$this->elementStart('li', array('id' => 'usercard_account'));
+			$this->elementStart('a', array(
 				'href' => common_local_url('profilesettings'),
-				'title' => $tooltip,
-				'id' => 'usercard_account'
-			), _('Account'));
-
-			// TRANS: Tooltip for main menu option "Logout"
+				'title' => $tooltip
+			));
+			$this->element('span', array(), _('Account'));
+			$this->elementEnd('a');
+			$this->elementEnd('li');
+			
+			// TRANS: Tooltip for main menu option "Logout".
 			$tooltip = _m('TOOLTIP', 'Logout from the site');
-			$this->element('a', array(
+			$this->elementStart('li', array('id' => 'usercard_logout'));
+			$this->elementStart('a', array(
 				'href' => common_local_url('logout'),
-				'title' => $tooltip,
-				'id' => 'usercard_logout'
-			), _m('MENU', 'Logout'));
+				'title' => $tooltip
+			));
+			$this->element('span', array(), _m('MENU', 'Logout'));
+			$this->elementEnd('a');
+			$this->elementEnd('li');
+			
+			$this->elementEnd('ul');
 		}
 		else {
 			
