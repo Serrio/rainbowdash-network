@@ -109,9 +109,9 @@ class ShowgroupAction extends GroupAction
         $user = common_current_user();
 
         if (!empty($user) && $user->streamModeOnly()) {
-            $stream = new GroupNoticeStream($this->group, $this->userProfile, $images);
+            $stream = new GroupNoticeStream($this->group, $this->userProfile, $this->images);
         } else {
-            $stream = new ThreadingGroupNoticeStream($this->group, $this->userProfile, $images);
+            $stream = new ThreadingGroupNoticeStream($this->group, $this->userProfile, $this->images);
         }
 
         $this->notice = $stream->getNotices(($this->page-1)*NOTICES_PER_PAGE,
