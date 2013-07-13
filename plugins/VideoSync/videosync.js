@@ -18,7 +18,7 @@ Videosync = {
     // Name of the state cookie
     cookie: 'VideoSyncState',
     // second tolerance for stream correction. Any variation lower than this will not cause the stream to jump.
-    tolerance: 2,
+    tolerance: 5,
     // ID of the video frame
     videoFrame: 'videosync_box',
     // Aside container
@@ -106,22 +106,22 @@ Videosync = {
     },
 
     // Add tag to notice box
-    addTag: function() {
+    addTag: function() {/*
         var V = Videosync;
         if(V.tag) {
             var tag = '#' + V.tag + ' ';
             var text = $('#' + V.noticeBox);
             text.val(tag + text.val().replace(tag, ''));
-        }
+        }*/
     },
 
-    removeTag: function() {
+    removeTag: function() {/*
         var V = Videosync;
         if(V.tag) {
             var tag = '#' + V.tag + ' ';
             var text = $('#' + V.noticeBox);
             text.val(text.val().replace(tag, ''));
-        }
+        }*/
     },
 
     // Toggle the state cookie and the state variable
@@ -176,7 +176,7 @@ Videosync = {
     toggleFrame: function() {
         var V = Videosync;
         if(V.active) {
-            $('#' + V.trigger).val("\u25B2 Hide #" + V.streamTag + " \u25B2");
+            $('#' + V.trigger).val("Hide #" + V.streamTag).toggleClass("hidestream", true);
             V.initPlayer();
             V.setupReset();
             V.addTag();
@@ -185,7 +185,7 @@ Videosync = {
             $('#' + V.asideFrame).show();
         }
         else {
-            $('#' + V.trigger).val("\u25BC Watch videos together on the #" + V.streamTag + "! \u25BC");
+            $('#' + V.trigger).val("Watch videos on the #" + V.streamTag + "!").toggleClass("hidestream", false);
             $('#' + V.videoFrame).replaceWith('<div id="' + V.videoFrame + '"></div>');
             V.player = null;
             V.setupReset();

@@ -37,6 +37,9 @@ class VideoSyncPlugin extends Plugin
         $m->connect('main/switchvideo',
             array('action' => 'switchvideo')
         );
+		$m->connect('main/updatestream',
+			array('action' => 'updatestream')
+		);
 
         return true;
     }
@@ -51,6 +54,17 @@ class VideoSyncPlugin extends Plugin
         case 'Videosync':
             require_once $dir . '/' . $cls . '.php';
             return false;
+		case 'UpdatestreamAction':
+			
+            $m = $this->getMeteor();
+
+            $m->_connect();
+            $m->_publish($this->channelbase . '-videosync', array('yt_id' => $this->v->yt_id, 'pos' => time() - strtotime($this->v->started), 'started' => strtotime($this->v->started), 'tag' => $this->getFullTag()));
+            $m->_disconnect();
+			
+			exit(0);
+			return false;
+			
         case 'SwitchForm':
             require_once $dir . '/' . strtolower($cls) . '.php';
         default:
@@ -94,17 +108,9 @@ class VideoSyncPlugin extends Plugin
     }
 
     function onEndShowScripts($action) {
-        if($action instanceof TagAction) {
-            $m = $this->getMeteor();
-
-            $m->_connect();
-            $m->_publish($this->channelbase . '-videosync', array('yt_id' => $this->v->yt_id, 'pos' => time() - strtotime($this->v->started), 'started' => strtotime($this->v->started), 'tag' => $this->getFullTag()));
-            $m->_disconnect();
-        }
-
-
         if($action instanceof PublicAction) {
-            $action->script($this->path('videosync.min.js'));
+            //$action->script($this->path('videosync.min.js'));
+            $action->script($this->path('videosync.js'));
             $action->inlineScript('Videosync.init(' . json_encode(array(
                 'yt_id' => $this->v->yt_id, 
                 'started' => strtotime($this->v->started),
@@ -116,7 +122,8 @@ class VideoSyncPlugin extends Plugin
         return true;
     }
 
-    function onEndShowHeader($action) {
+    //function onEndShowHeader($action) {
+    function onStartShowSiteNotice($action) {
         $user = common_current_user();
 
         if($action instanceof PublicAction) {
@@ -124,7 +131,7 @@ class VideoSyncPlugin extends Plugin
             $action->element('input', array(
                 'type' => 'button', 
                 'id' => 'videosync_btn', 
-                'value' => "&#9660; Watch videos together on the #{$this->tag}! &#9660;")
+                'value' => "Watch videos on the #{$this->tag}!")
             );
             if(!empty($user) && $user->hasRight(Right::CONFIGURESITE)) {
                 $action->elementStart('div', array('id' => 'videosync_aside'));
