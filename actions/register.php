@@ -597,6 +597,15 @@ class RegisterAction extends Action
     function showSuccess()
     {
         $this->registered = true;
+	
+		// Redirect to custom welcome page
+		if(class_exists('WelcomeAction')) {
+			common_redirect(common_local_url('welcome'), 303);
+		}
+		else if(file_exists(INSTALLDIR . '/doc-src/welcome')) {
+			common_redirect(common_local_url('doc', array('title' => 'welcome')), 303);
+		}
+
         $this->showPage();
     }
 
@@ -614,14 +623,6 @@ class RegisterAction extends Action
 
             $profileurl = common_local_url('showstream',
                                            array('nickname' => $nickname));
-
-            // Redirect to custom welcome page
-            if(class_exists('WelcomeAction')) {
-                common_redirect(common_local_url('welcome'));
-            }
-            else if(file_exists(INSTALLDIR . '/doc-src/welcome')) {
-                common_redirect(common_local_url('doc', array('title' => 'welcome')));
-            }
 
             $this->elementStart('div', 'success');
             // TRANS: Text displayed after successful account registration.
