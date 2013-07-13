@@ -752,12 +752,15 @@ class Action extends HTMLOutputter // lawsuit
         // Revist. Should probably do an hAtom pattern here
         $text = common_config('site', 'notice');
         if ($text) {
+			$totwTitle = (common_config('site', 'notice_title') ? common_config('site', 'notice_title') : _('Topic of the Week'));
+			$totwLink = (common_config('site', 'notice_link') ? common_config('site', 'notice_link') : common_local_url('tag', array('tag' => 'totw')));
+			$totwRedirect = (common_config('site', 'notice_end') ? common_config('site', 'notice_end') : _('Click here to tell us what you think!'));
             $this->elementStart('div', array('id' => 'site_notice',
                                             'class' => 'system_notice'));
-			$this->element('span', array('id'=>'totw_title'), _('Topic of the Week'));
+			$this->element('span', array('id'=>'totw_title'), $totwTitle);
             $this->raw($text . ' &ndash; ');
 			$this->element('a', array('id'=>'totw_redirect',
-						'href'=>'/tag/totw'), _('Click here to tell us what you think'));
+						'href'=>$totwLink), $totwRedirect);
             $this->elementEnd('div');
         }
     }
