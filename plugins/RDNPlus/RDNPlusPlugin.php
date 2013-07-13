@@ -39,8 +39,8 @@ class RDNPlusPlugin extends Plugin
             // TRANS: Menu item in settings navigation panel.
             _m('MENU','RDN Plus'),
             // TRANS: Menu item title in settings navigation panel.
-            _('Change your RDN Plus settings'),
-            $actionName == 'rdnrefreshsettings');
+            _('Change your RDN Plus settings')/*,
+            $actionName == 'rdnrefreshsettings'*/);
     }
 
     function onCheckSchema() {
