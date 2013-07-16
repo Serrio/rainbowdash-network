@@ -531,7 +531,6 @@ background-color: rgba(34,34,34,0.4);
 width: 310px;
 color: white;
 margin: 5px;
-z-index: 999 !important;
 }
 #videosync_btn:hover {background-color: rgba(200,200,200,0.4)}
 
@@ -568,7 +567,7 @@ width: 168px;
     #header.videosync .text_rot13:after {font-size: 9pt;content: 'Sp'}
     #header.videosync #notice_action-submit {top: 136px !important}
     #header.videosync .form_notice .form_note {bottom: -47px !important; right: 110px !important}
-    #header.videosync #notice_data-attach, label[for="notice_data-attach"] {
+    #header.videosync #notice_data-attach, #header.videosync label[for="notice_data-attach"] {
         top: 136px !important;
         right: 50px !important;
     }
