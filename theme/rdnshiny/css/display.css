@@ -2633,6 +2633,13 @@ li#nav_userlinks > span {text-transform: lowercase; margin-left: -6px}
 color: #00FF00;
 }
 
+#site_nav_global_primary li span a {
+display: inline !important;
+background: none !important;
+border: none !important;
+margin: 0 !important;
+padding: 0 !important;
+}
 }/*end of @media screen, projection, tv*/
 
 @media print {
