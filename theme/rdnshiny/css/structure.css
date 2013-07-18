@@ -1,0 +1,88 @@
+/* General site-wide style resets */
+
+* {margin: 0; padding: 0; vertical-align: baseline;}
+option {padding-bottom: 0px;}
+textarea {overflow:auto;}
+input.submit{cursor: pointer;}
+a abbr {border-bottom: 0; cursor: pointer;}
+table {border-collapse: collapse;}
+ol, ul {list-style-position: inside;}
+fieldset {border: none;}
+legend {font-weight: bold; font-size: 1.2em;}
+p {margin-bottom: 1.4em;}
+li p {margin-bottom: 0;}
+
+select {
+margin-right: 10px;
+padding-bottom: 0px;
+margin-top: 0px;
+}
+
+/* 1.0.1 introduces extendible menus; this hides the extra menu options until some JS removes this class
+(IMO it's kind of a hack, but it works, so I'm not going to fuss with it - the site's 120% dependent on
+having JS enabled anyway) */
+
+.extended_menu {display: none}
+
+/* Headings */
+
+h1, h2, h3, h4, h5, h6 {
+font-weight: normal;
+margin-bottom: 15px;
+margin-top: 10px;
+}
+
+h1 {font-size: 1.4em;}
+h2 {font-size: 1.3em;}
+h3 {font-size: 1.2em;}
+h4 {font-size: 1.1em;}
+h5 {font-size: 1em;}
+h6 {font-size: 1em;}
+
+/* Main body */
+
+body {
+background: no-repeat fixed 50% 100%;
+background-color: #2090C0;
+font-family: "DejaVu Sans", "Bitstream Vera Sans", Geneva, Verdana, sans-serif;
+font-size: 84%;
+color: #111;
+line-height: 1.4;
+}
+
+textarea {
+font-family: "DejaVu Sans", "Bitstream Vera Sans", Geneva, Verdana, sans-serif;
+font-size: 90%;
+color: #111;
+line-height: 1.4;
+}
+
+/* Link styles */
+
+a {
+color: #0A3D76; 
+text-decoration: none; 
+outline: none;
+}
+
+a:hover {
+text-decoration: underline;
+}
+
+a img {
+border: 0;
+text-decoration: none;
+}
+
+/* Wrapper */
+
+#wrap {
+border: 0;
+width: 976px;
+margin: 0px auto;
+padding: 0px;
+position: relative;
+box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.7);
+-moz-box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.7);
+-webkit-box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.7);
+} /* No background - Header+core+footer should completely fill wrap */

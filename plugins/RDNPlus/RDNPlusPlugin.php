@@ -180,6 +180,7 @@ class RDNPlusPlugin extends Plugin
             '@()\[i\](.*?)\[/i\]()@i',
             '@()\[s\](.*?)\[/s\]()@i',
             '@()\[t\](.*?)\[/t\]()@i',
+            '@()\[a\](.*?)\[/a\]()@i',
         );
 
         $markdown = array(
@@ -188,6 +189,7 @@ class RDNPlusPlugin extends Plugin
             '@(\s|^)/([a-z].*?[a-z])/(\s|$)@i',
             '@(\s|^)-([a-z].*?[a-z])-(\s|$)@i',
             '@(\s|^)=([a-z].*?[a-z])=(\s|$)@i',
+            '@(\s|^)~([a-z].*?[a-z])~(\s|$)@i',
         );
 
         $plaintext = array(
@@ -196,6 +198,7 @@ class RDNPlusPlugin extends Plugin
             '$1/$2/$3',
             '$1-$2-$3',
             '$1=$2=$3',
+            '$1~$2~$3',
         );
 
         $markup = array(
@@ -204,6 +207,7 @@ class RDNPlusPlugin extends Plugin
             '$1<i>$2</i>$3',
             '$1<span class="striket">$2</span>$3',
             '$1<span class="smallt">$2</span>$3',
+            '$1<span class="sartalic">$2</span>$3',
         );
 
         $markup_hybrid = array(
@@ -212,6 +216,7 @@ class RDNPlusPlugin extends Plugin
             '$1<i>/$2/</i>$3',
             '$1-<span class="striket">$2</span>-$3',
             '$1<span class="smallt">=$2=</span>$3',
+            '$1~<span class="sartalic">$2</span>~$3',
         );
 
         $notice->content = preg_replace($bbcode, $plaintext, $notice->content);
@@ -220,7 +225,7 @@ class RDNPlusPlugin extends Plugin
         $notice->rendered = preg_replace($bbcode, $markup, $notice->rendered);
         $notice->rendered = preg_replace($markdown, $markup_hybrid, $notice->rendered);
 
-        if(trim(str_replace(array('*','_','/','-','='), '', $notice->content))) return true;
+        if(trim(str_replace(array('*','_','/','-','=','~'), '', $notice->content))) return true;
         else throw new ClientException('Notice cannot be blank');
     }
 

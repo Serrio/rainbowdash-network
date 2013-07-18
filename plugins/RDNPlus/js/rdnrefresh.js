@@ -11,16 +11,6 @@ $(function(){
 
         // Get number of new DMs and append it to the Personal link
     if(currentUser) {
-        var profile = $('#nav_dmcounter, #site_nav_local_views').filter(':first');
-        var oldinbox = profile.find('a[href*="inbox"]');
-        if(oldinbox.length) {
-            oldinbox.addClass('dmcounter');
-        }
-        else {
-        profile.append('<li style="float: left;"><a title="Inbox" class="dmcounter" href="' + siteDir + currentUser + '/inbox">Inbox</a></li>');
-        }
-
-        profile.find('ul.nav').css('width','auto');
         updateDM();
     }
 
@@ -101,10 +91,10 @@ function updateDM() {
             else {
                 var newDM = $(holder).find('.messages li').length;
             }
-            $('.dmcounter').html('Inbox'+(newDM == 0 ? '' : ' <strong>(' + newDM + ' new)</strong>'));
+            $('#dmcounter').html((newDM == 0 ? '' : newDM + ''));
             setTimeout(updateDM, 60000);
             
-            (newDM > 0) ? $('#nav_userlinks').addClass('new_dms') : $('#nav_userlinks').removeClass('new_dms');
+            //(newDM > 0) ? $('#nav_userlinks').addClass('new_dms') : $('#nav_userlinks').removeClass('new_dms');
     }});
 }
 

@@ -1,0 +1,287 @@
+/* TODO sort this shit out, optimize it, and probably rewrite 95% of it because holy FUCK it's so bad */
+
+.form_notice p {margin-bottom: 0;}
+
+.form_notice {
+margin-bottom: 30px;
+float: left;
+width: 100%;
+text-align: right;
+}
+
+.form_notice fieldset {
+border: 0;
+position: relative;
+width: auto;
+margin: 0 8px;
+}
+
+.form_notice legend {display: none;}
+
+.form_notice textarea {
+padding: 30px 6px;
+width: 100%;
+height: 142px;
+border: 1px solid #bbb;
+border-radius: 4px;
+-moz-border-radius: 4px;
+-webkit-border-radius: 4px;
+resize: vertical;
+box-sizing: border-box;
+-moz-box-sizing: border-box;
+-webkit-box-sizing: border-box;
+}
+.form_notice textarea:focus {border-color: #9495b7;}
+.form_notice.warning textarea {border-color: #B00;}
+.form_notice.warning textarea:focus {border-color: red;}
+
+.form_notice fieldset:after {
+content: ' ';
+background-color: rgba(105, 106, 141, 0.6);
+display: block;
+position: absolute;
+left: 1px;
+bottom: 1px;
+right: 1px;
+border-bottom-left-radius: 4px;
+border-bottom-right-radius: 4px;
+-moz-border-bottom-left-radius: 4px;
+-moz-border-bottom-right-radius: 4px;
+-webkit-border-bottom-left-radius: 4px;
+-webkit-border-bottom-right-radius: 4px;
+height: 24px;
+}
+
+#notice_data-text-label {display: none}
+/* Reminder to fix this up for 1.x's system
+.form_notice label[for=notice_data-attach],
+.form_notice #notice_data-attach {
+position:absolute;
+top: 100%;
+right: 100px;
+cursor:pointer;
+margin: 4px;
+z-index: 1002;
+}
+
+.form_notice label[for=notice_data-attach] {
+text-indent:-9999px;
+width:16px;
+height:16px;
+}
+
+.form_notice #notice_data-attach {
+opacity:0;
+padding:0;
+height:16px;
+}*/
+/* Geolocation will probably get re-removed from the code anyway (like we did to 0.9.x)
+.form_notice #notice_data-geo_wrap label,
+.form_notice #notice_data-geo_wrap input {
+position:absolute;
+left:auto;
+cursor:pointer;
+width:16px;
+height:16px;
+display:block;
+top: 50px;
+right: 34px;
+}
+
+.form_notice #notice_data-geo_wrap input {
+visibility:hidden;
+}
+
+.form_notice #notice_data-geo_wrap label {
+font-weight:normal;
+font-size:1em;
+margin-bottom:0;
+text-indent:-9999px;
+}*/
+
+.form_notice .count {
+color: black;
+font-size: 0.8em;
+position: absolute;
+top: 6px;
+right: 6px;
+}
+
+.form_notice.warning .count {
+color: #ff0000;
+}
+
+.form_notice .count:before {
+content: '(';
+}
+
+.form_notice .count:after {
+content: ')';
+}
+
+label.notice_data-attach {
+display: block;
+width: 24px;
+height: 24px;
+overflow: hidden;
+position: relative;
+text-indent: -700px;
+text-align: right;
+position: absolute;
+bottom: 1px;
+left: 1px;
+/*add icon and stuff*/
+z-index: 9;
+}
+
+input.notice_data-attach {
+height: 28px;
+cursor: pointer;
+/*opacity: 0;*/
+}
+
+.to-selector {display: inline;}
+
+.form_notice #notice_to {
+position: absolute;
+right: 130px;
+bottom: 3px;
+width: 160px;
+z-index: 99;
+}
+
+.form_notice label[for=notice_to] {
+position: absolute;
+right: 307px;
+bottom: 4px;
+font-size: 0.8em;
+color: white;
+z-index: 99;
+}
+
+.form_notice .checkbox-wrapper input {display: none;}
+
+.form_notice .checkbox-wrapper label {
+position: absolute;
+right: 63px;
+bottom: 1px;
+display: block;
+width: 62px;
+height: 20px;
+padding: 2px 0;
+text-align: center;
+border-radius: 4px;
+-moz-border-radius: 4px;
+-webkit-border-radius: 4px;
+z-index: 99;
+color: white;
+}
+.form_notice .checkbox-wrapper.checked label {background-color: rgba(32, 142, 36, 0.6);}
+.form_notice .checkbox-wrapper label:hover {background-color: rgb(105, 106, 141);}
+
+.form_notice #notice_action-submit {
+border: none;
+border-radius: 4px;
+-moz-border-radius: 4px;
+-webkit-border-radius: 4px;
+font-weight: normal;
+font-size: 1em;
+color: white;
+z-index: 999;
+margin: 0px;
+padding: 0 6px 2px;
+width: 52px;
+height: 24px;
+background-color: transparent;
+position: absolute;
+right: 1px;
+bottom: 1px;
+}
+.form_notice #notice_action-submit:hover {background-color: rgb(105, 106, 141);}
+
+#header #form_notice-direct label {
+margin-bottom: 4px;
+}
+
+.form_notice #notice_data-attach_selected button.close {
+float:right;
+font-size:0.8em;
+}
+
+.form_notice #notice_data-attach_selected {
+position: relative;
+z-index: 9999;
+width: 300px;
+max-height: 184px;
+overflow-y: auto;
+float: right;
+margin-right: 94px;
+}
+
+.form_notice #notice_data-attach_selected  img,
+.form_notice #notice_data-attach_selected  div {
+display: none;
+}
+
+.form_notice #notice_data-attach_selected:hover  img,
+.form_notice #notice_data-attach_selected :hover div {
+display: block;
+}
+
+.form_notice #notice_data-attach_selected code {
+font-size: 1.2em;
+padding-right: 2em;
+}
+
+/* 1.x notice forms */
+
+.input_forms .input_form {display: none}
+.input_forms .input_form.current {display: block}
+
+.input_form_nav_tab {
+float: left;
+list-style-type: none;
+width: 15%;
+min-width: 75px;
+text-align: center;
+margin: 0 5% 6px;
+border-bottom: 1px solid transparent;
+}
+
+.input_form_nav_tab a {
+color: #333;
+text-decoration: none;
+display: block;
+}
+
+.input_form_nav_tab.current,
+.input_form_nav_tab:hover {
+border-bottom: 1px solid #333;
+margin-bottom; 5px;
+}
+
+.form_notice_placeholder input {
+width: 633px;
+border: 1px solid rgb(187, 187, 187);
+border-radius: 4px;
+padding: 6px;
+color: #666;
+margin: 0 8px 16px;
+}
+
+/* end 1.x notice forms */
+
+.form_notice .error,
+.form_notice .success {
+clear: left;
+float: left;
+line-height: 1.2em;
+padding: 2px 2px 2px 5px;
+border: 2px solid #ccc;
+margin-left: -2px;
+width: 637px;
+margin-left: 0px;
+position:absolute;
+margin-bottom: -199px;
+overflow:auto;
+}

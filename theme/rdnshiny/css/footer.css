@@ -1,0 +1,38 @@
+
+/* Footer */
+
+#footer {
+clear: both;
+padding: 16px 2%;
+background-color: #ABC;
+}
+
+
+#site_nav_global_secondary dt {
+display: none;
+}
+
+#site_nav_global_secondary li {
+display: inline;
+margin-right: 20px;
+}
+
+#licenses dt {
+display: none;
+}
+
+#licenses dd {
+margin-top: 10px;
+}
+
+#site_content_license_cc {
+margin-bottom:0;
+}
+#site_content_license_cc img {
+display:inline;
+vertical-align:top;
+margin-right:4px;
+}form ul li {
+list-style-type:none;
+margin:0 0 18px 0;
+}
