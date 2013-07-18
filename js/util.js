@@ -405,8 +405,8 @@ var SN = { // StatusNet
             form.ajaxForm({
                 dataType: 'xml',
                 timeout: '60000',
-                beforeSend: function(formData) {
-                    if(!form.find('.notice a.attachment').val()) {
+                beforeSend: function(formData, settings) {
+                    if(!form.find('.notice_data-attach').val()) {
                         var file = form.find('.attach-status img');
                         if(file.length) {
                             settings.data += (settings.data ? '&' : '') + 'ajaxfile=' + encodeURIComponent(file.attr('src'));
