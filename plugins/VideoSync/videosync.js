@@ -26,7 +26,7 @@ Videosync = {
     // ID of the button that toggles the player
     trigger: 'videosync_btn',
     // Notice box ID
-    noticeBox: SN.C.S.NoticeDataText,
+    noticeBox: '.notice_data-text.ac_input:first',
     // Meteor channel that tracks updates
     syncChannel: null,
     // The original Meteor feed handler
@@ -106,22 +106,22 @@ Videosync = {
     },
 
     // Add tag to notice box
-    addTag: function() {/*
+    addTag: function() {
         var V = Videosync;
         if(V.tag) {
             var tag = '#' + V.tag + ' ';
-            var text = $('#' + V.noticeBox);
+            var text = $(V.noticeBox);
             text.val(tag + text.val().replace(tag, ''));
-        }*/
+        }
     },
 
-    removeTag: function() {/*
+    removeTag: function() {
         var V = Videosync;
         if(V.tag) {
             var tag = '#' + V.tag + ' ';
-            var text = $('#' + V.noticeBox);
+            var text = $(V.noticeBox);
             text.val(text.val().replace(tag, ''));
-        }*/
+        }
     },
 
     // Toggle the state cookie and the state variable
@@ -154,7 +154,8 @@ Videosync = {
             }
             else {
                 if(Math.abs(V.player.getCurrentTime() - pos) > V.tolerance) {
-                    V.player.seekTo(pos);
+                //if(pos - V.player.getCurrentTime() > V.tolerance) { // Should videosync go backwards?
+					V.player.seekTo(pos);
                 }
             }
         }
