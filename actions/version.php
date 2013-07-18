@@ -156,6 +156,15 @@ class VersionAction extends Action
                                                 _('StatusNet')),
                            STATUSNET_VERSION));
         $this->elementEnd('p');
+		
+		// Notice of modification
+		$this->elementStart('p');
+		$this->raw(sprintf('The version of StatusNet this site uses has been modified '.
+						   'from the original source code. The modified source can be '.
+						   'located %1$s.',
+						XMLStringer::estring('a', array('href' => 'http://github.com/RedEnchilada/rainbowdash-network'),
+							'on GitHub')));
+		$this->elementEnd('p');
 
         // TRANS: Header for StatusNet contributors section on the version page.
         $this->element('h2', null, _('Contributors'));
