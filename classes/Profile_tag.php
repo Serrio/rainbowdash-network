@@ -284,8 +284,8 @@ class Profile_tag extends Managed_DataObject
                'tag = "%s", tagger = "%s" ' .
                'WHERE tag = "%s" ' .
                'AND tagger = "%s"';
-        $result = $tags->query(sprintf($qry, $new->tag, $new->tagger,
-                                             $orig->tag, $orig->tagger));
+        $result = $tags->query(sprintf($qry, $tags->escape($new->tag), $tags->escape($new->tagger),
+                                             $tags->escape($orig->tag), $tags->escape($orig->tagger)));
 
         if (!$result) {
             common_log_db_error($tags, 'UPDATE', __FILE__);
@@ -307,8 +307,8 @@ class Profile_tag extends Managed_DataObject
         $profile->query('SELECT profile.* ' .
                         'FROM profile JOIN profile_tag ' .
                         'ON profile.id = profile_tag.tagged ' .
-                        'WHERE profile_tag.tagger = ' . $tagger . ' ' .
-                        'AND profile_tag.tag = "' . $tag . '" ');
+                        'WHERE profile_tag.tagger = ' . $tags->escape($tagger) . ' ' .
+                        'AND profile_tag.tag = "' . $tags->escape($tag) . '" ');
         $tagged = array();
         while ($profile->fetch()) {
             $tagged[] = clone($profile);
