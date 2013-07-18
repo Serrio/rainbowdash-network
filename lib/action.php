@@ -651,10 +651,6 @@ class Action extends HTMLOutputter // lawsuit
 			$this->elementEnd('li');
 
 			/*
-			$tooltip = _m('TOOLTIP', 'View replies');
-			$this->menuItem(common_local_url('replies', array('nickname' => $user->nickname)),
-				_('Replies'), $tooltip, false, 'nav_replies');
-
 			// TRANS: Tooltip for main menu option "Services".
 			$tooltip = _m('TOOLTIP', 'Connect to services');
 			$this->menuItem(common_local_url('oauthconnectionssettings'),
