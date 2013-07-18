@@ -13,7 +13,7 @@ class Rdnrefresh extends Memcached_DataObject
     public $user_id;                         // int(4)  primary_key not_null
     public $spoilertags;
     public $usernamestags;
-    public $anyhighlightwords;
+    public $anyhighlightwords;/*
     public $maincolor;
     public $asidecolor;
     public $pagecolor;
@@ -21,7 +21,7 @@ class Rdnrefresh extends Memcached_DataObject
     public $customstyle;
     public $logo;
     public $backgroundimage;
-    public $hideemotes;
+    public $hideemotes;*/
     public $autospoil;
     public $lastdm;
 
@@ -43,7 +43,7 @@ class Rdnrefresh extends Memcached_DataObject
         return array('user_id' => DB_DATAOBJECT_INT + DB_DATAOBJECT_NOTNULL,
             'spoilertags' => DB_DATAOBJECT_STR + DB_DATAOBJECT_NOTNULL,
             'usernamestags' => DB_DATAOBJECT_STR + DB_DATAOBJECT_NOTNULL,
-            'anyhighlightwords' => DB_DATAOBJECT_STR + DB_DATAOBJECT_NOTNULL,
+            'anyhighlightwords' => DB_DATAOBJECT_STR + DB_DATAOBJECT_NOTNULL,/*
             'maincolor' => DB_DATAOBJECT_STR + DB_DATAOBJECT_NOTNULL,
             'asidecolor' => DB_DATAOBJECT_STR + DB_DATAOBJECT_NOTNULL,
             'pagecolor' => DB_DATAOBJECT_STR + DB_DATAOBJECT_NOTNULL,
@@ -52,7 +52,7 @@ class Rdnrefresh extends Memcached_DataObject
             'logo' => DB_DATAOBJECT_STR + DB_DATAOBJECT_NOTNULL,
             'backgroundimage' => DB_DATAOBJECT_STR + DB_DATAOBJECT_NOTNULL,
             'hideemotes' => DB_DATAOBJECT_BOOL + DB_DATAOBJECT_NOTNULL,
-            'autospoil' => DB_DATAOBJECT_BOOL + DB_DATAOBJECT_NOTNULL,
+            'autospoil' => DB_DATAOBJECT_BOOL + DB_DATAOBJECT_NOTNULL,*/
             'lastdm' => DB_DATAOBJECT_INT,
         );
     }
@@ -103,17 +103,17 @@ class Rdnrefresh extends Memcached_DataObject
         $vars = array();
         $defaults = array(
             'user_id'           => (!empty($user->id)) ? $user->id : '0',
-            'spoilertags'       => 'spoiler spoilers spoileralert poiler soiler spiler spoler spoier spoilr spoile sspoiler sppoiler spooiler spoiiler spoiller spoileer spoilerr psoiler sopiler spioler spolier spoielr spoilre',
+            'spoilertags'       => 'spoiler spoilers spoileralert poiler soiler spiler spoler spoier spoilr spoile sspoiler sppoiler spooiler spoiiler spoiller spoileer spoilerr psoiler sopiler spioler spolier spoielr spoilre',/*
             'maincolor'         => '#373737',
             'asidecolor'        => '#212C37',
             'pagecolor'         => '#FFFFFF',
             'linkcolor'         => '#00EE00',
             'customstyle'       => 0,
             'logo'              => '',
-            'backgroundimage'   => '',
+            'backgroundimage'   => '',*/
             'anyhighlightwords' => '',
             'usernamestags'     => '',
-            'hideemotes'        => 0,
+            //'hideemotes'        => 0,
             'autospoil'         => 0,
             'lastdm'            => 0,
         );

@@ -60,12 +60,12 @@ class RdnrefreshsettingsAction extends SettingsAction
                             ($this->arg('autospoil')) ?
                             $this->boolean('autospoil') : $vars['autospoil']);
             $this->elementEnd('li');
-
+/*
             $this->elementStart('li');
             $this->checkbox('hideemotes', _('Hide emoticons'),
                             ($this->arg('hideemotes')) ?
                             $this->boolean('hideemotes') : $vars['hideemotes']);
-            $this->elementEnd('li');
+            $this->elementEnd('li');*/
 
             $this->elementStart('li');
             $this->input('spoilertags', _('Hide tags'),
@@ -80,7 +80,7 @@ class RdnrefreshsettingsAction extends SettingsAction
             $this->input('anyhighlightwords', _('Highlight Words'),
                          ($this->arg('anyhighlightwords')) ? $this->arg('anyhighlightwords') : $vars['anyhighlightwords']);
             $this->elementEnd('li');
-
+/*
             $this->elementStart('li');
             $this->checkbox('customstyle', _('Choose a custom style for the homepage'),
                             ($this->arg('customstyle')) ?
@@ -116,7 +116,7 @@ class RdnrefreshsettingsAction extends SettingsAction
             $this->input('backgroundimage', _('Background Image URL'),
                          ($this->arg('backgroundimage')) ? $this->arg('backgroundimage') : $vars['backgroundimage']);
             $this->elementEnd('li');
-
+*/
             Event::handle('EndRDNRefreshFormData', array($this));
 
         $this->elementEnd('ul');
@@ -164,14 +164,14 @@ class RdnrefreshsettingsAction extends SettingsAction
                 $vars->spoilertags = substr($this->trimmed('spoilertags'),0,255);
                 $vars->usernamestags = substr($this->trimmed('usernamestags'),0,255);
                 $vars->anyhighlightwords = substr($this->trimmed('anyhighlightwords'),0,255);
-                $vars->logo = substr($this->trimmed('logo'),0,255);
+  /*              $vars->logo = substr($this->trimmed('logo'),0,255);
                 $vars->backgroundimage = substr($this->trimmed('backgroundimage'),0,255);
                 $vars->pagecolor = substr($this->trimmed('pagecolor'),0,7);
                 $vars->maincolor = substr($this->trimmed('maincolor'),0,7);
                 $vars->asidecolor = substr($this->trimmed('asidecolor'),0,7);
                 $vars->linkcolor = substr($this->trimmed('linkcolor'),0,7);
                 $vars->customstyle = $this->boolean('customstyle');
-                $vars->hideemotes = $this->boolean('hideemotes');
+                $vars->hideemotes = $this->boolean('hideemotes');*/
                 $vars->autospoil = $this->boolean('autospoil');
 
                 if(isset($orig))

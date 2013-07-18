@@ -51,7 +51,7 @@ class RDNPlusPlugin extends Plugin
             true, 'PRI'),
             new ColumnDef('spoilertags', 'varchar', 255, true),
             new ColumnDef('usernamestags', 'varchar', 255, true),
-            new ColumnDef('anyhighlightwords', 'varchar', 255, true),
+            new ColumnDef('anyhighlightwords', 'varchar', 255, true),/*
             new ColumnDef('maincolor', 'char', 7, true),
             new ColumnDef('asidecolor', 'char', 7, true),
             new ColumnDef('pagecolor', 'char', 7, true),
@@ -59,7 +59,7 @@ class RDNPlusPlugin extends Plugin
             new ColumnDef('customstyle', 'integer', 1, true),
             new ColumnDef('logo', 'varchar', 255, true),
             new ColumnDef('backgroundimage', 'varchar', 255, true),
-            new ColumnDef('hideemotes', 'integer', 1, true),
+            new ColumnDef('hideemotes', 'integer', 1, true),*/ // Gonna move this out to another plugin
             new ColumnDef('autospoil', 'integer', 1, true),
             new ColumnDef('lastdm', 'integer', null, true),
         ));
@@ -116,7 +116,7 @@ class RDNPlusPlugin extends Plugin
         $this->resetInbox($action);
 
         $vars = $this->vars;
-
+/*
         if($vars['customstyle']) {
             $d = new Design;
 
@@ -128,7 +128,7 @@ class RDNPlusPlugin extends Plugin
             $d->textcolor = $vars['pagecolor'];
 
             $d->showCSS($action);
-        }
+        }*/
 
         $action->cssLink($this->path('css/rdnrefresh.css'), null, 'screen, tv, projection, handheld');
 
