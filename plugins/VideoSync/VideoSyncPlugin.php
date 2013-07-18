@@ -126,7 +126,7 @@ class VideoSyncPlugin extends Plugin
     function onStartShowSiteNotice($action) {
         $user = common_current_user();
 
-        if($action instanceof PublicAction) {
+        if($action instanceof PublicAction && $user) {
             $action->elementStart('div', array('id' => 'videosync'));
             $action->element('input', array(
                 'type' => 'button', 
