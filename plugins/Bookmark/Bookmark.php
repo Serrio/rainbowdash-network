@@ -219,7 +219,11 @@ class Bookmark extends Memcached_DataObject
         $nb->profile_id  = $profile->id;
         $nb->url         = $url;
         $nb->title       = $title;
-        $nb->description = $description;
+		
+		// kind of a hack
+        $noticeTemp = new Notice();
+        $noticeTemp->profile_id = $profile->id;
+        $nb->description = common_render_content($description, $noticeTemp);
 
         if (array_key_exists('created', $options)) {
             $nb->created = $options['created'];
@@ -253,6 +257,10 @@ class Bookmark extends Memcached_DataObject
 
         $tags    = array();
         $replies = array();
+		
+		// find replies in description
+		$descReplies = common_find_mentions($description, $noticeTemp);
+		foreach($descReplies as $g) {$replies[] = $g['mentioned'][0]->getUri();}
 
         // filter "for:nickname" tags
 
@@ -314,7 +322,7 @@ class Bookmark extends Memcached_DataObject
                               '</span>'),
                             htmlspecialchars($url),
                             htmlspecialchars($title),
-                            htmlspecialchars($description),
+                            common_render_text($description),
                             implode(' ', $taglinks));
 
         $options = array_merge(array('urls' => array($url),

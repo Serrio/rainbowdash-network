@@ -465,9 +465,9 @@ class PollPlugin extends MicroAppPlugin
         $out->elementStart('div', array('class' => 'entry-content'));
     }
 
-    function entryForm($out)
+    function entryForm($out, $options=array())
     {
-        return new NewPollForm($out);
+        return new NewPollForm($out, null, null, $options);
     }
 
     // @fixme is this from parent?

@@ -24,6 +24,21 @@ padding-bottom: 2px;
 line-height: 1.35em;
 }
 
+.notice.limited-scope div.entry-content:before {
+  content: "\f023";
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: inherit;
+  -webkit-font-smoothing: antialiased;
+  display: inline-block;
+  speak: none;
+}
+
+.notice.mod-scope div.entry-content:before {
+color: #F91;
+}
+
 .notice, .profile, .application {
 position:relative;
 clear:both;
@@ -96,10 +111,10 @@ line-height: 1.2em;
 #shownotice .notice div.entry-content {
 margin-left:0;
 }
-
+/*
 .notice div.author {
 float: left;
-}
+}*/
 
 .notice .addressee {
 font-style: italic;
@@ -127,6 +142,20 @@ overflow:visible;
 display:inline;
 }
 
+.dm_sent_to_multiple:before {
+font-family: FontAwesome;
+font-weight: normal;
+font-style: normal;
+text-decoration: inherit;
+-webkit-font-smoothing: antialiased;
+display: inline-block;
+speak: none;
+color: #0A3D76;
+content: '\f0c0';
+font-size: 14px;
+margin-right: 4px;
+}
+
 .notice div.entry-content {
 clear:left;
 float:left;
@@ -134,7 +163,7 @@ margin-left:59px;
 margin-top: 10px;
 font-size: 0.9em;
 line-height: 1em;
-opacity: 0.6;
+opacity: 0.75;
 }
 
 .notice:hover div.entry-content {
@@ -157,8 +186,7 @@ display: none;
 }
 
 .form_promote, .form_unpromote {
-position: absolute;
-right: 100%;
+margin-left: -26px;
 }
 
 .notice-options form, .notice-options a, .notice-options .repeated {
@@ -167,19 +195,96 @@ margin-right: 10px;
 }
 
 .notice-options input, .notice-options a, .notice-options .repeated {    
-text-indent: -9999px;
+/*text-indent: -9999px;*/
 outline:none;
+display: block;
+border: 0;
+height: 16px;
+width: 16px;
+overflow: hidden;
 }
 
+.notice-options form:before, .notice-options a:before, .notice-options .repeated:before  {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: inherit;
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 16px;
+  text-decoration: inherit;
+  display: inline-block;
+  speak: none;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  margin-right: 40px;
+  border-radius: 2px;
+  color: #696A8D;
+}
+
+.notice-options form {position: relative; width: 16px; height: 16px; overflow: hidden; opacity: 0.75;}
+.notice-options form:hover {opacity: 1;}
+.notice-options a:hover {text-decoration: none;}
+/*
+.notice-options form:before {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: inherit;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  font-size: 14px;
+  text-decoration: inherit;
+  display: inline-block;
+  speak: none;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  margin-right: -16px;
+  white-space: nowrap;
+}*/
+
+.notice-options form input.submit {
+position: absolute;
+left: 0;
+top: 0;
+width: 16px;
+height: 16px;
+opacity: 0 !important;
+/*text-indent: -1234px;*/
+}
+
+.notice-options form.form_favor:before{content: "\f004";}
+.notice-options form.form_disfavor:before {content: "\f08a";}
+
+.notice-options .notice_reply:before {
+content: '\f149';
+transform: rotate(90deg);
+-moz-transform: rotate(90deg);
+-webkit-transform: rotate(90deg);
+-ms-transform: rotate(90deg);
+font-size: 16px;
+}
+
+.notice-options form.form_repeat:before, .notice-options .repeated:before  {content: "\f079";}
+.notice-options .repeated:before {color: #888; color: rgba(120, 120, 120, 0.4);}
+
+.notice-options a.notice_delete:before,
+.notice-options form.notice_delete:before {content: "\f014";}
+
+.notice-options form.form_promote:before {content: "\f0c1";}
+.notice-options form.form_unpromote:before {content: "\f127";}
+/*
 .notice-options input.submit, .notice-options a, .notice-options .repeated {
 display: block;
 border: 0;
 height: 16px;
 width: 16px;
-}
+}*/
 
 .notice-options input.submit, .notice-options a {
-opacity: 0.6;
+opacity: 0.75;
 }
 
 .notice-options input.submit:hover, .notice-options a:hover {
@@ -335,6 +440,8 @@ width: 100%;
 width: 24px !important;
 height: 24px !important; /* Realtime acts weird otherwise */
 }
+
+.notice-reply-placeholder {display: none!important;}
 
 .notice.bookmark p.entry-content {
 display: none;

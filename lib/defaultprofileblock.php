@@ -90,7 +90,10 @@ class DefaultProfileBlock extends AccountProfileBlock
     function show()
     {
         //$this->showActions();
+		$this->out->elementStart('span', array('id' => 'usercard_avatar'));
         $this->showAvatar();
+		$this->out->element('a', array('title' => _('Edit avatar'), 'href' => common_local_url('avatarsettings')), _('Edit avatar'));
+		$this->out->elementEnd('span');
         $this->showName();
         //$this->showLocation();
         //$this->showHomepage();

@@ -536,9 +536,13 @@ class BookmarkPlugin extends MicroAppPlugin
         return new BookmarkListItem($nli);
     }
 
-    function entryForm($out)
+    function entryForm($out, $options=array())
     {
-        return new InitialBookmarkForm($out);
+        //return new InitialBookmarkForm($out);
+		$b = new BookmarkForm($out);
+		if(isset($options['to_group']))
+			$b->to_group = $options['to_group'];
+		return $b;
     }
 
     function tag()

@@ -100,6 +100,13 @@ class Message extends Managed_DataObject
         $msg->rendered = common_render_text($msg->content);
         $msg->created = common_sql_now();
         $msg->source = $source;
+		
+		// Message processing stuff
+		Event::handle('SaveNewDirectMessage', array(&$msg));
+		if(common_config('site', 'sent_to_multiple_users')) {
+			$msg->rendered = '<span class="dm_sent_to_multiple" title="' . common_config('site', 'sent_to_multiple_users') 
+							. '"></span>' . $msg->rendered;
+		}
 
         $result = $msg->insert();
 

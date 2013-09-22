@@ -252,12 +252,12 @@ class MobileProfilePlugin extends WAP20Plugin
 
         $action->primaryCssLink();
 
-        $action->cssLink($this->path('mp-screen.css'),null,'screen');
+        //$action->cssLink($this->path('mp-screen.css'),null,'screen');
         if (file_exists(Theme::file('css/mp-screen.css'))) {
             $action->cssLink('css/mp-screen.css', null, 'screen');
         }
 
-        $action->cssLink($this->path('mp-handheld.css'),null,'handheld');
+        //$action->cssLink($this->path('mp-handheld.css'),null,'handheld');
         if (file_exists(Theme::file('css/mp-handheld.css'))) {
             $action->cssLink('css/mp-handheld.css', null, 'handheld');
         }
@@ -286,9 +286,9 @@ class MobileProfilePlugin extends WAP20Plugin
         $action->elementStart('div', array('id' => 'header'));
         $this->_showLogo($action);
         $this->_showPrimaryNav($action);
-        if (common_logged_in()) {
-            $action->showNoticeForm();
-        }
+        //if (common_logged_in()) {
+        //    $action->showNoticeForm();
+        //v}
         $action->elementEnd('div');
 
         return false;

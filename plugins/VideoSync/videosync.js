@@ -111,7 +111,7 @@ Videosync = {
         if(V.tag) {
             var tag = '#' + V.tag + ' ';
             var text = $(V.noticeBox);
-            text.val(tag + text.val().replace(tag, ''));
+            text.val(tag + (text.val() ? text.val().replace(tag, '') : ''));
         }
     },
 
@@ -120,7 +120,8 @@ Videosync = {
         if(V.tag) {
             var tag = '#' + V.tag + ' ';
             var text = $(V.noticeBox);
-            text.val(text.val().replace(tag, ''));
+			if(text.val())
+				text.val(text.val().replace(tag, ''));
         }
     },
 

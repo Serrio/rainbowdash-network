@@ -261,7 +261,13 @@ class RealtimePlugin extends Plugin
 
             foreach ($paths as $path) {
 
-                list($action, $arg1, $arg2) = $path;
+				// @fixme This is a hack
+				if(isset($path[2]))
+					list($action, $arg1, $arg2) = $path;
+				else {
+					list($action, $arg1) = $path;
+					$arg2 = null;
+				}
 
                 $channels = Realtime_channel::getAllChannels($action, $arg1, $arg2);
 

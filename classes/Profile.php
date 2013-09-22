@@ -178,7 +178,7 @@ class Profile extends Managed_DataObject
         // the previously used profile! Please shoot me now! --Zach
         if (array_key_exists($width, $this->_avatars)) {
             // Don't return cached avatar unless it's really for this profile
-            if ($this->_avatars[$width]->profile_id == $this->id) {
+            if (isset($this->_avatars[$width]->profile_id) && $this->_avatars[$width]->profile_id == $this->id) {
                 return $this->_avatars[$width];
             }
         }

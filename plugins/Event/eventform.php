@@ -46,6 +46,14 @@ if (!defined('STATUSNET')) {
  */
 class EventForm extends Form
 {
+	private $to_group;
+	
+	function __construct($out, $options) {
+		parent::__construct($out);
+		if(isset($options['to_group']))
+			$this->to_group = $options['to_group'];
+	}
+	
     /**
      * ID of the form
      *
@@ -189,7 +197,7 @@ class EventForm extends Form
         $this->unli();
 
         $this->li();
-        $this->out->input('event-description',
+        $this->out->textarea('event-description',
                           // TRANS: Field label on event form.
                           _m('LABEL','Description'),
                           null,
@@ -202,7 +210,7 @@ class EventForm extends Form
 
         $toWidget = new ToSelector($this->out,
                                    common_current_user(),
-                                   null);
+                                   (!empty($this->to_group) ? $this->to_group : null));
         $toWidget->show();
 
         $this->out->elementEnd('fieldset');

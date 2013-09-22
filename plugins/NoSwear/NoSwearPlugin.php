@@ -8,7 +8,7 @@ if (!defined('STATUSNET')) {
 
 class NoSwearPlugin extends Plugin
 {
-    public function _filter($content) {
+	private function getWordlist() {
         $s = '\!\@\#\$\%\^\&\*';
         $wordlist = <<<HERE
 d[i$s][c$s]?khead
@@ -21,7 +21,6 @@ s[h$s][i$s]t(?!su|a|o)e?(head)?
 \bf[r$s]?e[c$s]?k\b
 (da)?fuq
 b[ie$s]a?[t$s][c$s][h$s]
-\b(candy.?)?ass(hole|hat)?\b
 c[o$s][c$s]?k.?suc?k
 nigg[^l]
 \bcum\b
@@ -46,7 +45,12 @@ fap
 q[u$s][e$s][e$s]f
 d[i$s][l$s][d$s]o
 HERE;
-        $wordlist = '/((' . str_replace("\n", ")|(", $wordlist) . '))/i';
+        $wordlist = '/((' . str_replace("\n", ")|(", str_replace("\r\n", "\n", $wordlist)) . '))/i';
+		return $wordlist;
+	}
+	
+    public function _filter($content) {
+		$wordlist = getWordlist();
         $choice = array(
             'bananas',
             'apples',
@@ -66,6 +70,12 @@ HERE;
     }
 
     function onStartNoticeSave($notice) {
+        $notice->content = $this->_filter($notice->content);
+        $notice->rendered = $this->_filter($notice->rendered);
+        return true;
+    }
+	
+    function onSaveNewDirectMessage($notice) {
         $notice->content = $this->_filter($notice->content);
         $notice->rendered = $this->_filter($notice->rendered);
         return true;

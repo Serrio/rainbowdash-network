@@ -2366,8 +2366,18 @@ class Notice extends Managed_DataObject
      *
      * @return boolean whether the profile is in the notice's scope
      */
-    function inScope($profile)
+    function inScope($profile, $moderatorPass = true)
     {
+		
+		// Moderators can see all posts regardless of scope, for moderation purposes
+		
+		if($moderatorPass && !is_null($profile)) {
+			$user = $profile->getUser();
+			if(!empty($user) && $user->hasRole(Profile_role::MODERATOR)) {
+				return true;
+			}
+		}
+		
         if (is_null($profile)) {
             $keypart = sprintf('notice:in-scope-for:%d:null', $this->id);
         } else {
@@ -2453,6 +2463,16 @@ class Notice extends Managed_DataObject
                 return false;
             }
         }
+		
+		// If user is mentioned in a post and doesn't fail group check, they're in scope
+		// (there might be a better way to do this than copy-pasting code)
+		// (this might made ADDRESSEE_SCOPE redundant)
+		$repl = Reply::pkeyGet(array('notice_id' => $this->id,
+									 'profile_id' => $profile->id));
+									 
+		if (!empty($repl)) {
+			return true;
+		}
 
         // Only for followers of the author
 

@@ -56,9 +56,13 @@ class NewpollForm extends Form
      *
      * @return void
      */
-    function __construct($out=null, $question=null, $options=null)
+	private $to_group; 
+	 
+    function __construct($out=null, $question=null, $options=null, $formOptions=null)
     {
         parent::__construct($out);
+		if(isset($formOptions['to_group']))
+			$this->to_group = $formOptions['to_group'];
     }
 
     /**
@@ -136,7 +140,7 @@ class NewpollForm extends Form
 
         $toWidget = new ToSelector($this->out,
                                    common_current_user(),
-                                   null);
+                                   (!empty($this->to_group) ? $this->to_group : null));
         $toWidget->show();
 
         $this->out->elementEnd('fieldset');

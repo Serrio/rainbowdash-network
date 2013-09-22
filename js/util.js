@@ -169,10 +169,37 @@ var SN = { // StatusNet
                 // Note there's still no event for mouse-triggered 'delete'.
                 NDT.bind('cut', delayedUpdate)
                    .bind('paste', delayedUpdate);
+
+                NDT.bind('keydown', function(e) {
+                    SN.U.SubmitOnReturn(e, form);
+                });
             }
             else {
                 form.find('.count').text(jQuery.data(form[0], 'ElementData').MaxLength);
             }
+        },
+
+        /**
+         * To be called from keydown event handler on the notice import form.
+         * Checks if return or enter key was pressed, and if so attempts to
+         * submit the form and cancel standard processing of the enter key.
+         *
+         * @param {Event} event
+         * @param {jQuery} el: jQuery object whose first element is the notice posting form
+         *
+         * @return {boolean} whether to cancel the event? Does this actually pass through?
+         * @access private
+         */
+        SubmitOnReturn: function(event, el) {
+            if ((event.keyCode == 13 || event.keyCode == 10) && !event.shiftKey) {
+                el.submit();
+                event.preventDefault();
+                event.stopPropagation();
+                $('#'+el[0].id+' #'+SN.C.S.NoticeDataText).blur();
+                $('body').focus();
+                return false;
+            }
+            return true;
         },
 
         /**
@@ -478,23 +505,26 @@ var SN = { // StatusNet
                             var notices = $('#notices_primary .notices:first');
                             var replyItem = form.closest('li.notice-reply');
 
-                            if (replyItem.length > 0) {
+                            if (replyItem.length > 0 && !$('.oldschool_stream').length) {
                                 // If this is an inline reply, remove the form...
                                 var list = form.closest('.threaded-replies');
-                                var placeholder = list.find('.notice-reply-placeholder');
+								if($('.old-school').length) list.removeClass('threaded-replies').removeClass('xoxo');
+                                //var placeholder = list.find('.notice-reply-placeholder');
                                 replyItem.remove();
 
                                 var id = $(notice).attr('id');
                                 if ($("#"+id).length == 0) {
-                                    $(notice).insertBefore(placeholder);
+                                    //$(notice).insertBefore(placeholder);
+									$(list).append(notice);
                                 } else {
                                     // Realtime came through before us...
                                 }
 
                                 // ...and show the placeholder form.
-                                placeholder.show();
+                                //placeholder.show();
                             } else if (notices.length > 0 && SN.U.belongsOnTimeline(notice)) {
                                 // Not a reply. If on our timeline, show it at the top!
+								if(replyItem.length > 0) replyItem.remove();
 
                                 if ($('#'+notice.id).length === 0) {
                                     var notice_irt_value = form.find('[name=inreplyto]').val();
@@ -743,14 +773,14 @@ var SN = { // StatusNet
             var stripForm = true; // strip a couple things out of reply forms that are inline
 
             // Find the threaded replies view we'll be adding to...
-            var list = notice.closest('.notices');
+            var list = notice.closest('.notices');/*
             if (list.closest('.old-school').length) {
             	// We're replying to an old-school conversation thread;
             	// use the old-style ping into the top form.
             	SN.U.switchInputFormTab("status")
             	replyForm = $('#input_form_status').find('form');
             	stripForm = false;
-            } else if (list.hasClass('threaded-replies')) {
+            } else*/ if (list.hasClass('threaded-replies') && !list.closest('.old-school').length) {
                 // We're replying to a reply; use reply form on the end of this list.
                 // We'll add our form at the end of this; grab the root notice.
                 parentNotice = list.closest('.notice');
@@ -760,7 +790,7 @@ var SN = { // StatusNet
             } else {
                 // We're replying to a parent notice; pull its threaded list
                 // and we'll add on the end of it. Will add if needed.
-                list = $('ul.threaded-replies', notice);
+                list = $(/*'ul.threaded-replies', notice*/ '#'+notice.attr('id')+' > ul.threaded-replies');
                 if (list.length == 0) {
                     SN.U.NoticeInlineReplyPlaceholder(notice);
                     list = $('ul.threaded-replies', notice);
@@ -848,13 +878,13 @@ var SN = { // StatusNet
                 list = $('<ul class="notices threaded-replies xoxo"></ul>');
                 notice.append(list);
                 list = notice.find('ul.threaded-replies');
-            }
+            }/*
             var placeholder = $('<li class="notice-reply-placeholder">' +
                                     '<input class="placeholder" />' +
                                 '</li>');
             placeholder.find('input')
                 .val(SN.msg('reply_placeholder'));
-            list.append(placeholder);
+            list.append(placeholder);*/
         },
 
         /**
@@ -1057,7 +1087,7 @@ var SN = { // StatusNet
                 return false;
             });
         },
-
+*
         /**
          * Get PHP's MAX_FILE_SIZE setting for this form;
          * used to apply client-side file size limit checks.
@@ -1533,34 +1563,34 @@ var SN = { // StatusNet
          *
          * @param {String} tag
          */
-	switchInputFormTab: function(tag) {
-	    // The one that's current isn't current anymore
-	    $('.input_form_nav_tab.current').removeClass('current');
-            if (tag == 'placeholder') {
-                // Hack: when showing the placeholder, mark the tab
-                // as current for 'Status'.
-                $('#input_form_nav_status').addClass('current');
-            } else {
-                $('#input_form_nav_'+tag).addClass('current');
-            }
+		switchInputFormTab: function(tag) {
+			// The one that's current isn't current anymore
+			$('.input_form_nav_tab.current').removeClass('current');
+				if (tag == 'placeholder') {
+					// Hack: when showing the placeholder, mark the tab
+					// as current for 'Status'.
+					$('#input_form_nav_status').addClass('current');
+				} else {
+					$('#input_form_nav_'+tag).addClass('current');
+				}
 
-            // Don't remove 'current' if we also have the "nonav" class.
-            // An example would be the message input form. removing
-            // 'current' will cause the form to vanish from the page.
-            var nonav = $('.input_form.current.nonav');
-            if (nonav.length > 0) {
-                return;
-            }
+				// Don't remove 'current' if we also have the "nonav" class.
+				// An example would be the message input form. removing
+				// 'current' will cause the form to vanish from the page.
+				var nonav = $('.input_form.current.nonav');
+				if (nonav.length > 0) {
+					return;
+				}
 
-	    $('.input_form.current').removeClass('current');
-	    $('#input_form_'+tag)
-                .addClass('current')
-                .find('.ajax-notice').each(function() {
-                    var form = $(this);
-                    SN.Init.NoticeFormSetup(form);
-                })
-                .find('.notice_data-text').focus();
-	},
+			$('.input_form.current').removeClass('current');
+			$('#input_form_'+tag)
+					.addClass('current')
+					.find('.ajax-notice').each(function() {
+						var form = $(this);
+						SN.Init.NoticeFormSetup(form);
+					})
+					.find('.notice_data-text').focus();
+		},
 
         showMoreMenuItems: function(menuid) {
             $('#'+menuid+' .more_link').remove();
@@ -1680,9 +1710,9 @@ var SN = { // StatusNet
         EntityActions: function() {
             if ($('body.user_in').length > 0) {
                 $('.form_user_subscribe').live('click', function() { SN.U.FormXHR($(this)); return false; });
-                $('.form_user_unsubscribe').live('click', function() { SN.U.FormXHR($(this)); return false; });
+                $('.form_user_unsubscribe').live('click', function() { SN.U.FormXHR($(this)); return false; });/*
                 $('.form_group_join').live('click', function() { SN.U.FormXHR($(this)); return false; });
-                $('.form_group_leave').live('click', function() { SN.U.FormXHR($(this)); return false; });
+                $('.form_group_leave').live('click', function() { SN.U.FormXHR($(this)); return false; });*/
                 $('.form_user_nudge').live('click', function() { SN.U.FormXHR($(this)); return false; });
                 $('.form_peopletag_subscribe').live('click', function() { SN.U.FormXHR($(this)); return false; });
                 $('.form_peopletag_unsubscribe').live('click', function() { SN.U.FormXHR($(this)); return false; });

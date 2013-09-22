@@ -840,6 +840,8 @@ margin-bottom: 28px;
 min-width:21%;
 }
 
+.entity_actions:hover {overflow: visible;}
+
 .entity_actions h2 {
 display:none;
 }
@@ -1097,8 +1099,77 @@ border-top: 1px solid red;
 }
 
 /* FIXME should probably replace with proper line breaking at some point */
-.entity_profile .note{white-space: pre-wrap}
+.profile_block_description {white-space: pre-wrap; padding: 20px 2%; clear: left; width: 96%;}
 
+.profile_block {clear: both; padding: 10px; margin: 0 -10px; height: 96px;}
+
+.profile_block .ur_face {float: left; margin-right: 10px;}
+
+.profile_block_name {font-size: 1.5em;}
+
+.profile_block_location {margin-bottom: 8px; font-style: italic;}
+
+.user_profile_tags {float: left; clear: both;}
+
+.user_profile_tags dt {float: left; font-weight: bold;}
+.user_profile_tags dt:after {content: ':'; margin-right: 10px;}
+
+.user_profile_tags dd,
+.user_profile_tags dd > * {float: left;}
+
+.user_profile_tags button:before {
+font-family: FontAwesome;
+font-weight: normal;
+font-style: normal;
+text-decoration: inherit;
+-webkit-font-smoothing: antialiased;
+display: inline-block;
+speak: none;
+font-size: 14px;
+content: '\f040';
+}
+
+.user_profile_tags button {
+color: #0A3D76;
+border: 0px none;
+padding: 0px;
+background-color: transparent;
+cursor: pointer;
+opacity: 0.75;
+margin: -1px 0;
+}
+
+.user_profile_tags button:hover {opacity: 1;}
+
+.user_profile_tags legend,
+.user_profile_tags label,
+.form_tag_user_wrap form {display: none;}
+
+.form_tag_user_wrap form {margin-top: -2px;}
+
+.form_tag_user_wrap input.submit {
+    border: medium none;
+    border-radius: 4px 4px 4px 4px;
+    font-weight: normal;
+    font-size: 1em;
+    color: white;
+    margin: 0px;
+    padding: 0px 6px 0px;
+    width: 52px;
+    height: 20px;
+    background-color: rgba(105, 106, 141, 0.6);
+	margin-bottom: -8px;
+}
+
+.form_tag_user_wrap input.submit:hover {
+    background-color: rgb(105, 106, 141);
+}
+
+.profile_block_name a, profile_block_location, .profile_block_homepage {color: black;}
+
+.profile_block:after {content: ' '; display: block; clear: both; width: 4px; height: 1px; float: left;}
+
+.profile_block {background: url(../images/default_userbanner.png) no-repeat top right #BBB;}
 
 .form_settings input.submit {
 border: 1px solid #555;

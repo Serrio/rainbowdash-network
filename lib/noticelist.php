@@ -81,7 +81,8 @@ class NoticeList extends Widget
     function show()
     {
         $this->out->elementStart('div', array('id' =>'notices_primary'));
-        $this->out->elementStart('ol', array('class' => 'notices xoxo'));
+		$user = common_current_user();
+        $this->out->elementStart('ol', array('class' => 'notices xoxo' . ((!empty($user) && $user->streamModeOnly()) ? ' oldschool_stream' : '')));
 
 		$notices = $this->notice->fetchAll();
 		$total   = count($notices);

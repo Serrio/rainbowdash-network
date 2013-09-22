@@ -224,37 +224,49 @@ class EventPlugin extends MicroappPlugin
     {
         $happening = null;
 
-        switch ($notice->object_type) {
-        case Happening::OBJECT_TYPE:
-            $happening = Happening::fromNotice($notice);
-            break;
-        case RSVP::POSITIVE:
-        case RSVP::NEGATIVE:
-        case RSVP::POSSIBLE:
-            $rsvp  = RSVP::fromNotice($notice);
-            $happening = $rsvp->getEvent();
-            break;
-        }
+		switch ($notice->object_type) {
+		case Happening::OBJECT_TYPE:
+				$happening = Happening::fromNotice($notice);
+			break;
+			break;
+		case RSVP::POSITIVE:
+		case RSVP::NEGATIVE:
+		case RSVP::POSSIBLE:
+			$rsvp  = RSVP::fromNotice($notice);
+			$happening = $rsvp->getEvent();
+			break;
+		}
 
         if (empty($happening)) {
+			// uh
+			$obj = new ActivityObject();
+
+			$obj->id 	  = '0';
+			$obj->type    = Happening::OBJECT_TYPE;
+			$obj->title   = 'Unknown event';
+			$obj->summary = '';
+			$obj->link    = '#';
+			
+			return $obj;
+			
             // TRANS: Exception thrown when event plugin comes across a unknown object type.
             throw new Exception(_m('Unknown object type.'));
         }
+		
+		$notice = $happening->getNotice();
 
-        $notice = $happening->getNotice();
-
-        if (empty($notice)) {
-            // TRANS: Exception thrown when referring to a notice that is not an event an in event context.
-            throw new Exception(_m('Unknown event notice.'));
-        }
+		if (empty($notice)) {
+			// TRANS: Exception thrown when referring to a notice that is not an event an in event context.
+			throw new Exception(_m('Unknown event notice.'));
+		}
 
         $obj = new ActivityObject();
 
-        $obj->id      = $happening->uri;
-        $obj->type    = Happening::OBJECT_TYPE;
-        $obj->title   = $happening->title;
-        $obj->summary = $happening->description;
-        $obj->link    = $notice->bestUrl();
+		$obj->id      = $happening->uri;
+		$obj->type    = Happening::OBJECT_TYPE;
+		$obj->title   = $happening->title;
+		$obj->summary = $happening->description;
+		$obj->link    = $notice->bestUrl();
 
         // XXX: how to get this stuff into JSON?!
 
@@ -316,9 +328,9 @@ class EventPlugin extends MicroappPlugin
      * @param HTMLOutputter $out
      * @return Widget
      */
-    function entryForm($out)
+    function entryForm($out, $options=array())
     {
-        return new EventForm($out);
+        return new EventForm($out, $options);
     }
 
     /**

@@ -182,13 +182,17 @@ class ProfileAction extends Action
 
     function showStatistics()
     {
-        $notice_count = $this->profile->noticeCount();
-        $age_days     = (time() - strtotime($this->profile->created)) / 86400;
-        if ($age_days < 1) {
-            // Rather than extrapolating out to a bajillion...
-            $age_days = 1;
-        }
-        $daily_count = round($notice_count / $age_days);
+		$notice_count = $this->profile->noticeCount();
+		if($this->profile->id == 29501) {
+			$daily_count = 'GO OUTSIDE'; // ROSS
+		} else {
+			$age_days     = (time() - strtotime($this->profile->created)) / 86400;
+			if ($age_days < 1) {
+				// Rather than extrapolating out to a bajillion...
+				$age_days = 1;
+			}
+			$daily_count = round($notice_count / $age_days);
+		}
 
         $this->elementStart('div', array('id' => 'entity_statistics',
                                          'class' => 'section'));

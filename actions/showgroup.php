@@ -81,12 +81,12 @@ class ShowgroupAction extends GroupAction
                            $this->page);
         }
     }
-
+/*
     function showNoticeForm()
     {  
         $notice_form = new NoticeForm($this, null, "!{$this->group->nickname} ");
         $notice_form->show();
-    }
+    }*/
 
     /**
      * Prepare the action

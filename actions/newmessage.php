@@ -158,6 +158,7 @@ class NewmessageAction extends Action
 
     function saveNewMessage()
     {
+		global $config;
         // CSRF protection
 
         $token = $this->trimmed('token');
@@ -196,6 +197,13 @@ class NewmessageAction extends Action
         }
         
         $nicknames = array();
+		
+		if(count($this->other) > 1) { // Pretty hacky solution lul
+			$config['site']['sent_to_multiple_users'] = 'Sent to:';
+			foreach($this->other as $other)
+				$config['site']['sent_to_multiple_users'] .= "\n" . $other->nickname;
+		}
+			
         foreach($this->other as $other) {
             if (!$user->mutuallySubscribed($other)) {
                 $this->clientError(_('You cannot send a message to this user.'), 404);

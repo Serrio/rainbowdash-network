@@ -270,6 +270,9 @@ class EditgroupAction extends GroupAction
             $this->group->mainpage    = common_local_url('showgroup', array('nickname' => $nickname));
             $this->group->join_policy = $join_policy;
             $this->group->force_scope = $force_scope;
+			
+			if($this->group->homepage == $orig->homepage)
+				$this->group->homepage .= ' '; // @fixme HACK HACK HACK HACK
 
             $result = $this->group->update($orig);
 

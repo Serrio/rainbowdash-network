@@ -167,6 +167,11 @@ class NoticeListItem extends Widget
             $class = 'hentry notice' . $replyto;
             if ($this->notice->scope != 0 && $this->notice->scope != 1) {
                 $class .= ' limited-scope';
+				
+				// Add a special class if mods are only seeing this for moderation purposes
+				$profile = common_current_user()->getProfile();
+				if(!$this->notice->inScope($profile, false))
+					$class .= ' mod-scope';
             }
             if (!empty($this->notice->source)) {
                 $class .= ' notice-source-'.$this->notice->source;

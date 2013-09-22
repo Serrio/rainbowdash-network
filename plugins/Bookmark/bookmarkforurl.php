@@ -80,7 +80,7 @@ class BookmarkforurlAction extends Action
 
         $f = File::staticGet('url', $this->url);
 
-        if (empty($url)) { 
+        if (empty($f)) { 
            $f = File::processNew($this->url);
         }
 

@@ -46,6 +46,7 @@ if (!defined('STATUSNET')) {
  */
 class BookmarkForm extends Form
 {
+	public $to_group;
     private $_title       = null;
     private $_url         = null;
     private $_tags        = null;
@@ -168,7 +169,7 @@ class BookmarkForm extends Form
 
         $toWidget = new ToSelector($this->out,
                                    common_current_user(),
-                                   null);
+                                   (!empty($this->to_group) ? $this->to_group : null));
         $toWidget->show();
 
         $this->out->elementEnd('fieldset');

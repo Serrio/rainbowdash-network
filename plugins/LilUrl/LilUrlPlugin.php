@@ -51,10 +51,14 @@ class LilUrlPlugin extends UrlShortenerPlugin
         if (!$responseBody) return;
         $y = @simplexml_load_string($responseBody);
         if (!isset($y->body)) return;
+		ob_start(); // @fixme HACK HACK HACK
         $x = $y->body->p[0]->a->attributes();
+		$f = false;
         if (isset($x['href'])) {
-            return strval($x['href']);
+            $f = (string) $x['href'];
         }
+		ob_end_clean(); // @fixme I'm real sick of those warnings tho
+		return $f;
     }
 
     function onPluginVersion(&$versions)

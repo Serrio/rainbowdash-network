@@ -137,6 +137,10 @@ class NewbookmarkAction extends Action
                 throw new ClientException(_m('Bookmark must have an URL.'));
             }
 
+			if (!Validate::uri($this->url, array('allowed_schemes' => array('http', 'https')))) {
+				throw new ClientException(_('Invalid URL.'), 400);
+			}
+
             $options = array();
 
             ToSelector::fillOptions($this, $options);

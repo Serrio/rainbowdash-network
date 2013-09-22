@@ -76,7 +76,7 @@ class PrimaryNav extends Menu
             $tooltip = _m('TOOLTIP', 'List of site staff');
             $this->menuItem(common_local_url('staff'),
                 _m('MENU', 'Staff'), $tooltip, false, 'nav_admins');
-
+/* Replace this with a dropdown by the search button
             if ($user || !common_config('site', 'private')) {
                 $this->startDropdown(_m('MENU', 'Search'), 'nav_search');
 
@@ -99,8 +99,8 @@ class PrimaryNav extends Menu
                     _m('Groups'), $tooltip, false, 'nav_groupsearch');
 
                 $this->endDropdown();
-            }
-
+            }*/
+/*
             if (Event::handle('StartLinkDropdown', array($this))) {
                 $this->startDropdown(_m('Links'), 'nav_links');
 
@@ -119,7 +119,7 @@ class PrimaryNav extends Menu
                 Event::handle('EndLinkDropdown', array($this));
 
                 $this->endDropdown();
-            }
+            }*/
 
             if($user) {
                 if(($user->hasRole(Profile_role::ADMINISTRATOR) || $user->hasRole(Profile_role::MODERATOR)) &&

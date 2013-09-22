@@ -150,7 +150,7 @@ abstract class MicroAppPlugin extends Plugin
      * @param HTMLOutputter $out
      * @return Widget
      */
-    abstract function entryForm($out);
+    abstract function entryForm($out, $options=array());
 
     /**
      * When a notice is deleted, you'll be called here for a chance
@@ -540,10 +540,10 @@ abstract class MicroAppPlugin extends Plugin
         return true;
     }
 
-    function onStartMakeEntryForm($tag, $out, &$form)
+    function onStartMakeEntryForm($tag, $out, &$form, $options)
     {
         if ($tag == $this->tag()) {
-            $form = $this->entryForm($out);
+            $form = $this->entryForm($out, $options);
             return false;
         }
 

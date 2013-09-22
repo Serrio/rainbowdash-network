@@ -11,6 +11,7 @@
 /*FIXME should be using base css*/ /*FIXME I disagree with this comment*/
 /*/@import url("../../base/css/display.css");/**/
 
+
 @import url("structure.css") screen, projection, tv;
 @import url("header.css") screen, projection, tv;
 @import url("videosync.css") screen, projection, tv;
@@ -23,6 +24,15 @@
 @import url("apps.css") screen, projection, tv;
 @import url("realtime.css") screen, projection, tv;
 @import url("footer.css") screen, projection, tv;
+
+/* Font-Awesome for icons and stuff */
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('../fonts/fontawesome-webfont.eot?v=3.2.1');
+  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=3.2.1') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff?v=3.2.1') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=3.2.1') format('truetype'), url('../fonts/fontawesome-webfont.svg#fontawesomeregular?v=3.2.1') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
 
 @media screen, projection, tv {
 /* Highlight and tooltip for specific tags */

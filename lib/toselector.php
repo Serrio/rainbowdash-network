@@ -86,11 +86,12 @@ class ToSelector extends Widget
             // TRANS: Option in drop-down of potential addressees.
             $choices['public:everyone'] = _m('SENDTO','Everyone');
             $default = 'public:everyone';
-        }
-        // XXX: better name...?
-        // TRANS: Option in drop-down of potential addressees.
-        // TRANS: %s is a StatusNet sitename.
-        $choices['public:site'] = sprintf(_('My colleagues at %s'), common_config('site', 'name'));
+        } else {
+			// XXX: better name...?
+			// TRANS: Option in drop-down of potential addressees.
+			// TRANS: %s is a StatusNet sitename.
+			$choices['public:site'] = sprintf(_('My colleagues at %s'), common_config('site', 'name'));
+		}
 
         $groups = $this->user->getGroups();
 
@@ -154,6 +155,9 @@ class ToSelector extends Widget
         case 'public':
             if ($value == 'everyone' && !common_config('site', 'private')) {
                 $options['scope'] = 0;
+				if ($private) {
+					$options['scope'] = Notice::SITE_SCOPE;
+				}
             } else if ($value == 'site') {
                 $options['scope'] = Notice::SITE_SCOPE;
             }

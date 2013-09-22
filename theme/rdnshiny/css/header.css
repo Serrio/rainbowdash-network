@@ -59,6 +59,23 @@ position: relative;
 
 #user_info_card img {float: right; margin-left: 8px; border-radius: 2px; border: 1px solid #888; box-shadow: 2px 3px 0 rgba(0,0,0,0.4)}
 
+#usercard_avatar a {
+display: none;
+}
+
+#usercard_avatar:hover a {
+display: block;
+background-image:url(../images/icons/icons-01.gif);
+width: 16px;
+height: 16px;
+text-indent: 100%;
+white-space: nowrap;
+overflow: hidden;
+background-position: 0 -724px;
+float: right;
+margin-right: -56px;
+}
+
 #user_info_card a {color: #123}
 
 #user_info_card p {font-weight: bold; font-size: 13pt; margin-bottom: 8px; width: 322px; overflow-x: hidden; white-space: nowrap}
@@ -72,29 +89,48 @@ float: right;
 margin: 0;
 list-style-type: none;
 float: left;
-width: 20px;
-height: 20px;
-margin-left: 6px;
+width: 16px;
+height: 16px;
+margin-left: 4px;
 position: relative;
 }
 
 #user_info_card > ul > li > a {
-width: 20px;
-height: 20px;
+font-family: FontAwesome;
+font-weight: normal;
+font-style: normal;
+text-decoration: inherit;
+-webkit-font-smoothing: antialiased;
+*margin-right: .3em;
 display: block;
-background-image: url(../images/usercard-icons.png);
+/*background-image: url(../images/usercard-icons.png);*/
 opacity: 0.6;
+font-size: 16px;
+text-align: center;
+}
+
+#user_info_card > ul > li > a:before{
+  text-decoration: inherit;
+  display: inline-block;
+  speak: none;
 }
 #user_info_card > ul > li > a:hover {opacity: 1}
 
+#usercard_personal > a:before {content: "\f015";}
+#usercard_replies > a:before {content: "\f112";}
+#usercard_dmcounter > a:before {content: "\f0e0";}
+#usercard_watched > a:before {content: "\f06e";}
+#usercard_account > a:before {content: "\f013";}
+#usercard_logout > a:before {content: "\f011";}
+/*
 #usercard_personal > a {background-position: 0px 0px}
 #usercard_replies > a {background-position: -20px 0px}
 #usercard_dmcounter > a {background-position: -40px 0px}
 #usercard_watched > a {background-position: 0px -20px}
 #usercard_account > a {background-position: -20px -20px}
-#usercard_logout > a {background-position: -40px -20px}
+#usercard_logout > a {background-position: -40px -20px}*/
 
-#usercard_personal, #usercard_account {margin-left: 18px !important}
+#usercard_account {margin-left: 18px !important}
 
 #user_info_card > ul > li > a > span {
 display: none;
@@ -106,13 +142,11 @@ width: 20px;
 height: 20px;
 text-align: center;
 vertical-align: center;
-color: black;
+color: #0F0;
 font-weight: bold;
 border-radius: 10px;
-background-color: rgba(0, 255, 0, 0.7);
 }
 #usercard_dmcounter a:hover{text-decoration: none;}
-#dmcounter:empty {display:none!important;}
 
 #nav_usercard {
 position: absolute;
@@ -162,7 +196,7 @@ text-decoration: none;
 
 #user_info_card form li {margin-bottom: 2px}
 
-#user_info_card .submit {position: absolute; right: -12px; top: 0px; padding: 6px 15px 6px 16px}
+#user_info_card .submit {position: absolute; right: -12px; top: 0px; padding: 6px 15px 6px 16px; width: 75px;}
 
 #usercard_register {
 position: absolute;
@@ -171,8 +205,9 @@ top: 34px;
 border-radius: 4px;
 background: url("../images/overlay25.png") repeat-x scroll left top #69B;
 text-shadow: 0px 1px 0px rgba(0, 0, 0, 0.8);
-color: white;
+color: white !important;
 font-size: 1em;
+width: 55px;
 padding: 6px 10px;
 box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.3);
 }
@@ -190,7 +225,7 @@ padding-bottom: 0px;
 height: 28px;
 letter-spacing: 0.1em;
 font-size: 0.8em;
-background: url(../images/global_bg.png) repeat-x top left;
+background: url(../images/global_bg.png) repeat-x top left #888;
 width: 976px;
 clear: both;
 z-index: 9999 !important;

@@ -60,6 +60,7 @@ class AdminPanelNav extends Menu
         $name = $user->getProfile()->getBestName();
 
         // Stub section w/ home link
+		/*
         $this->action->elementStart('ul');
         $this->action->elementStart('li');
         // TRANS: Header in administrator navigation panel.
@@ -76,7 +77,7 @@ class AdminPanelNav extends Menu
 
         $this->action->elementEnd('ul');
         $this->action->elementEnd('li');
-        $this->action->elementEnd('ul');
+        $this->action->elementEnd('ul');*/
 
         $this->action->elementStart('ul');
         $this->action->elementStart('li');

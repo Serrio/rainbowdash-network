@@ -105,7 +105,7 @@ class BookmarkListItem extends NoticeListItemAdapter
         if (!empty($replies) || !empty($tags)) {
 
             $out->elementStart('ul', array('class' => 'bookmark-tags'));
-
+/*
             foreach ($replies as $reply) {
                 $other = Profile::staticGet('id', $reply);
                 if (!empty($other)) {
@@ -117,7 +117,7 @@ class BookmarkListItem extends NoticeListItemAdapter
                     $out->elementEnd('li');
                     $out->text(' ');
                 }
-            }
+            }*/
 
             foreach ($tags as $tag) {
                 $tag = trim($tag);
@@ -136,9 +136,10 @@ class BookmarkListItem extends NoticeListItemAdapter
         }
 
         if (!empty($nb->description)) {
-            $out->element('p',
-                          array('class' => 'bookmark-description'),
-                          $nb->description);
+            $out->elementStart('p',
+                          array('class' => 'bookmark-description'));
+			$out->raw($nb->description);
+			$out->elementEnd('p');
         }
 
         $out->elementEnd('p');

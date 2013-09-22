@@ -364,6 +364,7 @@ class Activity
 
         // content
         $activity['content'] = $this->content;
+        $activity['body'] = $this->content;
 
         // generator <-- We could use this when we know a notice is created
         //               locally. Or if we know the upstream Generator.
@@ -455,6 +456,7 @@ class Activity
 
         // published
         $activity['published'] = self::iso8601Date($this->time);
+        $activity['postedTime'] = self::iso8601Date($this->time);
 
         // provider
         $provider = array(

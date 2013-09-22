@@ -264,6 +264,8 @@ class RDNPlusPlugin extends Plugin
     function onStartNoticeSave($notice) {
         $this->parseFormatting($notice);
         $this->hideSpoilers($notice);
+		$notice->rendered = preg_replace('@\r?\n@', '<br />', $notice->rendered);
+		$notice->rendered = preg_replace('@\[(.+?)\]\((<a.*?>)[^<\\s]+</a>\)@', '$2$1</a>', $notice->rendered);
 
         return true;
     }
@@ -271,7 +273,7 @@ class RDNPlusPlugin extends Plugin
 
     function onStartShowFaveForm($action)
     {
-        $action->out->element('a', array('class' => 'addbreaks', 'title' => 'Break Lines'), 'Break Lines');
+        //$action->out->element('a', array('class' => 'addbreaks', 'title' => 'Break Lines'), 'Break Lines');
 
         $action->out->element('a', array('class' => 'rot13', 'title' => 'Decode Spoiler'), 'Decode Spoiler');
         /*

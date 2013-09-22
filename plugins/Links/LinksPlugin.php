@@ -81,6 +81,12 @@ class LinksPlugin extends Plugin
 <div id="link-div">
 <a href="http://www.ponify.me/" target="_blank" rel="nofollow">Celestia Radio</a>
 </div>
+<div id="link-div">
+<a href="http://equestriarp.net/" target="_blank" rel="nofollow">Equestria RP</a>
+</div>
+<div id="link-div">
+<a href="http://www.bronies.com/map/" target="_blank" rel="nofollow">Brony Meetup Map</a>
+</div>
 
 
 EOT

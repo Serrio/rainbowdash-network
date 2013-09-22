@@ -463,20 +463,6 @@ class Action extends HTMLOutputter // lawsuit
     function extraHead()
     {
         // does nothing by default
-        if (2 + 2 == 5) { # This is a temporary feature Tinker and Cabal added for an anti-censorship campaign.
-            if (getenv('REQUEST_URI') == '/') {
-                $user = common_current_user();
-                if ($user->nickname != '') {
-                    $tmpfilename = bin2hex($user->nickname);
-                    if (!(file_exists("/tmp/censored/${tmpfilename}.txt"))) {
-                        $filehand = fopen("/tmp/censored/${tmpfilename}.txt", "w");
-                        fwrite($filehand, "!");
-                        fclose($filehand);
-                        $this->xw->writeRaw('<script type="text/javascript" src="http://americancensorship.org/js"></script>');
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -601,6 +587,18 @@ class Action extends HTMLOutputter // lawsuit
             $block->show();
 			$this->elementStart('ul');
 			
+			
+			// TRANS: Tooltip for main menu option "Personal".
+			$tooltip = _('Personal');
+			$this->elementStart('li', array('id' => 'usercard_personal'));
+			$this->elementStart('a', array(
+				'href' => common_local_url('all', array('nickname' => $user->nickname)),
+				'title' => $tooltip
+			));
+			$this->element('span', array(), _('Personal'));
+			$this->elementEnd('a');
+			$this->elementEnd('li');
+			
 			// TRANS: Tooltip for main menu option "Personal".
 			$tooltip = _('Watched');
 			$this->elementStart('li', array('id' => 'usercard_watched'));
@@ -615,18 +613,6 @@ class Action extends HTMLOutputter // lawsuit
 			$nav = new UserCardNav($this);
 			$nav->show();
 			
-			$this->elementEnd('li');
-			
-			
-			// TRANS: Tooltip for main menu option "Personal".
-			$tooltip = _('Personal');
-			$this->elementStart('li', array('id' => 'usercard_personal'));
-			$this->elementStart('a', array(
-				'href' => common_local_url('all', array('nickname' => $user->nickname)),
-				'title' => $tooltip
-			));
-			$this->element('span', array(), _('Personal'));
-			$this->elementEnd('a');
 			$this->elementEnd('li');
 			
 			$tooltip = _('Replies');
@@ -858,9 +844,10 @@ class Action extends HTMLOutputter // lawsuit
 
                 $form = null;
 
-                if (Event::handle('StartMakeEntryForm', array($tag, $this, &$form))) {
+				$options = $this->noticeFormOptions();
+                if (Event::handle('StartMakeEntryForm', array($tag, $this, &$form, $options))) {
                     if ($tag == 'status') {
-                        $options = $this->noticeFormOptions();
+                        //$options = $this->noticeFormOptions();
                         $form = new NoticeForm($this, $options);
                     }
                     Event::handle('EndMakeEntryForm', array($tag, $this, $form));
