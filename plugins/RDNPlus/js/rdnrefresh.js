@@ -1,4 +1,4 @@
-var selectedText = '';
+var selectedRegion = {start:0, end:0};
 
 if(typeof currentUser == 'undefined') {
     try { currentUser = $('#nav_personal a, #nav_profile a').attr('href').replace(siteDir,'').split('/')[1].toLowerCase(); } catch(err) { }
@@ -33,45 +33,79 @@ $(function(){
     $('.bbTools li').live('click', function() {
 
         var notice_data = $(this).closest('form').find('#notice_data-text, .notice_data-text')
-        if(!selectedText) {
-            selectedText = notice_data.val();
+        if(selectedRegion.end == 0) {
+            selectedRegion.end = notice_data.val().length;
         }
 
         var formatElement = $(this).children()[0].nodeName.toLowerCase();
-        selection = '[' + formatElement + ']' + selectedText + '[/' + formatElement + ']';
-        notice_data.val(notice_data.val().replace(selectedText, selection));
-
+        var temp = notice_data.val();
+        notice_data.val(temp.substring(0,selectedRegion.start)+'['+formatElement+']'
+				+temp.substring(selectedRegion.start,selectedRegion.end)+'[/'+formatElement+']'
+				+temp.substring(selectedRegion.end));
+		selectedRegion.start += 2+formatElement.length;
+		selectedRegion.end += 2+formatElement.length;
     });
         
 
-    $('#notice_data-text, .notice_data-text').live('mouseup', function() {
-        selectedText = getSelected();
+    $('#notice_data-text, .notice_data-text').live('mouseup keyup', function() {
+        selectedRegion = getSelected();
     });
     
 });
 
 function getSelected(){ 
-  var userSelection, ta; 
-  if (window.getSelection && document.activeElement){ 
+  var userSelection, ta;
     if (document.activeElement.nodeName == "TEXTAREA" || 
         (document.activeElement.nodeName == "INPUT" && 
         document.activeElement.getAttribute("type").toLowerCase() == "text")){ 
       ta = document.activeElement; 
-      userSelection = ta.value.substring(ta.selectionStart, ta.selectionEnd);
+      userSelection = getTextSelection(ta);
     } else { 
-      userSelection = window.getSelection(); 
+      userSelection = {start:0,end:0}; 
     } 
-  } else { 
-    // all browsers, except IE before version 9 
-    if (document.getSelection){        
-        userSelection = document.getSelection(); 
-    } 
-    // IE below version 9 
-    else if (document.selection){ 
-        userSelection = document.selection.createRange(); 
-    } 
-  } 
 return userSelection; 
+}
+
+function getTextSelection(el) {
+    var start = 0, end = 0, normalizedValue, range,
+        textInputRange, len, endRange;
+
+    if (typeof el.selectionStart == "number" && typeof el.selectionEnd == "number") {
+        start = el.selectionStart;
+        end = el.selectionEnd;
+    } else {
+        range = document.selection.createRange();
+
+        if (range && range.parentElement() == el) {
+            len = el.value.length;
+            normalizedValue = el.value.replace(/\r\n/g, "\n");
+
+            // Create a working TextRange that lives only in the input
+            textInputRange = el.createTextRange();
+            textInputRange.moveToBookmark(range.getBookmark());
+
+            // Check if the start and end of the selection are at the very end
+            // of the input, since moveStart/moveEnd doesn't return what we want
+            // in those cases
+            endRange = el.createTextRange();
+            endRange.collapse(false);
+
+            if (textInputRange.compareEndPoints("StartToEnd", endRange) > -1) {
+                start = end = len;
+            } else {
+                start = -textInputRange.moveStart("character", -len);
+                start += normalizedValue.slice(0, start).split("\n").length - 1;
+
+                if (textInputRange.compareEndPoints("EndToEnd", endRange) > -1) {
+                    end = len;
+                } else {
+                    end = -textInputRange.moveEnd("character", -len);
+                    end += normalizedValue.slice(0, end).split("\n").length - 1;
+                }
+            }
+        }
+    }
+    return {'start':start,'end':end};
 }
 
 function updateDM() {
@@ -185,7 +219,7 @@ function delButton(newPosts) {
         var delTitle = $(this).attr('title');
         var container = document.createElement('div');
         var token = $(this).parent().find('.form_favor [name*="token"]').val()
-        $(container).html(('<form action="' + siteDir + '/notice/delete" method="post" class="notice_delete" id="delete-%%%"> <fieldset> <legend>Delete this notice?</legend> <input type="hidden" value="' + token + '" id="token-%%%" name="token"> <input type="hidden" value="%%%" id="notice-d%%%" name="notice"> <input title="' + delTitle + '" value="Yes" class="submit submit_delete" name="yes" id="delete-submit-%%%" /> </fieldset> </form>').replace(/%%%/g,notice_id));
+        $(container).html(('<form action="' + siteDir + '/notice/delete" method="post" class="notice_delete" id="delete-%%%"> <fieldset> <legend>Delete this notice?</legend> <input type="hidden" value="' + token + '" id="token-%%%" name="token"> <input type="hidden" value="%%%" id="notice-d%%%" name="notice"> <input title="' + delTitle + '" value="Yes" class="submit submit_delete" name="yes" id="delete-submit-%%%" type="submit" /> </fieldset> </form>').replace(/%%%/g,notice_id));
         $(container).bind('click', function(event) {
 
             event.preventDefault();
@@ -219,7 +253,7 @@ function delButton(newPosts) {
                     type: 'POST',
                     dataType: 'text',
                     url: form.attr('action'),
-                    data: form.serialize() + '&ajax=1',
+                    data: form.serialize() + '&ajax=1&yes=yes',
                     beforeSend: function(xhr) {
                         close();
                     },

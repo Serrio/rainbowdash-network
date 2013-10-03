@@ -50,7 +50,7 @@ HERE;
 	}
 	
     public function _filter($content) {
-		$wordlist = getWordlist();
+		$wordlist = $this->getWordlist();
         $choice = array(
             'bananas',
             'apples',
@@ -81,12 +81,16 @@ HERE;
         return true;
     }
 
-    function onStartRegistrationTry($action)
-    {
+    function onStartRegistrationTry($action) {
         $action->args['bio'] = $this->_filter($action->trimmed('bio'));
 
         return true;
     }
+	
+	function onProcessWordfilter($text) {
+		$text = $this->_filter($text);
+		return true;
+	}
 
     function onStartProfileSaveForm($action)
     {

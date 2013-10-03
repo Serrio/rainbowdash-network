@@ -158,6 +158,19 @@ class RDNPlusPlugin extends Plugin
 
         return true;
     }
+	
+	function onEndShowDirectMessageForm($out) {
+        $out->raw('<ul class="bui bbTools">' .
+            '<li style="width: 80px;" class="text_rot13"><r>Spoiler</r></li>' .
+            '<li class="text_bold"><b>B</b></li>' .
+            '<li class="text_underline"><u>U</u></li>' .
+            '<li class="text_italic"><i>i</i></li>' .
+            '<li class="text_strike"><s>S</s></li>' .
+            '<li class="text_small"><t class="smallt">t</t></li>' .
+            '</ul>');
+
+        return true;
+	}
 
     function onEndShowNoticeFormData($action) {
         $action->out->raw('<ul class="bui bbTools">' .
@@ -266,9 +279,27 @@ class RDNPlusPlugin extends Plugin
         $this->hideSpoilers($notice);
 		$notice->rendered = preg_replace('@\r?\n@', '<br />', $notice->rendered);
 		$notice->rendered = preg_replace('@\[(.+?)\]\((<a.*?>)[^<\\s]+</a>\)@', '$2$1</a>', $notice->rendered);
+		$notice->content = preg_replace('@\[m ([a-z]+) ([a-z]+)\](.*?)\[/m\]@', '$3', $notice->content);
+		$notice->rendered = preg_replace('@\[m ([a-z]+) ([a-z]+)\](.*?)\[/m\]@', '<marquee behavior="$1" direction="$2">$3</marquee>', $notice->rendered);
 
         return true;
     }
+	
+	function onSaveNewDirectMessage($message) {
+		return $this->onStartNoticeSave(&$message);
+	}
+	
+	function onProcessRDNPlus($content, $rendered) {
+		// At this point I'm not even trying to do things properly
+		$tN = new Notice();
+		$tN->content = $content;
+		$tN->rendered = $rendered;
+		$this->onStartNoticeSave(&$tN);
+		$content = $tN->content;
+		$rendered = $tN->rendered;
+		
+		return true;
+	}
 
 
     function onStartShowFaveForm($action)
