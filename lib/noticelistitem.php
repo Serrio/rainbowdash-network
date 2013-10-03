@@ -174,7 +174,7 @@ class NoticeListItem extends Widget
 					$class .= ' mod-scope';
             }
             if (!empty($this->notice->source)) {
-                $class .= ' notice-source-'.$this->notice->source;
+                $class .= ' notice-source-'.str_replace(' ', '-', $this->notice->source);
             }
             $this->out->elementStart('li', array('class' => $class,
                                                  'id' => 'notice-' . $id));
