@@ -1437,6 +1437,7 @@ var SN = { // StatusNet
                     $.get(NDM.attr('href'), null, function(data) {
                         $('.entity_send-a-message').append(document._importNode($('form', data)[0], true));
                         NDMF = $('.entity_send-a-message .form_notice');
+						NDMF.find('select#to option').removeAttr('selected').filter('[value='+$('.entity_user-id dd').html()+']').attr('selected', true);
                         SN.U.FormNoticeXHR(NDMF);
                         SN.U.FormNoticeEnhancements(NDMF);
                         NDMF.append('<button class="close">&#215;</button>');
@@ -1855,7 +1856,7 @@ var SN = { // StatusNet
                 SN.U.FormXHR($(this));
                 return false;
             });
-            $('form.ajax input[type=submit]').live('click', function() {
+            $('form.ajax input[type=submit], form.ajax button[type=submit]').live('click', function() {
                 // Some forms rely on knowing which submit button was clicked.
                 // Save a hidden input field which'll be picked up during AJAX
                 // submit...
