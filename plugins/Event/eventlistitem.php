@@ -69,7 +69,60 @@ class EventListItem extends NoticeListItemAdapter
         }
 
         $out->elementStart('div', 'vevent event'); // VEVENT IN
+		
+        $rsvps = $event->getRSVPs();
 
+        $out->elementStart('div', 'event-rsvps');
+        // TRANS: Field label for event description.
+
+        $user = common_current_user();
+
+        if (!empty($user)) {
+            $rsvp = $event->getRSVP($user->getProfile());
+
+            if (empty($rsvp)) {
+                $form = new RSVPForm($event, $out);
+            } else {
+                $form = new CancelRSVPForm($rsvp, $out);
+            }
+
+            $form->show();
+        }
+
+        //$out->text(_('Attending:'));
+        $out->elementStart('ul', 'attending-list');
+
+        foreach ($rsvps as $verb => $responses) {
+            $out->elementStart('li', 'rsvp-list');
+            switch ($verb)
+            {
+            case RSVP::POSITIVE:
+                $out->text(_('Attending:'));
+                break;
+            case RSVP::NEGATIVE:
+                $out->text(_('No:'));
+                break;
+            case RSVP::POSSIBLE:
+                $out->text(_('Maybe:'));
+                break;
+            }
+            $ids = array();
+            foreach ($responses as $response) {
+                $ids[] = $response->profile_id;
+            }
+            $ids = array_slice($ids, 0, ProfileMiniList::MAX_PROFILES + 1);
+            $profiles = Profile::pivotGet('id', $ids);
+            $profile  = new ArrayWrapper(array_values($profiles));
+            $minilist = new ProfileMiniList($profile, $out);
+            $minilist->show();
+
+            $out->elementEnd('li');
+        }
+
+        $out->elementEnd('ul');
+        //$out->elementEnd('div');
+        $out->elementEnd('div');
+		
         $out->elementStart('h3');  // VEVENT/H3 IN
 
         if (!empty($event->url)) {
@@ -97,7 +150,7 @@ class EventListItem extends NoticeListItemAdapter
         $startYear = $startDate->format('Y');
         $endYear   = $endDate->format('Y');
 
-        $dateFmt = 'D, F j, '; // e.g.: Mon, Aug 31
+        $dateFmt = 'D, M j, '; // e.g.: Mon, Aug 31
 
         if ($startYear != $thisYear || $endYear != $thisYear) {
             $dateFmt .= 'Y,'; // append year if we need to think about years
@@ -141,65 +194,10 @@ class EventListItem extends NoticeListItemAdapter
         }
 
         if (!empty($event->description)) {
-            $out->elementStart('div', 'event-description');
-            // TRANS: Field label for event description.
-            $out->element('strong', null, _m('Description:'));
-            $out->element('span', 'description', $event->description);
-            $out->elementEnd('div');
+			$out->elementStart('p', 'event-description');
+            $out->raw($event->description);
+			$out->elementEnd('p');
         }
-
-        $rsvps = $event->getRSVPs();
-
-        $out->elementStart('div', 'event-rsvps');
-        // TRANS: Field label for event description.
-
-        $out->text(_('Attending:'));
-        $out->elementStart('ul', 'attending-list');
-
-        foreach ($rsvps as $verb => $responses) {
-            $out->elementStart('li', 'rsvp-list');
-            switch ($verb)
-            {
-            case RSVP::POSITIVE:
-                $out->text(_('Yes:'));
-                break;
-            case RSVP::NEGATIVE:
-                $out->text(_('No:'));
-                break;
-            case RSVP::POSSIBLE:
-                $out->text(_('Maybe:'));
-                break;
-            }
-            $ids = array();
-            foreach ($responses as $response) {
-                $ids[] = $response->profile_id;
-            }
-            $ids = array_slice($ids, 0, ProfileMiniList::MAX_PROFILES + 1);
-            $profiles = Profile::pivotGet('id', $ids);
-            $profile  = new ArrayWrapper(array_values($profiles));
-            $minilist = new ProfileMiniList($profile, $out);
-            $minilist->show();
-
-            $out->elementEnd('li');
-        }
-
-        $out->elementEnd('ul');
-        $out->elementEnd('div');
-
-        $user = common_current_user();
-
-        if (!empty($user)) {
-            $rsvp = $event->getRSVP($user->getProfile());
-
-            if (empty($rsvp)) {
-                $form = new RSVPForm($event, $out);
-            } else {
-                $form = new CancelRSVPForm($rsvp, $out);
-            }
-
-            $form->show();
-        }
-
         $out->elementEnd('div'); // vevent out
     }
 }

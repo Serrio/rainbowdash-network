@@ -60,7 +60,7 @@ class BookmarkListItem extends NoticeListItemAdapter
         $notice = $this->nli->notice;
         $out    = $this->nli->out;
 
-        $out->elementStart('p', array('class' => 'entry-content'));
+        //$out->elementStart('p', array('class' => 'entry-content'));
 
         $nb = Bookmark::getByNotice($notice);
 
@@ -96,7 +96,7 @@ class BookmarkListItem extends NoticeListItemAdapter
                         'class' => 'bookmark-title'),
                   $nb->title);
         $out->elementEnd('h3');
-
+/*
         // Replies look like "for:" tags
 
         $replies = $notice->getReplies();
@@ -105,7 +105,7 @@ class BookmarkListItem extends NoticeListItemAdapter
         if (!empty($replies) || !empty($tags)) {
 
             $out->elementStart('ul', array('class' => 'bookmark-tags'));
-/*
+
             foreach ($replies as $reply) {
                 $other = Profile::staticGet('id', $reply);
                 if (!empty($other)) {
@@ -117,7 +117,7 @@ class BookmarkListItem extends NoticeListItemAdapter
                     $out->elementEnd('li');
                     $out->text(' ');
                 }
-            }*/
+            }
 
             foreach ($tags as $tag) {
                 $tag = trim($tag);
@@ -134,7 +134,7 @@ class BookmarkListItem extends NoticeListItemAdapter
 
             $out->elementEnd('ul');
         }
-
+*/
         if (!empty($nb->description)) {
             $out->elementStart('p',
                           array('class' => 'bookmark-description'));
@@ -142,6 +142,6 @@ class BookmarkListItem extends NoticeListItemAdapter
 			$out->elementEnd('p');
         }
 
-        $out->elementEnd('p');
+        //$out->elementEnd('p');
     }
 }

@@ -98,15 +98,15 @@ class CancelRSVPForm extends Form
         switch (RSVP::verbFor($this->rsvp->response)) {
         case RSVP::POSITIVE:
             // TRANS: Possible status for RSVP ("please respond") item.
-            $this->out->text(_m('You will attend this event.'));
+            $this->out->text(_m('You will attend.'));
             break;
         case RSVP::NEGATIVE:
             // TRANS: Possible status for RSVP ("please respond") item.
-            $this->out->text(_m('You will not attend this event.'));
+            $this->out->text(_m('You will not attend.'));
             break;
         case RSVP::POSSIBLE:
             // TRANS: Possible status for RSVP ("please respond") item.
-            $this->out->text(_m('You might attend this event.'));
+            $this->out->text(_m('You might attend.'));
             break;
         }
 
@@ -121,6 +121,8 @@ class CancelRSVPForm extends Form
     function formActions()
     {
         // TRANS: Button text to cancel responding to an RSVP ("please respond") item.
+		$this->out->elementStart('span', array('title' => 'Cancel'));
         $this->out->submit('rsvp-cancel', _m('BUTTON', 'Cancel'));
+		$this->out->elementEnd('span');
     }
 }

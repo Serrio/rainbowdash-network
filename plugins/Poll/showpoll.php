@@ -82,7 +82,7 @@ class ShowPollAction extends ShownoticeAction
         // TRANS: Page title for a poll.
         // TRANS: %1$s is the nickname of the user that created the poll, %2$s is the poll question.
         return sprintf(_m('%1$s\'s poll: %2$s'),
-                       $this->user->nickname,
+                       $this->profile->getFancyName(),
                        $this->poll->question);
     }
 

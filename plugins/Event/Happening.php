@@ -125,6 +125,15 @@ class Happening extends Managed_DataObject
                 throw new ClientException(_m('Event already exists.'));
             }
         }
+		
+		// Allow NoSwear and RDNPlus to handle things
+		Event::handle('ProcessWordfilter', array(&$description));
+		Event::handle('ProcessWordfilter', array(&$title));
+		Event::handle('ProcessWordfilter', array(&$location));
+        $noticeTemp = new Notice();
+        $noticeTemp->profile_id = $profile->id;
+		$tempDescription = common_render_content($description, $noticeTemp);
+		Event::handle('ProcessRDNPlus', array(&$description, &$tempDescription));
 
         $ev = new Happening();
 
@@ -134,7 +143,7 @@ class Happening extends Managed_DataObject
         $ev->end_time    = common_sql_date($end_time);
         $ev->title       = $title;
         $ev->location    = $location;
-        $ev->description = $description;
+        $ev->description = $tempDescription;
         $ev->url         = $url;
 
         if (array_key_exists('created', $options)) {
@@ -179,7 +188,7 @@ class Happening extends Managed_DataObject
                             htmlspecialchars(common_date_iso8601($ev->end_time)),
                             htmlspecialchars(common_exact_date($ev->end_time)),
                             htmlspecialchars($location),
-                            htmlspecialchars($description));
+                            $tempDescription);
 
         $options = array_merge(array('object_type' => Happening::OBJECT_TYPE),
                                $options);

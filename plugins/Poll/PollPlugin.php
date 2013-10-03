@@ -73,12 +73,12 @@ class PollPlugin extends MicroAppPlugin
      * @param Action $action the action being run
      *
      * @return boolean hook value
-     */
+     *//*
     function onEndShowStyles($action)
     {
         $action->cssLink($this->path('poll.css'));
         return true;
-    }
+    }*/
 
     /**
      * Load related modules when needed
@@ -426,10 +426,10 @@ class PollPlugin extends MicroAppPlugin
         $user = common_current_user();
 
         // @hack we want regular rendering, then just add stuff after that
-        $nli = new NoticeListItem($notice, $out);
+        $nli = new PollListItem($notice, $out);
         $nli->showNotice();
 
-        $out->elementStart('div', array('class' => 'entry-content poll-content'));
+        $out->elementStart('div', array('class' => 'poll-content'));
         $poll = Poll::getByNotice($notice);
         if ($poll) {
             if ($user) {
@@ -442,7 +442,10 @@ class PollPlugin extends MicroAppPlugin
                     $form = new PollResponseForm($poll, $out);
                 }
                 $form->show();
-            }
+            } else {
+				$form = new PollResultForm($poll, $out);
+                $form->show();
+			}
         } else {
             // TRANS: Error text displayed if no poll data could be found.
             $out->text(_m('Poll data is missing'));
@@ -491,4 +494,10 @@ class PollPlugin extends MicroAppPlugin
         }
         return true;
     }
+}
+
+class PollListItem extends NoticeListItem { 
+	function showContent() {
+		// do nothing lel
+	}
 }

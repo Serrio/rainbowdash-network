@@ -119,6 +119,7 @@ class RSVPForm extends Form
 
     function submitButton($id, $label)
     {
+		$this->out->elementStart('span', array('class' => $id.'-wrapper'));
         $this->out->element(
             'input',
                 array(
@@ -131,5 +132,6 @@ class RSVPForm extends Form
                     'onClick' => 'this.form.submitvalue.value = this.name; return true;'
             )
         );
+		$this->out->elementEnd('span');
     }
 }

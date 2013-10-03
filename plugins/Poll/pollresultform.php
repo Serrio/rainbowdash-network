@@ -103,33 +103,33 @@ class PollResultForm extends Form
         $out = $this->out;
         $counts = $poll->countResponses();
 
-        $width = 200;
+        $width = 100;
         $max = max($counts);
         if ($max == 0) {
             $max = 1; // quick hack :D
         }
 
         $out->element('p', 'poll-question', $poll->question);
-        $out->elementStart('table', 'poll-results');
+        $out->elementStart('ul', 'poll-results');
         foreach ($poll->getOptions() as $i => $opt) {
-            $w = intval($counts[$i] * $width / $max) + 1;
+            $w = intval($counts[$i] * $width / $max);
 
-            $out->elementStart('tr');
+            $out->elementStart('li');
 
-            $out->elementStart('td');
+            $out->elementStart('span', 'poll-option-label');
             $out->text($opt);
-            $out->elementEnd('td');
+            $out->elementEnd('span');
 
-            $out->elementStart('td');
-            $out->element('span', array('class' => 'poll-block',
-                                       'style' => "width: {$w}px"),
+            $out->elementStart('span', 'poll-option-amount');
+            $out->element('span', array('class' => 'poll-block' . ($counts[$i] == $max ? ' poll-winner' : ''),
+                                       'style' => "width: {$w}%"),*
                                   "\xc2\xa0"); // nbsp
-            $out->text($counts[$i]);
-            $out->elementEnd('td');
+            $out->element('span', 'poll-amount-label', $counts[$i]);
+            $out->elementEnd('span');
 
-            $out->elementEnd('tr');
+            $out->elementEnd('li');
         }
-        $out->elementEnd('table');
+        $out->elementEnd('ul');
     }
 
     /**

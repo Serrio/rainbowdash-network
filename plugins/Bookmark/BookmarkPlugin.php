@@ -123,18 +123,18 @@ class BookmarkPlugin extends MicroAppPlugin
      * @param Action $action the action being run
      *
      * @return boolean hook value
-     */
+     *//*
     function onEndShowStyles($action)
     {
         $action->cssLink($this->path('bookmark.css'));
         return true;
-    }
-
+    }*/
+/*
     function onEndShowScripts($action)
     {
         $action->script($this->path('js/bookmark.js'));
         return true;
-    }
+    }*/
     /**
      * Load related modules when needed
      *

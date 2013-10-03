@@ -211,14 +211,15 @@ class Poll_response extends Managed_DataObject
 
         if (!array_key_exists('uri', $options)) {
             $options['uri'] = $pr->uri;
-        }
+        }/*
 
         $saved = Notice::saveNew($profile->id,
                                  $content,
                                  array_key_exists('source', $options) ?
                                  $options['source'] : 'web',
-                                 $options);
+                                 $options);*/
 
-        return $saved;
+//        return $saved;
+		return null;
     }
 }

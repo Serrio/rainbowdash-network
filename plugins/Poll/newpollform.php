@@ -72,7 +72,7 @@ class NewpollForm extends Form
      */
     function id()
     {
-        return 'newpoll-form';
+        return 'form_new_poll';
     }
 
     /**

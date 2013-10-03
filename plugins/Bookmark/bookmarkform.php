@@ -145,16 +145,7 @@ class BookmarkForm extends Form
                           null,
                           'title');
         $this->unli();
-
-        $this->li();
-        $this->out->textarea('bookmark-description',
-                             // TRANS: Field label on form for adding a new bookmark.
-                             _m('LABEL','Notes'),
-                             $this->_description,
-                             null,
-                             'description');
-        $this->unli();
-
+/*
         $this->li();
         $this->out->input('bookmark-tags',
                           // TRANS: Field label on form for adding a new bookmark.
@@ -163,6 +154,15 @@ class BookmarkForm extends Form
                           // TRANS: Field title on form for adding a new bookmark.
                           _m('Comma- or space-separated list of tags.'),
                           'tags');
+        $this->unli();*/
+
+        $this->li();
+        $this->out->textarea('bookmark-description',
+                             // TRANS: Field label on form for adding a new bookmark.
+                             _m('LABEL','Description'),
+                             $this->_description,
+                             null,
+                             'description');
         $this->unli();
 
         $this->out->elementEnd('ul');

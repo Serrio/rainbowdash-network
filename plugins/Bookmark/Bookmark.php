@@ -214,6 +214,9 @@ class Bookmark extends Memcached_DataObject
         }
 
         $nb = new Bookmark();
+		
+		Event::handle('ProcessWordfilter', array(&$title));
+		Event::handle('ProcessWordfilter', array(&$description));
 
         $nb->id          = UUID::gen();
         $nb->profile_id  = $profile->id;
@@ -223,7 +226,9 @@ class Bookmark extends Memcached_DataObject
 		// kind of a hack
         $noticeTemp = new Notice();
         $noticeTemp->profile_id = $profile->id;
-        $nb->description = common_render_content($description, $noticeTemp);
+		$tempDescription = common_render_content($description, $noticeTemp);
+		Event::handle('ProcessRDNPlus', array(&$description, &$tempDescription));
+        $nb->description = $tempDescription;
 
         if (array_key_exists('created', $options)) {
             $nb->created = $options['created'];
@@ -263,7 +268,7 @@ class Bookmark extends Memcached_DataObject
 		foreach($descReplies as $g) {$replies[] = $g['mentioned'][0]->getUri();}
 
         // filter "for:nickname" tags
-
+/*
         foreach ($rawtags as $tag) {
             if (strtolower(mb_substr($tag, 0, 4)) == 'for:') {
                 // skip if done by caller
@@ -279,6 +284,11 @@ class Bookmark extends Memcached_DataObject
                 $tags[] = common_canonical_tag($tag);
             }
         }
+	*/	
+		// what the heck am I doing (hopefully pulls tags from description maybe possibly idk?)
+		preg_match_all('/(^|\&quot\;|\'|\(|\[|\{|\s+)#([\pL\pN_\-\.]{1,64})/ue',
+			htmlspecialchars($description), $matches);
+		foreach($matches[2] as $match) {$tags[] = common_canonical_tag($match);}
 
         $hashtags = array();
         $taglinks = array();
@@ -306,11 +316,10 @@ class Bookmark extends Memcached_DataObject
         // TRANS: Bookmark content.
         // TRANS: %1$s is a title, %2$s is a short URL, %3$s is the bookmark description,
 	// TRANS: %4$s is space separated list of hash tags.
-        $content = sprintf(_m('"%1$s" %2$s %3$s %4$s'),
+        $content = sprintf(_m('"%1$s" %2$s %3$s'),
                            $title,
                            $shortUrl,
-                           $description,
-                           implode(' ', $hashtags));
+                           $description);
 
         // TRANS: Rendered bookmark content.
         // TRANS: %1$s is a URL, %2$s the bookmark title, %3$s is the bookmark description,
@@ -318,12 +327,10 @@ class Bookmark extends Memcached_DataObject
         $rendered = sprintf(_m('<span class="xfolkentry">'.
                               '<a class="taggedlink" href="%1$s">%2$s</a> '.
                               '<span class="description">%3$s</span> '.
-                              '<span class="meta">%4$s</span>'.
                               '</span>'),
                             htmlspecialchars($url),
                             htmlspecialchars($title),
-                            common_render_text($description),
-                            implode(' ', $taglinks));
+                            $nb->description);
 
         $options = array_merge(array('urls' => array($url),
                                      'rendered' => $rendered,

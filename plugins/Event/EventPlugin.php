@@ -364,11 +364,11 @@ class EventPlugin extends MicroappPlugin
         $action->script($this->path('event.js'));
     }
 
-    function onEndShowStyles($action)
+    /*function onEndShowStyles($action)
     {
         $action->cssLink($this->path('event.css'));
         return true;
-    }
+    }*/
 
     function onStartAddNoticeReply($nli, $parent, $child)
     {
