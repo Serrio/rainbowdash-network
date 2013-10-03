@@ -304,4 +304,12 @@ class AccountProfileBlock extends ProfileBlock
         }
         $this->out->elementEnd('div');
     }
+	
+	function showName() {
+		parent::showName();
+		$this->out->elementStart('p', 'profile_block_nickname');
+		if($this->profile->fullname)
+			$this->out->text('@'.$this->profile->nickname);
+		$this->out->elementEnd('p');
+	}
 }
