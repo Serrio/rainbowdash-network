@@ -103,11 +103,11 @@ abstract class ProfileBlock extends Widget
         $description = $this->description();
 
         if (!empty($description)) {
-            $this->out->element(
+            $this->out->elementStart(
                 'p',
-                'profile_block_description',
-                $description
-            );
+                'profile_block_description');
+            $this->out->raw(preg_replace('/\r?\n/', '<br />', $description));
+            $this->out->elementEnd('p');
         }
     }
 

@@ -162,14 +162,16 @@ class GroupProfileBlock extends ProfileBlock
 
     function showAliases()
     {
+		$this->out->elementStart('p', 'profile_block_nickname');
         $aliases = $this->group->getAliases();
+		if($this->group->fullname)
+			$this->out->text('!'.$this->group->nickname);
 
         if (!empty($aliases)) {
-            $this->out->elementStart('ul', 'group_aliases');
             foreach ($aliases as $alias) {
-                $this->out->element('li', 'group_alias', $alias);
+                $this->out->element('span', 'group_alias', $alias);
             }
-            $this->out->elementEnd('ul');
         }
+		$this->out->elementEnd('p');
     }
 }
