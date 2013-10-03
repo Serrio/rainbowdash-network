@@ -15,7 +15,7 @@ class NewUserAdPlugin extends Plugin {
 			$action->raw(<<<HTML
 <p>Welcome to <strong>Rainbow Dash Network</strong>, a social networking site for bronies! Whether you want a place to share your creations or just a spot to make some new friends, RDN is the place to be!</p>
 <ul>
-<li id="get_to_know_us">Get to know your fellow ponies! Share some art you created, talk about episodes, or just chat it up. We even have a synchronized room to watch episodes together!</li>
+<li id="get_to_know_us">Get to know your fellow ponies! Share something you made, talk about episodes, or just chat it up. We even have a synchronized room to watch episodes together!</li>
 <li id="join_some_groups">Join groups for people with similar interests, or create your own and start a whole new community! Meetup groups, game clans, and more are all welcome.</li>
 <li id="so_many_posts">Post polls, events, and more! We support a variety of posts to suit your every need.</li>
 </ul>
@@ -24,6 +24,7 @@ HTML
 );
 			$action->elementEnd('div');
 		}
+		return true;
 	}
 
     function onPluginVersion(&$versions)
