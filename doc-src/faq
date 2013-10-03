@@ -5,8 +5,73 @@
 These are some *Frequently Asked Questions* about this service, with
 some answers.
 
-What is %%site.name%%?
-----------------------
+Using the site
+--------------
+
+### How do I reply to/favorite a post?/What are those black bars in other people's posts? ###
+
+In the bottom-right corner of every post is a set of buttons allowing various operations to be performed 
+on each post. Here is a list of each button, from left to right, as well as the function each is used for.
+
+<a style="font-family: FontAwesome;font-size: 14px">&#xf084;</a> **Decode spoilers**  
+Toggles the appearance of the black bars, or spoilers, in notices, to show what is hidden in them. If there are 
+no spoilers in a notice, this button runs the entire notice text through an [ROT13](http://en.wikipedia.org/wiki/ROT13) 
+filter, which is useful for decoding spoilers in old notices made before the spoiler tags existed.
+
+<a style="font-family: FontAwesome;font-size: 14px">&#xf004;</a> **Favorite this notice**  
+Adds the notice to your list of favorite notices. This also sends an e-mail to the author of the notice, if they 
+have the option enabled. Notices that acquire a lot of favorites in a short time go to the Popular Notices section 
+of the public timeline.
+
+<a style="font-family: FontAwesome;font-size: 16px;display: inline-block;margin-left: 4px;transform:rotate(90deg);-moz-transform:rotate(90deg);-webkit-transform:rotate(90deg);-o-transform:rotate(90deg);-ms-transform:rotate(90deg)">&#xf149;</a> **Reply to this notice**  
+Begins a reply to the notice in question. Replies are linked back to their parent notice, and allow other users to 
+browse the conversation easily at a later date.
+
+<a style="font-family: FontAwesome;font-size: 14px">&#xf079;</a> **Repeat this notice** (only appears on other users' public notices)  
+Reposts the notice, with attribution, to your profile. This also brings the entire conversation to the top of any timeline in 
+which it, as well as your notices, appears. For users who have threaded timelines [disabled](%%action.oldschoolsettings%%), it will duplicate 
+the original notice to any timeline in which your posts appear.
+
+<a style="font-family: FontAwesome;font-size: 14px">&#xf014;</a> **Delete this notice** (only appears on your notices)  
+Removes the notice from the site. Deleting a notice cannot be undone.
+
+### What are those buttons along the top of the page for? ###
+
+Those allow you to access various useful pages around the site. In order, from left to right:
+
+<span style="font-family: FontAwesome;font-size: 16px">&#xf015;</span> **Personal timeline**  
+Your own personal timeline, comprised of people and tags you've subscribed to, groups you are a member of, and conversations you participate in.
+
+<span style="font-family: FontAwesome;font-size: 16px">&#xf06e;</span> **Watched**  
+Drops down to a list of everything you follow: groups, lists, searches, and tags.
+
+<span style="font-family: FontAwesome;font-size: 16px">&#xf112;</span> **Replies**  
+A list of replies by other users made to notices you've posted. Handy for keeping up with responses if your personal timeline is busy.
+
+<span style="font-family: FontAwesome;font-size: 16px">&#xf0e0;</span> **Private inbox**  
+Your inbox, where you can receive and send private messages with people you have mutually subscribed to, as well as site staff.
+
+<span style="font-family: FontAwesome;font-size: 16px">&#xf013;</span> **Account settings**  
+Allows you to adjust various settings that affect how you use the site. This is also the place to go to customize your profile.
+
+<span style="font-family: FontAwesome;font-size: 16px">&#xf011;</span> **Logout**  
+Logs you out of the site.
+
+### I don't like this whole "threaded replies" thing. How do I change it? ###
+
+If you'd like notices to be displayed in a more linear fashion (where replies show up as their own posts, rather than being attached to the original posts), 
+the [Old-school settings page](%%action.oldschoolsettings%%) allows you to toggle that behavior. You can also switch conversation pages from a 
+linear set of replies to a threaded system, which nests replies within their parent posts, there.
+
+### How do I find a member of site staff? How can I tell if someone is a staff member? ###
+
+The [Staff page](%%action.staff%%) has an up-to-date listing of staff members who enforce rules and maintain the site.
+There is no other external indicator that someone is a staff member. 
+
+The technical stuff
+-------------------
+
+### What is %%site.name%%? ###
 
 %%site.name%% is a stream oriented social network service.
 
@@ -17,8 +82,7 @@ and fans.
 You can also post event invitations, bookmarks, polls, and questions or
 other kinds of social broadcasts.
 
-How is %%site.name%% different from Twitter?
---------------------------------------------
+### How is %%site.name%% different from Twitter? ###
 
 Like [Twitter](http://twitter.com/), %%site.name%% is a light service
 with a stream-oriented interface. It uses @-replies, hashtags,
@@ -35,8 +99,7 @@ You can make your site available only to people you choose. You can
 customize it with your own themes and plugins, or download plugins
 from the StatusNet site.
 
-How is %%site.name%% different from Yammer, SocialCast, or Salesforce Chatter?
-------------------------------------------------------------------------------
+### How is %%site.name%% different from Yammer, SocialCast, or Salesforce Chatter? ###
 
 Like some enterprise social software services, StatusNet lets you
 share privately with other people in your company. You can use
