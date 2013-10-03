@@ -110,7 +110,7 @@ class GroupProfileBlock extends ProfileBlock
                 }
                 Event::handle('EndGroupSubscribe', array($this, $this->group));
             }
-            $this->out->elementEnd('li');
+            $this->out->elementEnd('li');/*
             if ($cur && $cur->isAdmin($this->group)) {
                 $this->out->elementStart('li', 'entity_edit');
                 $this->out->element('a', array('href' => common_local_url('editgroup',
@@ -130,7 +130,7 @@ class GroupProfileBlock extends ProfileBlock
                                     // TRANS: Link text for link on user profile.
                                     _m('MENU','Logo'));
                 $this->out->elementEnd('li');
-            }
+            }*/
             if ($cur && $cur->hasRight(Right::DELETEGROUP)) {
                 $this->out->elementStart('li', 'entity_delete');
                 $df = new DeleteGroupForm($this->out, $this->group);

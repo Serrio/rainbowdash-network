@@ -115,7 +115,7 @@ class PersonalGroupNav extends Menu
                              // TRANS: Tooltip for personal group navigation menu option when logged in for viewing own favourited notices.
                              sprintf(_('%s\'s media'), ($user_profile) ? $name : _('User')),
                              $action == 'showstream_media', 'nav_timeline_media');
-
+/*
             $cur = common_current_user();
 
             if ($cur && $cur->id == $user->id &&
@@ -129,7 +129,7 @@ class PersonalGroupNav extends Menu
                                      _('Your incoming messages'),
                                      $mine && $action =='inbox');
             }
-
+*/
             Event::handle('EndPersonalGroupNav', array($this));
         }
         $this->out->elementEnd('ul');

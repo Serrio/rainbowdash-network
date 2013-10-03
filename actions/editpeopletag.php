@@ -192,7 +192,7 @@ class EditpeopletagAction extends Action
         $this->showPage();
     }
 
-    function showObjectNav()
+    function showLocalNav()
     {
         $nav = new PeopletagGroupNav($this, $this->peopletag);
         $nav->show();

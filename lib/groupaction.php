@@ -44,7 +44,7 @@ define('MEMBERS_PER_SECTION', 27);
  */
 class GroupAction extends Action
 {
-    protected $group;
+    public $group;
 
     function prepare($args)
     {
@@ -103,6 +103,11 @@ class GroupAction extends Action
         $block = new GroupProfileBlock($this, $this->group);
         $block->show();
     }
+		
+	function showLocalNav() {
+		$nav = new GroupNav($this, $this->group);
+		$nav->show();
+	}
 
     /**
      * Fill in the sidebar.
@@ -115,7 +120,7 @@ class GroupAction extends Action
         $cur = common_current_user();
         if ($cur && $cur->isAdmin($this->group)) {
             $this->showPending();
-            $this->showBlocked();
+            //$this->showBlocked();
         }
 
         $this->showAdmins();

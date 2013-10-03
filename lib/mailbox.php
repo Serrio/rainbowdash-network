@@ -58,6 +58,7 @@ class MailboxAction extends Action
             $this->page = 1;
         }
 
+		if($this->trimmed('peek') == null)
         common_set_returnto($this->selfUrl());
 
         return true;
@@ -97,6 +98,11 @@ class MailboxAction extends Action
         $message_form = new MessageForm($this);
         $message_form->show();
     }
+	
+	function showLocalNav() {
+        $nav = new MailboxMenu($this);
+        $nav->show();
+	}
 
     function showContent()
     {
@@ -160,11 +166,5 @@ class MailboxAction extends Action
     function isReadOnly($args)
     {
          return true;
-    }
-
-    function showObjectNav()
-    {
-        $mm = new MailboxMenu($this);
-        $mm->show();
     }
 }

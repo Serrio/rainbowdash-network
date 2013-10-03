@@ -75,10 +75,10 @@ class GroupNav extends Widget
 
     function show()
     {
-        $action_name = $this->action->trimmed('action');
+        $action_name = $this->action->trimmed('action');/*
         if($action_name == 'showgroup' && $this->action->arg('images')) {
             $action_name = 'showgroup_media';
-        }
+        }*/
 
         $nickname = $this->group->nickname;
 
@@ -93,7 +93,7 @@ class GroupNav extends Widget
                                  sprintf(_m('TOOLTIP','%s group'), $nickname),
                                  $action_name == 'showgroup',
                                  'nav_group_group');
-            $this->out->menuItem(common_local_url('showgroup_media', array('nickname' =>
+            /*$this->out->menuItem(common_local_url('showgroup_media', array('nickname' =>
                 $nickname)) . '?images=1',
                                  // TRANS: Menu item in the group navigation page.
                 _m('MENU','Media'),
@@ -101,7 +101,7 @@ class GroupNav extends Widget
                                  // TRANS: %s is the nickname of the group.
                                  sprintf(_m('TOOLTIP','%s group media'), $nickname),
                                  $action_name == 'showgroup_media',
-                                 'nav_timeline_media');
+                                 'nav_timeline_media');*/
             $this->out->menuItem(common_local_url('groupmembers', array('nickname' =>
                                                                         $nickname)),
                                  // TRANS: Menu item in the group navigation page.
@@ -124,6 +124,19 @@ class GroupNav extends Widget
                                      sprintf(_m('TOOLTIP','%s blocked users'), $nickname),
                                      $action_name == 'blockedfromgroup',
                                      'nav_group_blocked');
+									 
+				if ($this->group->join_policy == User_group::JOIN_POLICY_MODERATE) {
+                $this->out->menuItem(common_local_url('groupqueue', array('nickname' =>
+                                                                                $nickname)),
+                                     // TRANS: Menu item in the group navigation page. Only shown for group administrators.
+                                     _m('MENU','Pending'),
+                                     // TRANS: Tooltip for menu item in the group navigation page. Only shown for group administrators.
+                                     // TRANS: %s is the nickname of the group.
+                                     sprintf(_m('TOOLTIP','%s pending users'), $nickname),
+                                     $action_name == 'groupqueue',
+                                     'nav_group_pending');
+				}
+		
                 $this->out->menuItem(common_local_url('editgroup', array('nickname' =>
                                                                          $nickname)),
                                      // TRANS: Menu item in the group navigation page. Only shown for group administrators.
