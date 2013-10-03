@@ -14,16 +14,20 @@ $(document).ready(function() {
                 break;
             case 2:
                 $(E).val(rgb2hex($('#content').css('background-color')));
+				$('#content').css({'margin-bottom':'-5000px','padding-bottom':'5020px'});
                 break;
             case 3:
-                /*$(E).val(rgb2hex($('#aside_primary_wrapper, #site_nav_local_views_wrapper').css('background-color')));*/
-                $(E).val(rgb2hex($('#wrap').css('background-color')));
+                $(E).val(rgb2hex($('#core').css('background-color')));
+				$('#core').css({'overflow':'hidden'});
                 break;
             case 4:
-                $(E).val(rgb2hex($('html body').css('color')));
+                $(E).val(rgb2hex($('#core').css('color')));
                 break;
             case 5:
-                $(E).val(rgb2hex($('a').css('color')));
+                $(E).val(rgb2hex($('#aside_primary a').css('color')));
+                break;
+            case 6:
+                $(E).val(rgb2hex($('.profile_block').css('background-color')));
                 break;
         }
     }
@@ -46,17 +50,19 @@ $(document).ready(function() {
                 $('body').css({'background-color':C});
                 break;
             case 2:
-                $('#content').css({'background-color':C});
+                $('#content, #site_nav_local_views li.current a').css({'background-color':C});
                 break;
             case 3:
-                /*$('#aside_primary_wrapper, #site_nav_local_views_wrapper').css({'background-color':C});*/
-                $('#wrap').css({'background-color':C});
+                $('#core').css({'background-color':C});
                 break;
             case 4:
-                $('html body').css({'color':C});
+                $('#core, #site_nav_local_views a').css({'color':C});
                 break;
             case 5:
-                $('a').css({'color':C});
+                $('#content a, #aside_primary a').css({'color':C});
+                break;
+            case 6:
+                $('.profile_block').css({'background-color':C});
                 break;
         }
     }
@@ -108,7 +114,7 @@ $(document).ready(function() {
     }
 
     var f, swatches;
-    InitFarbtastic();
+    InitFarbtastic();/*
     $('#form_settings_design').bind('reset', function(){
         setTimeout(function(){
             swatches.each(function(){UpdateColors(this);});
@@ -128,5 +134,5 @@ $(document).ready(function() {
 
     $('#design_background-image_repeat').click(function() {
         ($(this)[0].checked) ? $('body').css({'background-repeat':'repeat'}) : $('body').css({'background-repeat':'no-repeat'});
-    });
+    });*/
 });
