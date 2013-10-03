@@ -167,6 +167,16 @@ class AvatarsettingsAction extends SettingsAction
                                           'type' => 'file',
                                           'id' => 'avatarfile'));
             $this->elementEnd('li');
+            $this->elementStart('li');
+			$this->input(
+				'avatar_by_url',
+				// TRANS: Label for site-wide notice text field in admin panel.
+				_('Upload from URL'),
+				null,
+				// TRANS: Tooltip for site-wide notice text field in admin panel.
+				_('Paste a direct URL to an image file. This will not be used if a file is uploaded directly.')
+			);
+            $this->elementEnd('li');
             $this->elementEnd('ul');
 
             $this->elementStart('ul', 'form_actions');
@@ -288,14 +298,14 @@ class AvatarsettingsAction extends SettingsAction
         if (Event::handle('StartAvatarSaveForm', array($this))) {
             if ($this->arg('upload')) {
                 $this->uploadAvatar();
-                } else if ($this->arg('crop')) {
-                    $this->cropAvatar();
-                } else if ($this->arg('delete')) {
-                    $this->deleteAvatar();
-                } else {
-                    // TRANS: Unexpected validation error on avatar upload form.
-                    $this->showForm(_('Unexpected form submission.'));
-                }
+			} else if ($this->arg('crop')) {
+				$this->cropAvatar();
+			} else if ($this->arg('delete')) {
+				$this->deleteAvatar();
+			} else {
+				// TRANS: Unexpected validation error on avatar upload form.
+				$this->showForm(_('Unexpected form submission.'));
+			}
             Event::handle('EndAvatarSaveForm', array($this));
         }
     }
@@ -317,9 +327,40 @@ class AvatarsettingsAction extends SettingsAction
             return;
         }
         if ($imagefile === null) {
-            // TRANS: Validation error on avatar upload form when no file was uploaded.
-            $this->showForm(_('No file uploaded.'));
-            return;
+			// Try loading file via URL
+			// @fixme There's probably a better way to do it with the methods StatusNet gives
+			$limit = 1024*1024*10; // Max. file size in bytes (1024*1024*10 = 10MB)
+			$ch = curl_init();
+			
+			$temp_file_name = tempnam('/tmp', 'ava');
+
+			$fh = fopen($temp_file_name, 'w'); 
+			
+			$url = $this->arg('avatar_by_url');
+
+			curl_setopt($ch, CURLOPT_URL, $url);
+			curl_setopt($ch, CURLOPT_HEADER, 0);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_FILE, $fh);
+			curl_setopt($ch, CURLOPT_RANGE, '0-' . $limit);
+			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT ,15);
+
+			curl_exec($ch);
+
+			curl_close($ch);
+
+
+			$info = @getimagesize($temp_file_name);
+
+			if (!$info) {
+				@unlink($temp_file_name);
+				 
+				// TRANS: Validation error on avatar upload form when no file was uploaded.
+				$this->showForm(_('No file uploaded.'));
+				return;
+			}
+			
+			$imagefile = new ImageFile(null, $temp_file_name);
         }
 
         $cur = common_current_user();
