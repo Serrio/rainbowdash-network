@@ -102,7 +102,7 @@ class Message extends Managed_DataObject
         $msg->source = $source;
 		
 		// Message processing stuff
-		Event::handle('SaveNewDirectMessage', array(&$msg));
+		Event::handle('SaveNewDirectMessage', array($msg));
 		if(common_config('site', 'sent_to_multiple_users')) {
 			$msg->rendered = '<span class="dm_sent_to_multiple" title="' . common_config('site', 'sent_to_multiple_users') 
 							. '"></span>' . $msg->rendered;
