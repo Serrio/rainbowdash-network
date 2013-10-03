@@ -284,11 +284,11 @@ class MobileProfilePlugin extends WAP20Plugin
         }
 
         $action->elementStart('div', array('id' => 'header'));
-        $this->_showLogo($action);
         $this->_showPrimaryNav($action);
         //if (common_logged_in()) {
         //    $action->showNoticeForm();
         //v}
+		$action->showUserBox();
         $action->elementEnd('div');
 
         return false;
@@ -308,16 +308,16 @@ class MobileProfilePlugin extends WAP20Plugin
 
     function _showLogo($action)
     {
-        $action->elementStart('address', 'vcard');
+        $action->elementStart('address', 'vcard');/*
         if (common_config('singleuser', 'enabled')) {
             $user = User::singleUser();
             $url = common_local_url('showstream', array('nickname' => $user->nickname));
         } else {
             $url = common_local_url('public');
-        }
+        }*/
 
         $action->elementStart('a', array('class' => 'url home bookmark',
-                                         'href' => $url));
+                                         'onclick' => '$("#site_nav_global_primary").toggleClass("opened"); $("#user_info_card").removeClass("opened")'));
 
         if (common_config('site', 'mobilelogo') ||
             file_exists(Theme::file('logo.png')) ||
@@ -337,62 +337,54 @@ class MobileProfilePlugin extends WAP20Plugin
     {
         $user    = common_current_user();
 		$class = $user ? 'loggedin' : 'loggedout';
-        $action->elementStart('ul', array('id' => 'site_nav_global_primary'));
-		
-		$action->element('span', array('id'=>'nav_dummy'));
+        $this->_showLogo($action);
+        $action->elementStart('ul', array('id' => 'site_nav_global_primary', 'class' => 'nav_primary_'.$class));
 
+		// TRANS: Tooltip for main menu option "Rules".
+		$action->menuItem(common_local_url('public'),
+						_m('MENU', 'Public'));
+		// TRANS: Tooltip for main menu option "Rules".
+		$action->menuItem(common_local_url('doc', array('title' => 'faq')),
+						_m('MENU', 'FAQ'));
 		// TRANS: Tooltip for main menu option "Rules".
 		$action->menuItem(common_local_url('doc', array('title' => 'rules')),
 						_m('MENU', 'Rules'));
-        if ($user) {
-            $action->menuItem(common_local_url('all', array('nickname' => $user->nickname)),
-                            _m('Personal'));
-
-                // TRANS: Tooltip for main menu option "Account".
-                $tooltip = _m('TOOLTIP', 'Your incoming messages');
-                $action->menuItem(common_local_url('inbox', array('nickname' => $user->nickname)),
-                                // TRANS: Main menu option when logged in for access to user settings.
-                                _('Inbox'), $tooltip, false, 'nav_dmcounter');
-								
-            $action->menuItem(common_local_url('profilesettings'),
-                            _m('Account'));
-            /*$action->menuItem(common_local_url('oauthconnectionssettings'),
-                                _m('Connect'));*/
-            if ($user->hasRight(Right::CONFIGURESITE)) {
-                $action->menuItem(common_local_url('siteadminpanel'),
-                                _m('Admin'), null, false, 'nav_admin');
-            }
-            /*if (common_config('invite', 'enabled')) {
-                $action->menuItem(common_local_url('invite'),
-                                _m('Invite'));
-            }*/
-            $action->menuItem(common_local_url('peoplesearch'),
-                            _m('Search'));
-            $action->menuItem(common_local_url('logout'),
-                            _m('Logout'));
-        } else {
-			if (!common_config('site', 'private')) {
+		// TRANS: Tooltip for main menu option "Rules".
+		$action->menuItem(common_local_url('staff'),
+						_m('MENU', 'Staff'));
+			if ($user || !common_config('site', 'private')) {
 				$action->menuItem(common_local_url('peoplesearch'),
 								_m('Search'));
 			}
-            if (!common_config('site', 'closed')) {
-                $action->menuItem(common_local_url('register'),
-                                _m('Register'));
+		
+
+            if($user) {
+                if(($user->hasRole(Profile_role::ADMINISTRATOR) || $user->hasRole(Profile_role::MODERATOR)) &&
+                    Event::handle('StartAdminDropdown', array($action))) {
+
+
+                    if ($user->hasRight(Right::CONFIGURESITE)) {
+                        // TRANS: Tooltip for menu option "Admin".
+                        $tooltip = _m('TOOLTIP', 'Change site configuration');
+                        $action->menuItem(common_local_url('siteadminpanel'),
+                            // TRANS: Main menu option when logged in and site admin for access to site configuration.
+                            _m('MENU', 'Admin'), $tooltip, false, 'nav_admin');
+                    }
+
+                    Event::handle('EndAdminDropdown', array($action));
+
+                }
             }
-            $action->menuItem(common_local_url('login'),
-                            _m('Login'));
-        }
-		$action->element('div', array('style' => 'clear: both;width: 1px;height: 1px'));
         $action->elementEnd('ul');
     }
-
+/*
     function onStartShowAside($action)
     {
         if ($this->serveMobile) {
             return false;
         }
     }
-
+*/ /*
     function onStartShowLocalNavBlock($action)
     {
         if ($this->serveMobile) {
@@ -400,11 +392,10 @@ class MobileProfilePlugin extends WAP20Plugin
             $action->element('a', array('href' => '#', 'id' => 'navtoggle'), 'Show Navigation');
         return true;
         }
-    }
+    }*/
 
     function onEndShowScripts($action)
     {
-        // @todo FIXME: "Show Navigation" / "Hide Navigation" needs i18n
         $action->inlineScript('
             $(function() {
                 $("#mobile-toggle-disable").click(function() {
@@ -417,24 +408,10 @@ class MobileProfilePlugin extends WAP20Plugin
                     window.location.reload();
                     return false;
                 });
-                $("#navtoggle").click(function () {
-                          $("#site_nav_local_views").fadeToggle();
-                          var text = $("#navtoggle").text();
-                          $("#navtoggle").text(
-                          text == "Show Navigation" ? "Hide Navigation" : "Show Navigation");
-                });
             });'
         );
-
-        if ($this->serveMobile) {
-            $action->inlineScript('
-                $(function() {
-        	        $(".checkbox-wrapper").unbind("click");
-                });'
-            );
-        }
-
-
+		if($this->serveMobile)
+			$action->script(Plugin::staticPath('MobileProfile', 'mobile.js'));
     }
 
 
