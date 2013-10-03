@@ -603,7 +603,6 @@ class Action extends HTMLOutputter // lawsuit
 			$tooltip = _('Watched');
 			$this->elementStart('li', array('id' => 'usercard_watched'));
 			$this->elementStart('a', array(
-				'href' => '#',
 				'onclick' => '$(\'#nav_usercard\').toggleClass(\'opened\')',
 				'title' => $tooltip
 			));
@@ -622,6 +621,16 @@ class Action extends HTMLOutputter // lawsuit
 				'title' => $tooltip
 			));
 			$this->element('span', array(), _('Replies'));
+			$this->elementEnd('a');
+			$this->elementEnd('li');
+			
+			$tooltip = _('Favorites');
+			$this->elementStart('li', array('id' => 'usercard_favorites'));
+			$this->elementStart('a', array(
+				'href' => common_local_url('showfavorites', array('nickname' => $user->nickname)),
+				'title' => $tooltip
+			));
+			$this->element('span', array(), _('Favorites'));
 			$this->elementEnd('a');
 			$this->elementEnd('li');
 
