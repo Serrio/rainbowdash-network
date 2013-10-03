@@ -63,9 +63,9 @@ class PrimaryNav extends Menu
         if (Event::handle('StartPrimaryNav', array($this->action))) {
 
             // TRANS: Tooltip for main menu option "Home".
-            $tooltip = _m('TOOLTIP', 'Public timeline');
-            $this->menuItem(common_local_url('public'),
-                _m('MENU', 'Public'), $tooltip, false, 'nav_public');
+            $tooltip = _m('TOOLTIP', 'Frequently asked questions');
+            $this->menuItem(common_local_url('doc', array('title' => 'faq')),
+                _m('MENU', 'FAQ'), $tooltip, false, 'nav_faq');
 
             // TRANS: Tooltip for main menu option "Rules".
             $tooltip = _m('TOOLTIP', 'Site rules');
