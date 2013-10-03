@@ -112,6 +112,8 @@ class DeleteGroupForm extends Form
     function formActions()
     {
         // TRANS: Button text for deleting a group.
-        $this->out->submit('submit', _m('BUTTON','Delete'));
+        $this->out->element('button',
+			array('type' => 'submit', 'class' => 'submit'),
+		_m('BUTTON','Delete'));
     }
 }

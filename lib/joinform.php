@@ -105,6 +105,8 @@ class JoinForm extends Form
     function formActions()
     {
         // TRANS: Button text for joining a group.
-        $this->out->submit('submit', _m('BUTTON','Join'));
+        $this->out->element('button',
+			array('type' => 'submit', 'class' => 'submit'),
+		_m('BUTTON','Join'));
     }
 }

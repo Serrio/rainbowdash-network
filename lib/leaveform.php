@@ -106,6 +106,8 @@ class LeaveForm extends Form
     function formActions()
     {
         // TRANS: Button text on form to leave a group.
-        $this->out->submit('submit', _m('BUTTON','Leave'));
+        $this->out->element('button',
+			array('type' => 'submit', 'class' => 'submit'),
+		_m('BUTTON','Leave'));
     }
 }

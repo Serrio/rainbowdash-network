@@ -148,8 +148,13 @@ class ProfileActionForm extends Form
 
     function formActions()
     {
-        $this->out->submit('submit', $this->title(), 'submit',
-                           null, $this->description());
+        /*$this->out->submit('submit', $this->title(), 'submit',
+                           null, $this->description());*/
+						   
+		$this->out->element('button', array('title' => $this->description(),
+											'type' => 'submit',
+											'class' => 'submit'),
+							 $this->title());
     }
 
     /**
