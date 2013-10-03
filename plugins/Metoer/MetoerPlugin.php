@@ -43,6 +43,7 @@ class MetoerPlugin extends Plugin
         {
         case "IpconflictsAction":
             include_once $dir . '/ip_conflicts.php';
+			return false;
         case 'Ip_login':
         case 'Ec':
             include_once $dir . '/'.$cls.'.php';
