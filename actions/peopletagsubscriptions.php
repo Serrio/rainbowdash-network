@@ -138,7 +138,7 @@ class PeopletagsubscriptionsAction extends Action
                           $this->page, 'peopletagsubscriptions', array('nickname' => $this->profile->id));
     }
 
-    function showObjectNav()
+    function showLocalNav()
     {
         $nav = new PeopletagNav($this, $this->profile);
         $nav->show();

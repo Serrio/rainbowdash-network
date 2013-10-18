@@ -152,7 +152,7 @@ class PeopletagsforuserAction extends Action
         $this->elementEnd('div');
     }
 
-    function showObjectNav()
+    function showLocalNav()
     {
         $nav = new PeopletagNav($this, $this->tagged);
         $nav->show();

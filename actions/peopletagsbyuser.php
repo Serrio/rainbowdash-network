@@ -145,7 +145,10 @@ class PeopletagsbyuserAction extends Action
 		# Post from the tag dropdown; redirect to a GET
 
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-		    common_redirect(common_local_url('peopletagsbyuser', $this->getSelfUrlArgs()), 303);
+		    common_redirect(common_local_url('peopletagsbyuser', $this->getSelfUrlArgs())
+				. ($this->arg('private') && !$this->arg('public') ? '?private=yes' :
+				($this->arg('public') ? '?public=yes' : ''))
+			, 303);
             return;
 		}
 
@@ -264,7 +267,7 @@ class PeopletagsbyuserAction extends Action
         return !empty($user) && $user->id == $this->tagger->id;
     }
 
-    function showObjectNav()
+    function showLocalNav()
     {
         $nav = new PeopletagNav($this, $this->tagger);
         $nav->show();
