@@ -77,7 +77,8 @@ class UserDesignPlugin extends Plugin
 		$design = false;
 		if(in_array(strtolower($action->trimmed('action')), array(
 			'profiledesignsettings', 'profilesettings', 'avatarsettings', 'passwordsettings', 'emailsettings',
-			'urlsettings', 'oldschoolsettings', 'rdnrefreshsettings', 'openidsettings', 'oauthconnectionssettings'))) {
+			'urlsettings', 'oldschoolsettings', 'rdnrefreshsettings', 'openidsettings', 'oauthconnectionssettings',
+			'editpeopletag'))) {
 			$user = common_current_user();
 			if($user)
 				$design = ProfileDesign::getDesign($user->id);
@@ -87,9 +88,23 @@ class UserDesignPlugin extends Plugin
 			|| $action instanceof MailboxAction
 			|| $action instanceof RepliesAction
 			|| $action instanceof ShowfavoritesAction
-			|| $action instanceof ShownoticeAction) {
+			|| $action instanceof ShownoticeAction
+			|| $action instanceof PeopletagsbyuserAction
+			|| $action instanceof PeopletagsforuserAction) {
 			$user = $action->user;
 			$design = ProfileDesign::getDesign($user->id);
+		}
+		
+		if($action instanceof PeopletagsubscriptionsAction) {
+			$prof = $action->profile;
+			$design = ProfileDesign::getDesign($prof->id);
+		}
+		
+		if($action instanceof ShowprofiletagAction
+			|| $action instanceof PeopletaggedAction
+			|| $action instanceof PeopletagsubscribersAction) {
+			$prof = $action->tagger;
+			$design = ProfileDesign::getDesign($prof->id);
 		}
 		
 		if($action instanceof GroupAction) {
