@@ -184,7 +184,9 @@ RealtimeUpdate = {
                     }
                     list = parent.find('.notices');
                     if (list.length == 0) {
-                        list = $('<ol class="notices"></ol>');
+                        list = $('<ol class="notices threaded-replies"></ol>');
+						if($('.notices.old-school, .notices.oldschool_stream').length)
+							list.removeClass('threaded-replies');
                         parent.append(list);
                         //SN.U.NoticeInlineReplyPlaceholder(parent);
                     }
