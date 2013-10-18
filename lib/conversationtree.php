@@ -130,6 +130,7 @@ class ConversationTree extends NoticeList
             }
         }
 
+		/* seems redundant since this is an oldschool toggle now anyway. commenting out...
         // FIXME
         // Flatten conversations by combining long chains
         if(true && common_config('site', 'flatconversations')) {
@@ -149,7 +150,7 @@ class ConversationTree extends NoticeList
                 }
             print_r($this->tree);
             }
-        }
+        }*/
 
         return $cnt;
     }
@@ -171,7 +172,7 @@ class ConversationTree extends NoticeList
         $item = $this->newListItem($notice);
         $item->show();
 
-        if (array_key_exists($id, $this->tree)) {
+        if (array_key_exists($id, $this->tree) && $this->tree[$id] != null) {
             $children = $this->tree[$id];
 
             $this->out->elementStart('ol', array('class' => 'notices'));

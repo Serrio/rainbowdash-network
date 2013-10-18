@@ -41,14 +41,15 @@ $('#user_info_card img, #user_info_card .profile_block_name').bind('click', func
 
 $('#user_info_card').append($('#dmcounter'));
 
+// @fixme This isn't working any more for some reason... it worked in an earlier pass of the code. :c
 $('a').live('click', function() {
 	if($(this).is('#notice-popup a.timestamp') || $('body#shownotice').length)
 		return true;
 	var link = $(this).attr('href');
 	var domain = window.location.pathname.split(/\/([^\/]|$)/)[0];
-	if(link.indexOf(domain) != 0 || link.indexOf(/\/notice\/[0-9]/) == -1) {
+	if(!link || link.indexOf(domain) != 0 || link.indexOf(/\/notice\/[0-9]/) == -1) {
 		link = $(this).attr('title');
-		if(link.indexOf(domain) != 0 || link.indexOf('/notice/') == -1)
+		if(!link || link.indexOf(domain) != 0 || link.indexOf(/\/notice\/[0-9]/) == -1)
 			return true;
 	}
 	var notice = link.split('/notice/')[1].split(/[^0-9]/)[0];
@@ -103,13 +104,7 @@ $('.entity_actions h2').live('click', function() {
 	$(this).parent().toggleClass('opened');
 });
 
-var posM = $('#site_nav_local_views li.current').position().left - 30;
-
-function scrollLocalNav() {
-	if(posM > 0 && $('#site_nav_local_views').scrollLeft() < 10) {
-		$('#site_nav_local_views').scrollLeft(posM);
-		setTimeout(scrollLocalNav, 250);
-	}
-}
-
-scrollLocalNav();
+$('#site_nav_local_views li.current').live('click', function() {
+	$('#site_nav_local_views').toggleClass('opened');
+	return false;
+});

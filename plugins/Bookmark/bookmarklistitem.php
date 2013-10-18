@@ -65,7 +65,7 @@ class BookmarkListItem extends NoticeListItemAdapter
         $nb = Bookmark::getByNotice($notice);
 
         $profile = $notice->getProfile();
-
+/*
         $atts = $notice->attachments();
 
         if (empty($atts)) {
@@ -88,11 +88,11 @@ class BookmarkListItem extends NoticeListItemAdapter
 
         }
 
-        $att = $atts[0];
+        $att = $atts[0];*/
 
         $out->elementStart('h3');
         $out->element('a',
-                  array('href' => $att->url,
+                  array('href' => $nb->url,
                         'class' => 'bookmark-title'),
                   $nb->title);
         $out->elementEnd('h3');

@@ -231,9 +231,9 @@ class Action extends HTMLOutputter // lawsuit
 
             $this->cssLink(common_path('js/css/smoothness/jquery-ui.css'));
 
-            if (Event::handle('StartShowUAStyles', array($this))) {
+            if (Event::handle('StartShowUAStyles', array($this))) {/*
                 $this->comment('[if IE]><link rel="stylesheet" type="text/css" '.
-                    'href="'.Theme::path('css/ie.css', 'base').'?version='.STATUSNET_VERSION.'" /><![endif]');
+                    'href="'.Theme::path('css/ie.css', 'base').'?version='.STATUSNET_VERSION.'" /><![endif]');*/
                 foreach (array(6,7) as $ver) {
                     if (file_exists(Theme::file('css/ie'.$ver.'.css', 'base'))) {
                         // Yes, IE people should be put in jail.
