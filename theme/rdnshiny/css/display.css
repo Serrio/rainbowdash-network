@@ -8,24 +8,8 @@
 */
 
 /* Modified for RDN by RedEnchilada and Bit Shift */
-/*FIXME should be using base css*/ /*FIXME I disagree with this comment*/
-/*/@import url("../../base/css/display.css");/**/
 
-/*
-@import url("structure.css") screen, projection, tv;
-@import url("header.css") screen, projection, tv;
-@import url("videosync.css") screen, projection, tv;
-@import url("core.css") screen, projection, tv;
-@import url("form_notice.css") screen, projection, tv;
-@import url("notices.css") screen, projection, tv;
-@import url("bookmarklet.css") screen, projection, tv;
-@import url("icons.css") screen, projection, tv;
-@import url("ostatus.css") screen, projection, tv;
-@import url("apps.css") screen, projection, tv;
-@import url("realtime.css") screen, projection, tv;
-@import url("footer.css") screen, projection, tv;
-*/
-/* Font-Awesome for icons and stuff */
+/* Font-Awesome for icons and stuff - grabbed from http://fontawesome.io */
 @font-face {
   font-family: 'FontAwesome';
   src: url('../fonts/fontawesome-webfont.eot?v=3.2.1');
@@ -60,6 +44,7 @@ margin-top: 0px;
 having JS enabled anyway) */
 
 .extended_menu {display: none}
+.see_all {font-style: italic; text-align: center;}
 
 /* Headings */
 
@@ -118,7 +103,7 @@ text-decoration: none;
 #wrap {
 border: 0;
 width: 976px;
-margin: 0px auto;
+margin: 0px auto -80px;
 padding: 0px;
 position: relative;
 box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.7);
@@ -235,12 +220,12 @@ position: relative;
 
 #user_info_card > ul > li > a {
 display: block;
-/*background-image: url(../images/usercard-icons.png);*/
 opacity: 0.6;
 text-align: center;
+text-decoration: none;
+cursor: pointer;
 }
 
-#user_info_card > ul > li > a {text-decoration: none;}
 #user_info_card > ul > li > a:before{
   display: inline-block;
   speak: none;
@@ -261,13 +246,6 @@ font-size: 16px;
 #usercard_watched > a:before {content: "\f06e";}
 #usercard_account > a:before {content: "\f013";}
 #usercard_logout > a:before {content: "\f011";}
-/*
-#usercard_personal > a {background-position: 0px 0px}
-#usercard_replies > a {background-position: -20px 0px}
-#usercard_dmcounter > a {background-position: -40px 0px}
-#usercard_watched > a {background-position: 0px -20px}
-#usercard_account > a {background-position: -20px -20px}
-#usercard_logout > a {background-position: -40px -20px}*/
 
 #usercard_account {margin-left: 18px !important}
 
@@ -344,6 +322,9 @@ text-decoration: none;
 #user_info_card form li {margin-bottom: 2px}
 
 #user_info_card form li:last-child {margin-left; 42px;}
+
+#user_info_card #nickname,
+#user_info_card #password {width: 47%;}
 
 #user_info_card .submit {position: absolute; right: -12px; top: -10px; padding: 6px 15px 6px 16px; width: 75px;}
 
@@ -1187,9 +1168,12 @@ float:left;
 .form_settings .form_data input {
 margin-left:1.795%;
 float:left;
+width:63%;
 }
 .form_settings .form_data input {
-width:39%;
+box-sizing: border-box;
+-moz-box-sizing: border-box;
+-webkit-box-sizing: border-box;
 }
 .form_settings .form_data input.submit,
 .form_settings .form_data input.checkbox,
@@ -1197,7 +1181,7 @@ width:39%;
 width:auto;
 }
 .form_settings .form_data textarea {
-width:63%;
+resize: vertical;
 }
 
 .form_settings .form_data input.submit {
@@ -1643,55 +1627,46 @@ content:'\0009';
 }
 
 #filter_tags {
-margin-bottom: 20px;
-padding-bottom: 10px;
-border-bottom: 1px solid #ccc;
-float: left;
+margin-top: -1em;
+float: right;
 }
-#filter_tags dt {
+#filter_tags dt,
+#filter_tags legend {
 display:none;
 }
 #filter_tags ul {
 list-style-type:none;
 }
-#filter_tags li {
-float:left;
-margin-left:7px;
-padding-left:7px;
-border-left-width: 1px;
-border-left-style:solid;
-}
-#filter_tags #filter_tags_all {
-margin-left: 10px;
-border-left:0;
-padding-left:0;
-}
-#filter_tags_all a {
-font-weight:bold;
-margin-top: 4px;
-float:left;
-}
+#filter_tags_for {display: none;}
 
 #filter_tags_item label {
-margin-right: 14px;
-margin-left: 7px;
-padding-top: 4px;
+margin-right: 12px;
+margin-left: 2px;
 }
 #filter_tags_item label,
-#filter_tags_item select {
+#filter_tags_item input {
 float:left;
 }
 
+#filter_tags_item input {margin: 4px 0;}
+
 #filter_tags_item p {
-float:left;
-clear:both;
-margin-left:38px;
+display: none;
 }
-#filter_tags_item .submit {
-position:relative;
-top:3px;
-left:3px;
+form#form_filter_bymode input.submit {
+margin: 0;
+font-size: 0.85em;
+padding: 0 4px;
 }
+
+.peopletag .nickname, .peopletag .tag {font-size: 1.2em;}
+.peopletag .author:after {content: ' |';}
+.peopletag .tag a:before {content: '@#'}
+.peopletag .privacy_mode:before {content: '('}
+.peopletag .privacy_mode:after {content: ')'}
+
+.peopletag .updated {display: none;}
+.peopletag {list-style-type: none; position: relative; float: left; width: 100%;}
 
 .profile .entity_profile {
 margin-bottom:0;
@@ -1838,7 +1813,8 @@ margin: -1px 0;
 
 .profile_block {background: url(../images/default_userbanner.png) no-repeat top right #BBB;}
 
-.form_settings input.submit {
+.form_settings input.submit,
+#form_filter_bymode input.submit {
 border: 1px solid #555;
 border-top: none;
 border-left: none;
@@ -2449,6 +2425,9 @@ font-style: italic;
 content: '>> ';
 }
 
+.notice .addressees {opacity: 0.75;}
+.notice:hover .addressees {opacity: 1;}
+
 .notice .entry-title {
 overflow:hidden;
 word-wrap:break-word;
@@ -2647,7 +2626,7 @@ margin-left:59px;
 margin-top: 10px;
 font-size: 0.9em;
 line-height: 1em;
-opacity: 0.75;
+opacity: 0.6;
 }
 
 .notice:hover div.entry-content {
@@ -3165,7 +3144,7 @@ content: '\f04c';
 #realtime_popup:before {
 content: '\f045';
 }
-#realtime_actions button {text-indent: -2px !important; background-image: none !important; overflow: hidden;}
+#realtime_actions button {text-indent: -2px !important; background: none !important; overflow: hidden;}
 
 .notice .attachment:before {
 content: '\f0c6';
@@ -3241,7 +3220,6 @@ padding-left: 26px !important; /**/
 background-position: 4px -1183px !important; /**/
 }
 
-#filter_tags ul li,
 .entity_send-a-message .form_notice,
 .form_settings fieldset fieldset,
 .entity_moderation:hover ul,
@@ -3257,6 +3235,26 @@ background:none;
 .form_settings .form_note {
 background-color:#9BB43E;
 }
+
+.profile_search_wrap {float: left; width: 100%;}
+.profile_search_wrap h3 {display: none;}
+.form_peopletag_edit_user_search {width: 100%; float: left; margin-top: -4px; margin-bottom: 4px;}
+.form_peopletag_edit_user_search legend {display: none;}
+.form_peopletag_edit_user_search #q {width: 63%;}
+.form_peopletag_edit_user_search label,
+.form_peopletag_edit_user_search .form_guide {display: none;}
+.form_peopletag_edit_user_search select {width: 23%; margin-right: 0;}
+.form_peopletag_edit_user_search input.submit {width: 12%;}
+#profile_search_results, .profile-lister {list-style-type: none;}
+.entity_removable_profile {
+float: left;
+width: 95%;
+margin-left: 1% !important;
+padding: 4px 1.5% 2px !important;
+border-top: 1px dotted #BBB;
+}
+.entity_removable_profile:first-child {border-top: 2px solid #BBB;}
+#profile_search_results .entity_actions, .profile-lister .entity_actions {margin-bottom: 0 !important;}
 
 .applications {
 margin-bottom:18px;
@@ -3346,10 +3344,13 @@ margin: 0px !important; /**/
 }
 
 .realtime-popup #content {
-padding: 0px !important; /**/
+padding: 4px !important; /**/
 margin: 0px !important; /**/
 width: 100% !important; /**/
 border-top-right-radius: 4px;
+box-sizing: border-box;
+-moz-box-sizing: border-box;
+-webkit-box-sizing: border-box;
 }
 
 .realtime-popup .form_notice {

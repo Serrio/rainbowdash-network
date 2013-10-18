@@ -5,7 +5,7 @@ background-image: none !important;
 }
 
 #wrap {
-margin: 0;
+margin: 0 0 -800px;
 padding: 0;
 min-width:0;
 max-width:100%;
@@ -165,8 +165,9 @@ right: 100px;
 top: 0;
 z-index: 9999;
 overflow: auto;
-max-height: 200px;
 }
+
+#nav_usercard {max-height: 200px;}
 
 .form_notice textarea {
 height: 60px;
@@ -227,6 +228,12 @@ line-height: 20px;
 #form_new_event li input {width: 50%;}
 #form_new_event li select {width: 50%; margin-right: -10%;}
 
+#site_nav_local_views {width: 100%;}
+#site_nav_local_views li li {display: none; text-align: left;}
+#site_nav_local_views.opened li li, #site_nav_local_views li li.current {display: block;}
+#site_nav_local_views li a {box-shadow: 0 0 0 transparent !important; font-size: 0.9em;}
+
+/*
 #site_nav_local_views {
 position: relative;
 float: left;
@@ -287,7 +294,7 @@ padding-bottom: 12px;
 border-bottom: 0px solid black;
 border-bottom-left-radius: 0;
 border-bottom-right-radius: 0;
-}
+}*/
 
 #core {
 width: 100%;
