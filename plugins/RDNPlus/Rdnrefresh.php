@@ -103,7 +103,7 @@ class Rdnrefresh extends Memcached_DataObject
         $vars = array();
         $defaults = array(
             'user_id'           => (!empty($user->id)) ? $user->id : '0',
-            'spoilertags'       => 'spoiler spoilers spoileralert poiler soiler spiler spoler spoier spoilr spoile sspoiler sppoiler spooiler spoiiler spoiller spoileer spoilerr psoiler sopiler spioler spolier spoielr spoilre',/*
+            'spoilertags'       => '',/*
             'maincolor'         => '#373737',
             'asidecolor'        => '#212C37',
             'pagecolor'         => '#FFFFFF',

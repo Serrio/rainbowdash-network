@@ -188,21 +188,21 @@ class RDNPlusPlugin extends Plugin
     function parseFormatting($notice) {
         // HTML code
         $bbcode = array(
-            '@()\[b\](.*?)\[/b\]()@i',
-            '@()\[u\](.*?)\[/u\]()@i',
-            '@()\[i\](.*?)\[/i\]()@i',
-            '@()\[s\](.*?)\[/s\]()@i',
-            '@()\[t\](.*?)\[/t\]()@i',
-            '@()\[a\](.*?)\[/a\]()@i',
+            '@()\[b\](.*?)\[/b\]()@ims',
+            '@()\[u\](.*?)\[/u\]()@ims',
+            '@()\[i\](.*?)\[/i\]()@ims',
+            '@()\[s\](.*?)\[/s\]()@ims',
+            '@()\[t\](.*?)\[/t\]()@ims',
+            '@()\[a\](.*?)\[/a\]()@ims',
         );
 
         $markdown = array(
-            '@(\s|^)\*([a-z].*?[a-z])\*(\s|$)@i',
-            '@(\s|^)_([a-z].*?[a-z])_(\s|$)@i',
-            '@(\s|^)/([a-z].*?[a-z])/(\s|$)@i',
-            '@(\s|^)-([a-z].*?[a-z])-(\s|$)@i',
-            '@(\s|^)=([a-z].*?[a-z])=(\s|$)@i',
-            '@(\s|^)~([a-z].*?[a-z])~(\s|$)@i',
+            '@(\s|^)\*([a-z].*?[a-z])\*(\s|$)@ims',
+            '@(\s|^)_([a-z].*?[a-z])_(\s|$)@ims',
+            '@(\s|^)/([a-z].*?[a-z])/(\s|$)@ims',
+            '@(\s|^)-([a-z].*?[a-z])-(\s|$)@ims',
+            '@(\s|^)=([a-z].*?[a-z])=(\s|$)@ims',
+            '@(\s|^)~([a-z].*?[a-z])~(\s|$)@ims',
         );
 
         $plaintext = array(
@@ -246,11 +246,11 @@ class RDNPlusPlugin extends Plugin
         global $config;
 
         //ROT13 - WARNING. Strips previously incorporated HTML.
-        $rotex = '@\[(r|sp)\](.*?)\[/(r|sp)\]@i';
+        $rotex = '@\[(r|sp)\](.*?)\[/(r|sp)\]@ims';
         preg_match_all($rotex, $notice->content, $matches, PREG_SET_ORDER);
 
         // Forgot to highlight spoiler?
-        if(empty($matches) && preg_match('@#[sp][sp]?[oi][oi]?l[er][er]?@i', $notice->content)) {
+        if(empty($matches) && preg_match('@#sp(oi|io)l(er?|re?)@i', $notice->content)) {
 
             $matches = array(array("[r]{$notice->content}[/r]", 'r', $notice->content, 'r'));
             $notice->content = "[r]$notice->content[/r]";
@@ -279,8 +279,8 @@ class RDNPlusPlugin extends Plugin
         $this->hideSpoilers($notice);
 		$notice->rendered = preg_replace('@\r?\n@', '<br />', $notice->rendered);
 		$notice->rendered = preg_replace('@\[(.+?)\]\((<a.*?>)[^<\\s]+</a>\)@', '$2$1</a>', $notice->rendered);
-		$notice->content = preg_replace('@\[m ([a-z]+) ([a-z]+)\](.*?)\[/m\]@', '$3', $notice->content);
-		$notice->rendered = preg_replace('@\[m ([a-z]+) ([a-z]+)\](.*?)\[/m\]@', '<marquee behavior="$1" direction="$2">$3</marquee>', $notice->rendered);
+		$notice->content = preg_replace('@\[m ([a-z]+) ([a-z]+)\](.*?)\[/m\]@ims', '$3', $notice->content);
+		$notice->rendered = preg_replace('@\[m ([a-z]+) ([a-z]+)\](.*?)\[/m\]@ims', '<marquee behavior="$1" direction="$2">$3</marquee>', $notice->rendered);
 
         return true;
     }
