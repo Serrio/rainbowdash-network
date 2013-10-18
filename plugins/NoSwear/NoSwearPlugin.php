@@ -6,15 +6,26 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-class NoSwearPlugin extends Plugin
-{
-	private function getWordlist() {
+class NoSwearPlugin extends Plugin {
+	public $filterTo = array( // An array of strings to use as replacements for filtered words
+		'bananas',
+		'apples',
+		'mangoes',
+		'cherries',
+		'grapes',
+		'kiwi',
+		'dole',
+		'murdock',
+		'papayas',
+	);
+
+	private function _getWordlist($skipLinks = false) {
         $s = '\!\@\#\$\%\^\&\*';
-        $wordlist = <<<HERE
+        $wordlist = <<<ENDFILTER
+h[o0$s]m[e3]?.?[s5][t7][u$s](ck?|k)
 d[i$s][c$s]?khead
 \bdik
-[^s]c[u$s]nt
-\bc[u$s]nt
+c[u$s]nt
 s[h$s][i$s]t(?!su|a|o)e?(head)?
 \bvag(ina)?\b
 (m[ou]th(er|uh|a))?f[r$s]?[uo$s][c$s]?k
@@ -28,7 +39,7 @@ fag(g.t)?
 p[ui$s][s$s]s
 p[e3]?n[i1][5s]
 ahole
-d[o$s]?[u$s]che?( ?bag)?(?!ss)
+d[o$s][u$s]che?( ?bag)?(?!ss)
 b[aeiou$s]s?t[aeiou$s]rd
 boner
 fellat
@@ -44,24 +55,16 @@ masturbat
 fap
 q[u$s][e$s][e$s]f
 d[i$s][l$s][d$s]o
-HERE;
-        $wordlist = '/((' . str_replace("\n", ")|(", str_replace("\r\n", "\n", $wordlist)) . '))/i';
+ENDFILTER;
+        $wordlist = '/'.($skipLinks ?
+		'(^[^<]*|>[^<]*|<a[^>]*title="[^"]*)\\K' // Keep filter from affecting link hrefs
+		: '').'((' . str_replace("\n", ")|(", str_replace("\r\n", "\n", $wordlist)) . '))/i';
 		return $wordlist;
 	}
 	
-    public function _filter($content) {
-		$wordlist = $this->getWordlist();
-        $choice = array(
-            'bananas',
-            'apples',
-            'mangoes',
-            'cherries',
-            'grapes',
-            'kiwi',
-            'dole',
-            'murdock',
-            'papayas',
-        );
+    public function _filter($content, $skipLinks = false) {
+		$wordlist = $this->_getWordlist($skipLinks);
+		$choice = $this->filterTo;
 
         $content = preg_replace_callback($wordlist, function($choice) use ($choice) {
             return $choice[array_rand($choice)];
@@ -71,13 +74,13 @@ HERE;
 
     function onStartNoticeSave($notice) {
         $notice->content = $this->_filter($notice->content);
-        $notice->rendered = $this->_filter($notice->rendered);
+        $notice->rendered = $this->_filter($notice->rendered, true);
         return true;
     }
 	
     function onSaveNewDirectMessage($notice) {
         $notice->content = $this->_filter($notice->content);
-        $notice->rendered = $this->_filter($notice->rendered);
+        $notice->rendered = $this->_filter($notice->rendered, true);
         return true;
     }
 
