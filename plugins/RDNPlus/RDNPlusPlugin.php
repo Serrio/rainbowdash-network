@@ -286,7 +286,7 @@ class RDNPlusPlugin extends Plugin
     }
 	
 	function onSaveNewDirectMessage($message) {
-		return $this->onStartNoticeSave(&$message);
+		return $this->onStartNoticeSave($message);
 	}
 	
 	function onProcessRDNPlus($content, $rendered) {
@@ -294,7 +294,7 @@ class RDNPlusPlugin extends Plugin
 		$tN = new Notice();
 		$tN->content = $content;
 		$tN->rendered = $rendered;
-		$this->onStartNoticeSave(&$tN);
+		$this->onStartNoticeSave($tN);
 		$content = $tN->content;
 		$rendered = $tN->rendered;
 		
