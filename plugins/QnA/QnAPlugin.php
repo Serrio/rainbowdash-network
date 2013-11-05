@@ -520,7 +520,7 @@ class QnAPlugin extends MicroAppPlugin
      * @param HTMLOutputter $out
      * @return Widget
      */
-    function entryForm($out)
+    function entryForm($out, $options=array())
     {
         return new QnanewquestionForm($out);
     }
