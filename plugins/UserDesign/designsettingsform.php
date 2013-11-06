@@ -121,7 +121,7 @@ class DesignSettingsForm extends Form
 		//if (!empty($this->settings['bgimage']))
           //  $this->out->element('img', array('src' =>
             //    UserDesign::url($this->settings['bgimage'])));
-		if($this->isUserForm != 2) {
+		if($this->isUserForm !== 2) {
 		$this->out->element('label', array('for' => 'design_banner-image_file'),
                                 // TRANS: Label in form on profile design page.
                                 // TRANS: Field contains file name on user's computer that could be that user's custom profile background image.
@@ -146,7 +146,7 @@ class DesignSettingsForm extends Form
                             _('Light text over banner'),
                             ($this->settings['designoptions'] & 256) ? true : false);
             $this->out->elementEnd('li');
-			if($this->isUserForm != 2) {
+			if($this->isUserForm !== 2) {
 			$this->out->elementStart('li');
             $this->out->dropdown('design_banner-image_anchor',
                             // TRANS: Dropdown field label on profile settings, for what policies to apply when someone else tries to subscribe to your updates.
