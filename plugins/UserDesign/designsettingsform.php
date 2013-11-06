@@ -247,7 +247,7 @@ class DesignSettingsForm extends Form
         $this->out->elementEnd('fieldset');
 		
 		if($this->isUserForm) {
-			if($this->isUserForm != 2) {
+			if($this->isUserForm !== 2) {
 			$this->out->elementStart('fieldset');
 			$this->out->elementStart('ul', 'form_data');
 			$this->out->elementStart('li');
