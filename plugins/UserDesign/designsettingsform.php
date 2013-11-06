@@ -121,7 +121,7 @@ class DesignSettingsForm extends Form
 		//if (!empty($this->settings['bgimage']))
           //  $this->out->element('img', array('src' =>
             //    UserDesign::url($this->settings['bgimage'])));
-		
+		if($this->isUserForm != 2) {
 		$this->out->element('label', array('for' => 'design_banner-image_file'),
                                 // TRANS: Label in form on profile design page.
                                 // TRANS: Field contains file name on user's computer that could be that user's custom profile background image.
@@ -137,6 +137,7 @@ class DesignSettingsForm extends Form
                             // TRANS: Checkbox label on profile design page that will cause the profile image to be tiled.
                             _('Enable banner image'),
                             ($this->settings['designoptions'] & 64) ? true : false);
+			}
             $this->out->elementEnd('li');
 
             $this->out->elementStart('li');
@@ -145,7 +146,7 @@ class DesignSettingsForm extends Form
                             _('Light text over banner'),
                             ($this->settings['designoptions'] & 256) ? true : false);
             $this->out->elementEnd('li');
-			
+			if($this->isUserForm != 2) {
 			$this->out->elementStart('li');
             $this->out->dropdown('design_banner-image_anchor',
                             // TRANS: Dropdown field label on profile settings, for what policies to apply when someone else tries to subscribe to your updates.
@@ -160,6 +161,7 @@ class DesignSettingsForm extends Form
                             false,
                             (($this->settings['designoptions'] & 128) ? 'left' : 'not-left'));
 			$this->out->elementEnd('li');
+			}
 
         $this->out->elementEnd('ul');
         $this->out->elementEnd('fieldset');
@@ -245,6 +247,7 @@ class DesignSettingsForm extends Form
         $this->out->elementEnd('fieldset');
 		
 		if($this->isUserForm) {
+			if($this->isUserForm != 2) {
 			$this->out->elementStart('fieldset');
 			$this->out->elementStart('ul', 'form_data');
 			$this->out->elementStart('li');
@@ -256,6 +259,18 @@ class DesignSettingsForm extends Form
 			$this->out->elementEnd('li');
 			$this->out->elementEnd('ul');
 			$this->out->elementEnd('fieldset');
+			} else {
+			$this->out->elementStart('fieldset');
+			$this->out->elementStart('ul', 'form_data');
+			$this->out->elementStart('li');
+            $this->out->textarea('design_custom-css',
+                            // TRANS: Checkbox label on profile design page that will cause the profile image to be tiled.
+                            _('Custom CSS'),
+                            common_config('site', 'custom-css'));
+			$this->out->elementEnd('li');
+			$this->out->elementEnd('ul');
+			$this->out->elementEnd('fieldset');
+			}
 		}
     }
 
@@ -298,7 +313,7 @@ class DesignSettingsForm extends Form
 
     function action()
     {
-        return $this->isUserForm ? common_local_url('profiledesignsettings') : common_local_url('groupdesignsettings', array('nickname' => $this->out->group->nickname));
+        return $this->isUserForm ? ($this->isUserForm == 2 ? common_local_url('admindesignsettings') : common_local_url('profiledesignsettings')) : common_local_url('groupdesignsettings', array('nickname' => $this->out->group->nickname));
     }
 
     /**

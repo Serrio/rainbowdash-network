@@ -17,6 +17,7 @@ class UserDesignPlugin extends Plugin
         {
         case 'ProfiledesignsettingsAction':
         case 'GroupdesignsettingsAction':
+        case 'AdmindesignsettingsAction':
             include_once $dir . '/' . strtolower(mb_substr($cls, 0, -6)) . '.php';
             return false;
         case 'UserDesign':
@@ -39,6 +40,8 @@ class UserDesignPlugin extends Plugin
         $m->connect('group/:nickname/design',
                     array('action' => 'groupdesignsettings'),
                     array('nickname' => '[0-9a-z]+'));
+        $m->connect('panel/design',
+            array('action' => 'admindesignsettings'));
         return true;
     }
 
@@ -49,6 +52,15 @@ class UserDesignPlugin extends Plugin
             // TRANS: Menu item title in settings navigation panel.
             _('Design your profile'),
             $action instanceof ProfiledesignsettingsAction);
+    }
+
+    function onEndAdminPanelNav($action) {
+        $action->menuItem(common_local_url('admindesignsettings'),
+            // TRANS: Menu item in settings navigation panel.
+            _m('MENU','Design'),
+            // TRANS: Menu item title in settings navigation panel.
+            _('Design the site'),
+            $action instanceof AdmindesignsettingsAction);
     }
 
     function onCheckSchema() {
@@ -74,6 +86,10 @@ class UserDesignPlugin extends Plugin
 
     function onEndShowStyles($action)
     {
+		if(common_config('site', 'custom-css')) {
+			$action->style(common_config('site', 'custom-css'));
+		}
+		
 		$design = false;
 		if(in_array(strtolower($action->trimmed('action')), array(
 			'profiledesignsettings', 'profilesettings', 'avatarsettings', 'passwordsettings', 'emailsettings',
@@ -119,6 +135,10 @@ class UserDesignPlugin extends Plugin
 				$design = false;
 			else
 				$design['designoptions'] -= $design['designoptions'] & 64;
+		}
+		
+		if($design === false) {
+			$design = ProfileDesign::getDesign(0);
 		}
 		
 		if($design !== false)
