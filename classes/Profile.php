@@ -1220,7 +1220,8 @@ class Profile extends Managed_DataObject
                 break;
             case Right::GRANTROLE:
             case Right::REVOKEROLE:
-                $result = $this->hasRole(Profile_role::OWNER);
+                //$result = $this->hasRole(Profile_role::OWNER); On RDN administrators are in charge of promotion/demotion too
+                $result = $this->hasRole(Profile_role::ADMINISTRATOR);
                 break;
             case Right::NEWNOTICE:
             case Right::NEWMESSAGE:
