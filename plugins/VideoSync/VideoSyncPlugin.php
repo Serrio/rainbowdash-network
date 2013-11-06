@@ -37,6 +37,16 @@ class VideoSyncPlugin extends Plugin
         $m->connect('main/switchvideo',
             array('action' => 'switchvideo')
         );
+        $m->connect('main/videosync',
+            array('action' => 'managevideosync')
+        );
+        $m->connect('main/videosync/update',
+            array('action' => 'updatevideo')
+        );
+        $m->connect('main/videosync/promote/:id',
+            array('action' => 'makevideosyncadmin',
+				'id' => '[0-9]+')
+        );
 
         return true;
     }
@@ -46,13 +56,23 @@ class VideoSyncPlugin extends Plugin
 
         switch ($cls) {
         case 'SwitchvideoAction':
-            require_once $dir . '/switchvideo.php';
+        case 'AddvideoAction':
+        case 'RemovevideoAction':
+        case 'UpdatevideoAction':
+        case 'ManagevideosyncAction':
+            require_once $dir . '/' . strtolower(mb_substr($cls, 0, -6)) . '.php';
             return false;
         case 'Videosync':
+        case 'VideosyncAdmin':
             require_once $dir . '/' . $cls . '.php';
             return false;
         case 'SwitchForm':
+        case 'VideoUpdateForm':
+        case 'VideoSetPlayingForm':
+        case 'VideoDeleteForm':
+        case 'VideoAddForm':
             require_once $dir . '/' . strtolower($cls) . '.php';
+			return false;
         default:
             return true;
         }
@@ -72,9 +92,17 @@ class VideoSyncPlugin extends Plugin
             new ColumnDef('yt_id', 'varchar', 11, true),
             new ColumnDef('duration', 'integer', 4, true),
             new ColumnDef('tag', 'varchar', 50, true),
+            new ColumnDef('yt_name', 'varchar', 255, true),
             new ColumnDef('started', 'timestamp',  null, false),
             new ColumnDef('toggle', 'integer', 1, true),
+            new ColumnDef('next', 'integer', null, true),
+            new ColumnDef('temporary', 'integer', 1, true, null, false),
         ));
+		$schema->ensureTable('videosync_admin',
+			array(
+				new ColumnDef('id', 'integer', null, false, 'PRI')
+			)
+		);
 
         return true;
     }
@@ -103,7 +131,8 @@ class VideoSyncPlugin extends Plugin
         }
 
 
-        if($action instanceof PublicAction) {
+        if($action instanceof PublicAction
+			|| $action instanceof ManagevideosyncAction) {
             $action->script($this->path('videosync.min.js'));
             $action->inlineScript('Videosync.init(' . json_encode(array(
                 'yt_id' => $this->v->yt_id, 
@@ -119,15 +148,17 @@ class VideoSyncPlugin extends Plugin
     function onStartShowNoticeForm($action) {
         $user = common_current_user();
 
-        if($action instanceof PublicAction) {
+        if($action instanceof PublicAction
+			|| $action instanceof ManagevideosyncAction) {
             $action->elementStart('div', array('id' => 'videosync'));
             $action->element('input', array(
                 'type' => 'button', 
                 'id' => 'videosync_btn', 
                 'value' => "&#9660; Watch videos together on the #{$this->tag}! &#9660;")
             );
-            if(!empty($user) && $user->hasRight(Right::CONFIGURESITE)) {
+            if(!empty($user) && VideosyncAdmin::isAdmin($user)) {
                 $action->elementStart('div', array('id' => 'videosync_aside'));
+				$action->element('a', array('id' => 'videosync_panel', 'href' => common_local_url('managevideosync')), _('Videosync Admin'));
                 $v = new Videosync();
                 $v->find();
                 $s = new SwitchForm($action, $v);

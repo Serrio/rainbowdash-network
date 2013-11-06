@@ -12,8 +12,11 @@ class Videosync extends Memcached_DataObject
 
     public $id;    //internal id. Used for sorting purposes
     public $yt_id; // YouTube ID of the video
+	public $yt_name; // Name of the video
     public $duration; // Length of the video in seconds
     public $started; // Time the video was started
+	public $next;  // The video internal ID to play after this one
+	public $temporary;  // Remove video from the list after it plays?
 
     function staticGet($k, $v=null)
     {
@@ -34,8 +37,11 @@ class Videosync extends Memcached_DataObject
             'yt_id' => DB_DATAOBJECT_STR + DB_DATAOBJECT_NOTNULL,
             'duration' => DB_DATAOBJECT_INT + DB_DATAOBJECT_NOTNULL,
             'tag' => DB_DATAOBJECT_STR,
+            'yt_name' => DB_DATAOBJECT_STR,
             'started' => DB_DATAOBJECT_MYSQLTIMESTAMP + DB_DATAOBJECT_NOTNULL,
             'toggle' => DB_DATAOBJECT_BOOL,
+			'next' => DB_DATAOBJECT_INT,
+			'temporary' => DB_DATAOBJECT_BOOL,
         );
     }
 
@@ -84,7 +90,12 @@ class Videosync extends Memcached_DataObject
             $v = Videosync::setCurrent(1);
         }
         else if(!$v->isCurrent()) {
-            $v = Videosync::setCurrent($v->id + 1);
+			$next = $v->next;
+			if(!$next || $next < 1)
+				$next = $v->id + 1;
+			if($v->temporary)
+				$v->delete();
+            $v = Videosync::setCurrent($next);
         }
 
         return $v;

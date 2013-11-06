@@ -21,13 +21,18 @@ class SwitchvideoAction extends Action
             return;
         }
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-            echo 'berp';
+            //echo 'berp';
             common_redirect(common_local_url('public'));
             return;
         }
         $user = common_current_user();
-        if(!$user->hasRight(Right::CONFIGURESITE)) {
+        if(!VideosyncAdmin::isAdmin($user)) {
             $this->clientError(_('Not authorized'));
+            return;
+        }
+        $token  = $this->trimmed('token-videoswitch');
+        if (!$token || $token != common_session_token()) {
+            $this->clientError(_('There was a problem with your session token. Try again, please.'));
             return;
         }
         $selected     = $this->trimmed('videoswitch-submit');
@@ -35,11 +40,6 @@ class SwitchvideoAction extends Action
         $v->tag = $selected;
         if(!$v->find() || !$v->fetch()) {
             $this->clientError(_('Invalid video ID'));
-            return;
-        }
-        $token  = $this->trimmed('token-videoswitch');
-        if (!$token || $token != common_session_token()) {
-            $this->clientError(_('There was a problem with your session token. Try again, please.'));
             return;
         }
         Videosync::setCurrent($v->id);
@@ -57,7 +57,7 @@ class SwitchvideoAction extends Action
             $this->elementEnd('body');
             $this->elementEnd('html');
         } else {
-            echo 'borp';
+            //echo 'borp';
             common_redirect(common_local_url('public'));
         }
     }
