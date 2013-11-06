@@ -63,6 +63,35 @@ class Notice_tag extends Managed_DataObject
         return $stream->getNotices($offset, $limit, $sinceId, $maxId);
     }
 
+    function _streamDirect($tag, $offset, $limit=null, $since_id=null, $max_id=false)
+    {
+        $nt = new Notice_tag();
+
+        $nt->tag = $tag;
+
+        $nt->selectAdd();
+        $nt->selectAdd('notice_id');
+
+        Notice::addWhereSinceId($nt, $since_id, 'notice_id');
+        Notice::addWhereMaxId($nt, $max_id, 'notice_id');
+
+        $nt->orderBy('created DESC, notice_id DESC');
+
+        if (!is_null($offset)) {
+            $nt->limit($offset, $limit);
+        }
+
+        $ids = array();
+
+        if ($nt->find()) {
+            while ($nt->fetch()) {
+                $ids[] = $nt->notice_id;
+            }
+        }
+
+        return $ids;
+    }
+
     function blowCache($blowLast=false)
     {
         self::blow('notice_tag:notice_ids:%s', Cache::keyize($this->tag));

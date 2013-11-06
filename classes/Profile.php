@@ -1477,6 +1477,39 @@ class Profile extends Managed_DataObject
         return $profile;
     }
 
+    function _streamDirect($offset, $limit, $since_id=null, $max_id=null, $images=false)
+    {
+        $notice = new Notice();
+
+        $notice->profile_id = $this->id;
+
+        $notice->selectAdd();
+        $notice->selectAdd('id');
+
+        Notice::addWhereSinceId($notice, $since_id);
+        Notice::addWhereMaxId($notice, $max_id);
+
+        $notice->orderBy('created DESC, id DESC');
+
+        if ($images) {
+            $notice->whereAdd('EXISTS (SELECT * FROM file_to_post WHERE notice.id = file_to_post.post_id)');
+        }
+
+        if (!is_null($offset)) {
+            $notice->limit($offset, $limit);
+        }
+
+        $notice->find();
+
+        $ids = array();
+
+        while ($notice->fetch()) {
+            $ids[] = $notice->id;
+        }
+
+        return $ids;
+    }
+
     /**
      * Magic function called at serialize() time.
      *

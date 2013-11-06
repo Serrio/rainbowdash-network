@@ -77,6 +77,39 @@ class User_group extends Managed_DataObject
         );
     }
 
+    function _streamDirect($offset, $limit, $since_id=null, $max_id=null, $images=false)
+    {
+        $inbox = new Group_inbox();
+
+        $inbox->group_id = $this->id;
+
+        $inbox->selectAdd();
+        $inbox->selectAdd('notice_id');
+
+        Notice::addWhereSinceId($inbox, $since_id, 'notice_id');
+        Notice::addWhereMaxId($inbox, $max_id, 'notice_id');
+
+        if ($images) {
+            $inbox->whereAdd('EXISTS (SELECT * FROM file_to_post WHERE group_inbox.notice_id = file_to_post.post_id)');
+        }
+
+        $inbox->orderBy('created DESC, notice_id DESC');
+
+        if (!is_null($offset)) {
+            $inbox->limit($offset, $limit);
+        }
+
+        $ids = array();
+
+        if ($inbox->find()) {
+            while ($inbox->fetch()) {
+                $ids[] = $inbox->notice_id;
+            }
+        }
+
+        return $ids;
+    }
+
     function defaultLogo($size)
     {
         static $sizenames = array(AVATAR_PROFILE_SIZE => 'profile',
