@@ -313,7 +313,7 @@ class DesignSettingsForm extends Form
 
     function action()
     {
-        return $this->isUserForm ? ($this->isUserForm == 2 ? common_local_url('admindesignsettings') : common_local_url('profiledesignsettings')) : common_local_url('groupdesignsettings', array('nickname' => $this->out->group->nickname));
+        return $this->isUserForm ? ($this->isUserForm === 2 ? common_local_url('admindesignsettings') : common_local_url('profiledesignsettings')) : common_local_url('groupdesignsettings', array('nickname' => $this->out->group->nickname));
     }
 
     /**
