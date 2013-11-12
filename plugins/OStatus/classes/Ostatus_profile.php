@@ -1912,6 +1912,7 @@ class Ostatus_profile extends Managed_DataObject
 
         // If we got a feed URL, try that
         if (array_key_exists('feedurl', $hints)) {
+			$feedUrl = $hints['feedurl'];
             try {
                 common_log(LOG_INFO, "Discovery on acct:$addr with feed URL " . $hints['feedurl']);
                 $oprofile = self::ensureFeedURL($hints['feedurl'], $hints);
@@ -1925,6 +1926,7 @@ class Ostatus_profile extends Managed_DataObject
 
         // If we got a profile page, try that!
         if (array_key_exists('profileurl', $hints)) {
+			$profileUrl = $hints['profileurl'];
             try {
                 common_log(LOG_INFO, "Discovery on acct:$addr with profile URL $profileUrl");
                 $oprofile = self::ensureProfileURL($hints['profileurl'], $hints);
