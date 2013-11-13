@@ -244,7 +244,7 @@ class PublicAction extends Action
     }
 
     function showSections()
-    {
+    {/*
         // Show invite button, as long as site isn't closed, and
         // we have a logged in user.
         if (!common_config('site', 'closed') && common_logged_in()) {
@@ -263,7 +263,7 @@ class PublicAction extends Action
         // $top = new TopPostersSection($this);
         // $top->show();
         $feat = new FeaturedUsersSection($this);
-        $feat->show();
+        $feat->show();*/
         //$gbp = new GroupsByMembersSection($this);
         //$gbp->show();
         $pop = new PopularNoticeSection($this);
