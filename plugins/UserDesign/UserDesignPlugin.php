@@ -67,7 +67,7 @@ class UserDesignPlugin extends Plugin
         $schema = Schema::get();
 
 		// TODO figure this part out :c
-        $schema->ensureTable('customdesignprofile',
+        $schema->ensureTable('profiledesign',
             array(new ColumnDef('id', 'integer', null,
             true, 'PRI'),
             new ColumnDef('bgcolor', 'char', 7, true),
