@@ -7,7 +7,7 @@ require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
 
 class ProfileDesign extends Memcached_DataObject
 {
-    public $__table = 'customdesignprofile'; // table name
+    public $__table = 'profiledesign'; // table name
 
     public $id;                         // int(4)  primary_key not_null
     public $bgcolor;
