@@ -171,8 +171,10 @@ class ProfiledesignsettingsAction extends SettingsAction
 */
 			if(isset($orig))
 				$vars->update($orig);
-			else
+			else {        
+				$vars->decache();
 				$vars->insert();
+			}
 
 			$this->showForm(_('Settings saved.'), true);
         }
