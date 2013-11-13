@@ -172,8 +172,10 @@ class ProfiledesignsettingsAction extends SettingsAction
 			if(isset($orig))
 				$vars->update($orig);
 			else {        
-				$vars->decache();
-				$vars->insert();
+				if (!$vars->insert()) {
+					$this->showForm(_('Error inserting row.'), true);
+					return;
+				}
 			}
 
 			$this->showForm(_('Settings saved.'), true);
