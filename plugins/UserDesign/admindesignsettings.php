@@ -171,6 +171,12 @@ class AdmindesignsettingsAction extends Action
 			else {
 				$orig = clone($vars);
 			}
+		if ($this->arg('defaults')) {
+				$vars->delete();
+		
+			$this->showForm(_('Default restored.'), true);
+			return;
+		}
 			
 			$vars->designoptions = $this->postDesignOptions(isset($orig) ? $orig->designoptions : 0);
 			$vars->bgcolor = $this->setColor($vars->bgcolor, $this->trimmed('design_background'));

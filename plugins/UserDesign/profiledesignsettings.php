@@ -91,7 +91,15 @@ class ProfiledesignsettingsAction extends SettingsAction
         }
 		
         $user = common_current_user();
-
+		
+		if ($this->arg('defaults')) {
+			$vars = ProfileDesign::staticGet('id', $user->id);
+			if(!empty($vars))
+				$vars->delete();
+		
+			$this->showForm(_('Default restored.'), true);
+			return;
+		}
 		if(!empty($user)) {
 
 			$vars = ProfileDesign::staticGet('id', $user->id);

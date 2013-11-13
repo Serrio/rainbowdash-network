@@ -285,6 +285,10 @@ class DesignSettingsForm extends Form
 
     function formActions()
     {
+		$this->submit('defaults', _('Use defaults'), 'submit form_action-default',
+		// TRANS: Title for button on profile design page to reset all colour settings to default.
+        'defaults', _('Restore default designs'));
+
         $this->submit('submit', _('Save'));
     }
 
