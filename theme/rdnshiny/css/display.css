@@ -2367,9 +2367,9 @@ float: left;
 
 #content .notice .author .photo {
 position: absolute;
-float: none;
-top: 11px;
+float: left;
 left: 0px;
+margin-top: 2px;
 }
 
 #content .notice .entry-title {
