@@ -246,7 +246,7 @@ class VideoSyncPlugin extends Plugin
 	var $shownMenuOpt = false;
 	
 	function onEndAdminDropdown($nav) {
-		if(VideosyncAdmin::isAdmin(common_current_user()))
+		if(common_logged_in() && VideosyncAdmin::isAdmin(common_current_user()))
 			$nav->menuItem(common_local_url('managevideosync'),
 				// TRANS: Main menu option when logged in and site admin for access to site configuration.
 				_m('MENU', 'Videosync'), _('Manage videosync playlist'), false, 'nav_videosync');
@@ -258,7 +258,7 @@ class VideoSyncPlugin extends Plugin
 	function onEndPrimaryNav($nav) {
 		if($this->shownMenuOpt)
 			return true;
-		if(VideosyncAdmin::isAdmin(common_current_user()))
+		if(common_logged_in() && VideosyncAdmin::isAdmin(common_current_user()))
 			$nav->menuItem(common_local_url('managevideosync'),
 				// TRANS: Main menu option when logged in and site admin for access to site configuration.
 				_m('MENU', 'Videosync'), _('Manage videosync playlist'), false, 'nav_videosync');
