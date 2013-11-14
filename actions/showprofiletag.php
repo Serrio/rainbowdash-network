@@ -318,9 +318,9 @@ class ShowprofiletagAction extends Action
 
             if ($cnt > PROFILES_PER_MINILIST) {
                 $this->elementStart('p');
-                $this->element('a', array('href' => common_local_url('taggedprofiles',
-                                                                     array('nickname' => $this->tagger->nickname,
-                                                                           'profiletag' => $this->peopletag->tag)),
+                $this->element('a', array('href' => common_local_url('peopletagged',
+                                                                     array('tagger' => $this->tagger->nickname,
+                                                                           'tag' => $this->peopletag->tag)),
                                           'class' => 'more'),
                                // TRANS: Link for more "People in list x by a user"
                                // TRANS: if there are more than the mini list's maximum.
