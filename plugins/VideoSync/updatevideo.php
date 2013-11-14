@@ -44,7 +44,7 @@ class UpdatevideoAction extends Action
 		}
 		$v->yt_id = Videosync::idFromUrl($this->trimmed('video_yt_id'));
 		$v->yt_name = $this->trimmed('video_yt_name');
-		$v->duration = $this->int('video_duration');
+		$v->duration = $this->trimmed('video_duration');
 		$v->tag = $this->trimmed('video_tag');
 		$v->update($o);
         if ($this->boolean('ajax')) {
