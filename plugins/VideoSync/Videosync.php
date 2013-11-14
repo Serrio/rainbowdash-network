@@ -13,6 +13,7 @@ class Videosync extends Memcached_DataObject
     public $id;    //internal id. Used for sorting purposes
     public $yt_id; // YouTube ID of the video
     public $yt_name; // Name of the video
+    public $tag; // Video tag
     public $duration; // Length of the video in seconds
     public $started; // Time the video was started
     public $temporary; // Remove the video from the list after it plays?
@@ -104,7 +105,7 @@ class Videosync extends Memcached_DataObject
 
         if(!empty($new)) {
             $orig = clone($new);
-            $new->started = time();
+            $new->started = time() + 10; // Add buffer so the video has time to load
             $new->update($orig);
         }
         else {
@@ -138,5 +139,13 @@ class Videosync extends Memcached_DataObject
     {
         return array(false, false, false);
     }
+	
+	static function idFromUrl($url) {
+		if(strlen($url) == 11)
+			return $url;
+		if(preg_match('/(youtu.be\/|youtube.com\/watch\?(.+&)*v=)(.{11})/i', $url, $match))
+			return $match[3];
+		return false;
+	}
 
 }

@@ -73,7 +73,7 @@ class VideosyncAdmin extends Memcached_DataObject
 		if($orig)
 			return false;
 		$orig = new VideosyncAdmin();
-		$orig->id = $user->id();
+		$orig->id = $user->id;
 		$orig->insert();
 		return true;
 	}

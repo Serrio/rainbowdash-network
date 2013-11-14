@@ -19,6 +19,8 @@ class VideoSyncPlugin extends Plugin
     public $channelbase   = null;
     public $persistent    = true;
     public $tag = 'livestream';
+	
+	var $tagMatch = false;
 
     function __construct($webserver=null, $webport=4670, $controlport=4671, $controlserver=null, $channelbase='')
     {  
@@ -52,9 +54,11 @@ class VideoSyncPlugin extends Plugin
 		$m->connect('main/videosync/delete',
 			array('action' => 'removevideo')
 		);
-		$m->connect('main/videosync/promote/:id',
-			array('action' => 'makevideosyncadmin',
-			'id' => '[0-9]+')
+		$m->connect('main/videosync/promote',
+			array('action' => 'makevideosyncadmin')
+		);
+		$m->connect('main/videosync/demote',
+			array('action' => 'removevideosyncadmin')
 		);
 
         return true;
@@ -69,6 +73,8 @@ class VideoSyncPlugin extends Plugin
         case 'RemovevideoAction':
         case 'UpdatevideoAction':
         case 'ManagevideosyncAction':
+        case 'MakevideosyncadminAction':
+        case 'RemovevideosyncadminAction':
             require_once $dir . '/' . strtolower(mb_substr($cls, 0, -6)) . '.php';
             return false;
         case 'Videosync':
@@ -90,7 +96,10 @@ class VideoSyncPlugin extends Plugin
         case 'VideoUpdateForm':
         case 'VideoSetPlayingForm':
         case 'VideoDeleteForm':
+        case 'VideoDeleteConfirmForm':
         case 'VideoAddForm':
+        case 'VideosyncPromoteForm':
+        case 'VideosyncDemoteForm':
             require_once $dir . '/' . strtolower($cls) . '.php';
 			return false;
         default:
@@ -140,8 +149,10 @@ class VideoSyncPlugin extends Plugin
 
     function onEndShowScripts($action) {
         if($action instanceof PublicAction
-			|| $action instanceof ManagevideosyncAction) {
+			|| $this->tagMatch) {
             //$action->script($this->path('videosync.min.js'));
+			if($action instanceof ManagevideosyncAction)
+				$action->script('http://'.$this->webserver.(($this->webport == 80) ? '':':'.$this->webport).'/meteor.js');
             $action->script($this->path('videosync.js'));
             $action->inlineScript('Videosync.init(' . json_encode(array(
                 'yt_id' => $this->v->yt_id, 
@@ -160,11 +171,21 @@ class VideoSyncPlugin extends Plugin
 		if($v) {
 			$action->elementStart('div', 'videosync_tag_info');
 			
+			$action->elementStart('a', array('href' => '//youtu.be/' . $v->yt_id, 'rel' => 'external nofollow'));
 			$action->element('img', array(
 				'src' => '//img.youtube.com/vi/'.$v->yt_id.'/mqdefault.jpg',
 				'width' => '160',
-				'height' => '90'
+				'height' => '90',
+				'style' => 'float:left;margin-right: 8px'
 			), null);
+			$action->elementEnd('a');
+			
+			$action->elementStart('h2');
+			$action->element('a', array('href' => '//youtu.be/' . $v->yt_id, 'rel' => 'external nofollow'), $v->yt_name);
+			$action->elementEnd('h2');
+			$length = intval($v->duration/60) . ':' . ($v->duration%60 < 10 ? '0' : '') . ($v->duration%60);
+			$text = $v->isCurrent() ? '%s, now playing on #%s' : '%s on #%s';
+			$action->element('span', 'length', sprintf(_($text), $length, $this->tag));
 			
 			$action->elementEnd('div');
 		}
@@ -174,9 +195,16 @@ class VideoSyncPlugin extends Plugin
     //function onEndShowHeader($action) {
     function onStartShowSiteNotice($action) {
         $user = common_current_user();
+		
+		$this->tagMatch = false;
+		
+		if($action instanceof TagAction) {
+			$tag = $action->tag;
+			$this->tagMatch = $tag == strtolower($this->tag);
+		}
 
         if(($action instanceof PublicAction
-			|| $action instanceof ManagevideosyncAction) && $user) {
+			|| $this->tagMatch) && $user) {
             $action->elementStart('div', array('id' => 'videosync'));
             $action->element('input', array(
                 'type' => 'button', 
@@ -197,4 +225,44 @@ class VideoSyncPlugin extends Plugin
 
         return true;
     }
+	
+	function onEndUserRoleBlock($action) {
+		if($action->user->hasRight(Right::CONFIGURESITE))
+			return true;
+        list($act, $r2args) = $action->returnToArgs();
+        $r2args['action'] = $act;
+
+        $action->elementStart('li', "entity_role_stream_manager");
+        if (VideosyncAdmin::isAdmin($action->user)) {
+            $rf = new VideosyncDemoteForm($action, $action->profile, $r2args);
+            $rf->show();
+        } else {
+            $rf = new VideosyncPromoteForm($action, $action->profile, $r2args);
+            $rf->show();
+        }
+        $action->elementEnd('li');
+	}
+	
+	var $shownMenuOpt = false;
+	
+	function onEndAdminDropdown($nav) {
+		if(VideosyncAdmin::isAdmin(common_current_user()))
+			$nav->menuItem(common_local_url('managevideosync'),
+				// TRANS: Main menu option when logged in and site admin for access to site configuration.
+				_m('MENU', 'Videosync'), _('Manage videosync playlist'), false, 'nav_videosync');
+		
+		$this->shownMenuOpt = true;
+		return true;
+	}
+	
+	function onEndPrimaryNav($nav) {
+		if($this->shownMenuOpt)
+			return true;
+		if(VideosyncAdmin::isAdmin(common_current_user()))
+			$nav->menuItem(common_local_url('managevideosync'),
+				// TRANS: Main menu option when logged in and site admin for access to site configuration.
+				_m('MENU', 'Videosync'), _('Manage videosync playlist'), false, 'nav_videosync');
+		
+		return true;
+	}
 }

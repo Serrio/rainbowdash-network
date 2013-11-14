@@ -62,7 +62,7 @@ class ManagevideosyncAction extends Action
 			$form->show();
 			$this->element('button', array(
 				'title' => _('Update video information'),
-				'onclick' => "$('#videosync_update-form-" . $v->id . "').show()"
+				'onclick' => "$('#videosync_update-form-" . $v->id . "').toggle()"
 			), _('Edit'));
 			$form = new VideoDeleteForm($this, $v);
 			$form->show();
@@ -72,7 +72,7 @@ class ManagevideosyncAction extends Action
 			$this->elementEnd('div');
 		}
 		
-		//$form = new VideoAddForm($this);
-		//$form->show();
+		$form = new VideoAddForm($this);
+		$form->show();
 	}
 }

@@ -134,7 +134,7 @@ class RDNPlusPlugin extends Plugin
         $action->cssLink($this->path('css/rdnrefresh.css'), null, 'screen, tv, projection, handheld');
 
 		if($vars['smallfont']) {
-			$action->style('#wrap {font-size: 94%}');
+			$action->style('body {font-size: 84%} .wf-active body {font-size: 90%}');
 		}
 		
         // Kill RDN Refresh

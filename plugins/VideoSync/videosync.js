@@ -26,7 +26,7 @@ Videosync = {
     // ID of the button that toggles the player
     trigger: 'videosync_btn',
     // Notice box ID
-    noticeBox: '.notice_data-text.ac_input:first',
+    noticeBox: '.notice_data-text:first',
     // Meteor channel that tracks updates
     syncChannel: null,
     // The original Meteor feed handler
