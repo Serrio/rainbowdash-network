@@ -121,18 +121,19 @@ class Videosync extends Memcached_DataObject
 	
 	static function setNext($id) {
 		// Linear video loading
-		/*$v = new Videosync();
+		$v = new Videosync();
 		$v->whereAdd('id > '.$id);
 		$v->orderBy('id ASC');
 		if(!$v->find(true)) {
 			$v = new Videosync();
 			$v->orderBy('id ASC');
 			$v->find(true);
-        }*/
+        }
 		
 		// Pseudo-shuffle (favors new videos and those that haven't been played recently)
-		$v = new Videosync();
-		$v->whereAdd('started < 0');
+		// @FIXME seems to just crash the site
+		/*$v = new Videosync();
+		$v->whereAdd('started < 1');
 		$v->orderBy('RANDOM()');
 		if(!$v->find(true)) {
 			$v = new Videosync();
@@ -143,7 +144,7 @@ class Videosync extends Memcached_DataObject
 				$v->orderBy('RANDOM()');
 				$v->find(true);
 			}
-        }
+        }*/
 		
 		
 		$o = clone($v);
