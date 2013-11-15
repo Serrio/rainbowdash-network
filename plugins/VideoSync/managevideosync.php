@@ -45,7 +45,12 @@ class ManagevideosyncAction extends Action
         $v = new Videosync();
         $v->find();
 		
+		$vidCount = 0;
+		$totalLength = 0;
+		
 		while($v->fetch()) {
+			$vidCount++;
+			$totalLength += $v->duration;
 			$this->elementStart('div', 'videosync_module');
 			$this->elementStart('h2');
 			$this->element('a', array(
@@ -71,6 +76,10 @@ class ManagevideosyncAction extends Action
 			$form->show();
 			$this->elementEnd('div');
 		}
+		
+		$lengthFormatted = intval($totalLength/3600) . ':' . (intval($totalLength/60) % 60 < 10 ? '0' : '')
+			. (intval($totalLength/60) % 60) . ':' . ($totalLength%60 < 10 ? '0' : '') . ($totalLength%60);
+		$this->element('p', 'form_guide', sprintf(_('%s videos totalling %s'), $vidCount, $lengthFormatted));
 		
 		$form = new VideoAddForm($this);
 		$form->show();
