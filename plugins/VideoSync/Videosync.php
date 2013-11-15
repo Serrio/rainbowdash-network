@@ -105,7 +105,7 @@ class Videosync extends Memcached_DataObject
 
         if(!empty($new)) {
             $orig = clone($new);
-            $new->started = time() + 10; // Add buffer so the video has time to load
+            $new->started = time();
             $new->update($orig);
         }
         else {
@@ -138,9 +138,9 @@ class Videosync extends Memcached_DataObject
 		if(!$v->find(true)) {
 			$v = new Videosync();
 			$v->orderBy('started ASC');
-			$num = $v->count();
+			$num = $v->count('id');
 			$num = intval($num/3);
-			if($num = 0)
+			if($num == 0)
 				$num = 1;
 			$num = rand(1, $num);
 			$v->find();
@@ -152,7 +152,7 @@ class Videosync extends Memcached_DataObject
 		
 		
 		$o = clone($v);
-		$v->started = time() + 10;
+		$v->started = time();
 		$v->update($o);
 		
 		return $v;
