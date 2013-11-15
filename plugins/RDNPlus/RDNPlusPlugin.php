@@ -61,6 +61,7 @@ class RDNPlusPlugin extends Plugin
             new ColumnDef('backgroundimage', 'varchar', 255, true),
             new ColumnDef('hideemotes', 'integer', 1, true),*/ // Gonna move this out to another plugin
             new ColumnDef('autospoil', 'integer', 1, true),
+            new ColumnDef('smallfont', 'integer', 1, true),
             new ColumnDef('lastdm', 'integer', null, true),
         ));
 
@@ -132,6 +133,10 @@ class RDNPlusPlugin extends Plugin
 
         $action->cssLink($this->path('css/rdnrefresh.css'), null, 'screen, tv, projection, handheld');
 
+		if($vars['smallfont']) {
+			$action->style('body {font-size: 84%} .wf-active body {font-size: 90%}');
+		}
+		
         // Kill RDN Refresh
         $action->inlineScript('RDNDIE = true; ');
 

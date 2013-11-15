@@ -7,14 +7,14 @@ $(function() {
     // Notice lists...
     $('.notice .author').live('mouseenter', function(e) {
         var notice = $(this).closest('.notice');
-        var popup = notice.find('.remote-profile-options');
+        var popup = notice.find('.remote-profile-options').filter(':first');
         if (popup.length) {
             popup.fadeIn();
         }
     });
     $('.notice').live('mouseleave', function(e) {
         var notice = $(this);
-        var popup = notice.find('.remote-profile-options');
+        var popup = notice.find('.remote-profile-options').filter(':first');
         if (popup.length) {
             popup.fadeOut();
         }

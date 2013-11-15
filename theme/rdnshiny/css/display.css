@@ -67,7 +67,7 @@ body {
 background: no-repeat fixed 50% 100%;
 background-color: #58C;
 font-family: "DejaVu Sans", "Bitstream Vera Sans", Geneva, Verdana, sans-serif;
-font-size: 84%;
+font-size: 89%;
 color: #111;
 line-height: 1.4;
 }
@@ -558,6 +558,14 @@ background-image: url(../images/streambg.png);
 padding: 0 168px;
 margin-bottom: -6px;
 }
+
+.videosync_module {float:left;width:100%;margin-bottom:10px}
+.videosync_module h2 {float:left;margin:0}
+.videosync_vidoptions {float:right}
+.videosync_vidoptions form,.videosync_vidoptions button {float:left}
+.videosync_vidoptions input,.videosync_vidoptions button {height: 24px}
+.videosync_update-form {margin:20px 0;float:left;width:100%;display:none}
+.videosync_add-form {margin-top: 20px;float:left}
 
 .form_switchvideo input.submit {
 border: none;
@@ -2367,9 +2375,9 @@ float: left;
 
 #content .notice .author .photo {
 position: absolute;
-float: none;
-top: 11px;
+float: left;
 left: 0px;
+margin-top: 2px;
 }
 
 #content .notice .entry-title {
@@ -2985,6 +2993,8 @@ button.close:before,
 .entity_role p:before,
 .entity_role_administrator .submit:before,
 .entity_role_moderator .submit:before,
+.form_user_makevideosyncadmin .submit:before,
+.form_user_removevideosyncadmin .submit:before,
 .entity_actions .entity_seize .submit:before,
 button.minimize:before,
 .form_reset_key .submit:before,
@@ -3113,6 +3123,21 @@ text-shadow: 0 -1px 0 #0A3D74,
 }
 .entity_role_moderator .form_user_revokerole .submit:before {
 content: '\f006';
+}
+.form_user_makevideosyncadmin .submit:before {
+content: '\f03d';
+}
+.form_user_removevideosyncadmin .submit:before {
+content: '\f03d';
+color: #CCC;
+text-shadow: 0 -1px 0 #0A3D74,
+ 0 1px 0 #0A3D74,
+ 1px 0 0 #0A3D74,
+ -1px 0 0 #0A3D74,
+ -0.7px -0.7px 0 #0A3D74,
+ 0.7px -0.7px 0 #0A3D74,
+ 0.7px 0.7px 0 #0A3D74,
+ -0.7px 0.7px 0 #0A3D74;
 }
 .form_reset_key .submit:before {
 content: '\f084';

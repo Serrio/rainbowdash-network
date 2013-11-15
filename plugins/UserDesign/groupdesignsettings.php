@@ -278,17 +278,17 @@ class GroupdesignsettingsAction extends GroupAction
 		$mask = 0;
 		
 		if($bgAnchor !== null) {
-			$mask += 24;
 			$bgAnchor = ($bgAnchor == 'top' ? 8 : ($bgAnchor == 'center' ? 16 : 0));
 		} else {
 			$bgAnchor = 0;
+			$mask += 24;
 		}
 			
 		if($bnAnchor !== null) {
-			$mask += 128;
 			$bnAnchor = ($bnAnchor == 'left' ? 128 : 0);
 		} else {
 			$bnAnchor = 0;
+			$mask += 128;
 		}
 		
 		

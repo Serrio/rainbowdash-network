@@ -58,7 +58,7 @@ d[i$s][l$s][d$s]o
 \btwat
 ENDFILTER;
         $wordlist = '/'.($skipLinks ?
-		'(^[^<]*|>[^<]*|<a[^>]*title="[^"]*)\\K' // Keep filter from affecting link hrefs
+		'((^[^<]*)|(>[^<]*)|(<a[^>]*title="[^"]*))\\K' // Keep filter from affecting link hrefs
 		: '').'((' . str_replace("\n", ")|(", str_replace("\r\n", "\n", $wordlist)) . '))/i';
 		return $wordlist;
 	}
@@ -67,9 +67,10 @@ ENDFILTER;
 		$wordlist = $this->_getWordlist($skipLinks);
 		$choice = $this->filterTo;
 
-        $content = preg_replace_callback($wordlist, function($choice) use ($choice) {
-            return $choice[array_rand($choice)];
-        }, $content);
+	while(preg_match($wordlist, $content))
+            $content = preg_replace_callback($wordlist, function($choice) use ($choice) {
+        	 return $choice[array_rand($choice)];
+       	    }, $content);
         return $content;
     }
 

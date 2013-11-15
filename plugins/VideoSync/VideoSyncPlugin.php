@@ -19,6 +19,8 @@ class VideoSyncPlugin extends Plugin
     public $channelbase   = null;
     public $persistent    = true;
     public $tag = 'livestream';
+	
+	var $tagMatch = false;
 
     function __construct($webserver=null, $webport=4670, $controlport=4671, $controlserver=null, $channelbase='')
     {  
@@ -40,6 +42,24 @@ class VideoSyncPlugin extends Plugin
 		$m->connect('main/updatestream',
 			array('action' => 'updatestream')
 		);
+		$m->connect('main/videosync',
+			array('action' => 'managevideosync')
+		);
+		$m->connect('main/videosync/update',
+			array('action' => 'updatevideo')
+		);
+		$m->connect('main/videosync/add',
+			array('action' => 'addvideo')
+		);
+		$m->connect('main/videosync/delete',
+			array('action' => 'removevideo')
+		);
+		$m->connect('main/videosync/promote',
+			array('action' => 'makevideosyncadmin')
+		);
+		$m->connect('main/videosync/demote',
+			array('action' => 'removevideosyncadmin')
+		);
 
         return true;
     }
@@ -49,9 +69,16 @@ class VideoSyncPlugin extends Plugin
 
         switch ($cls) {
         case 'SwitchvideoAction':
-            require_once $dir . '/switchvideo.php';
+        case 'AddvideoAction':
+        case 'RemovevideoAction':
+        case 'UpdatevideoAction':
+        case 'ManagevideosyncAction':
+        case 'MakevideosyncadminAction':
+        case 'RemovevideosyncadminAction':
+            require_once $dir . '/' . strtolower(mb_substr($cls, 0, -6)) . '.php';
             return false;
         case 'Videosync':
+        case 'VideosyncAdmin':
             require_once $dir . '/' . $cls . '.php';
             return false;
 		case 'UpdatestreamAction':
@@ -59,14 +86,22 @@ class VideoSyncPlugin extends Plugin
             $m = $this->getMeteor();
 
             $m->_connect();
-            $m->_publish($this->channelbase . '-videosync', array('yt_id' => $this->v->yt_id, 'pos' => time() - strtotime($this->v->started), 'started' => strtotime($this->v->started), 'tag' => $this->getFullTag()));
+            $m->_publish($this->channelbase . '-videosync', array('yt_id' => $this->v->yt_id, 'pos' => time() - $this->v->started, 'started' => strtotime($this->v->started), 'tag' => $this->getFullTag()));
             $m->_disconnect();
 			
 			exit(0);
 			return false;
 			
         case 'SwitchForm':
+        case 'VideoUpdateForm':
+        case 'VideoSetPlayingForm':
+        case 'VideoDeleteForm':
+        case 'VideoDeleteConfirmForm':
+        case 'VideoAddForm':
+        case 'VideosyncPromoteForm':
+        case 'VideosyncDemoteForm':
             require_once $dir . '/' . strtolower($cls) . '.php';
+			return false;
         default:
             return true;
         }
@@ -86,9 +121,14 @@ class VideoSyncPlugin extends Plugin
             new ColumnDef('yt_id', 'varchar', 11, true),
             new ColumnDef('duration', 'integer', 4, true),
             new ColumnDef('tag', 'varchar', 50, true),
-            new ColumnDef('started', 'timestamp',  null, false),
-            new ColumnDef('toggle', 'integer', 1, true),
+            new ColumnDef('yt_name', 'varchar', 255, true),
+            new ColumnDef('started', 'int',  null, false),
+            new ColumnDef('temporary', 'integer', 1, true, null, false),
         ));
+		
+		$schema->ensureTable('videosyncadmin',
+			array(new ColumnDef('id', 'integer', null, false, 'PRI'))
+		);
 
         return true;
     }
@@ -108,12 +148,15 @@ class VideoSyncPlugin extends Plugin
     }
 
     function onEndShowScripts($action) {
-        if($action instanceof PublicAction) {
+        if($action instanceof PublicAction
+			|| $this->tagMatch) {
             //$action->script($this->path('videosync.min.js'));
+			if($action instanceof ManagevideosyncAction)
+				$action->script('http://'.$this->webserver.(($this->webport == 80) ? '':':'.$this->webport).'/meteor.js');
             $action->script($this->path('videosync.js'));
             $action->inlineScript('Videosync.init(' . json_encode(array(
                 'yt_id' => $this->v->yt_id, 
-                'started' => strtotime($this->v->started),
+                'started' => $this->v->started,
                 'tag' => $this->getFullTag(),
                 'channel' => $this->channelbase . '-videosync',
             )) . ');');
@@ -121,19 +164,54 @@ class VideoSyncPlugin extends Plugin
 
         return true;
     }
+	
+	function onStartTagShowContent($action) {
+		$tag = $action->tag;
+		$v = Videosync::staticGet('tag', $tag);
+		if($v) {
+			$action->elementStart('div', 'videosync_tag_info');
+			
+			$action->elementStart('a', array('href' => '//youtu.be/' . $v->yt_id, 'rel' => 'external nofollow'));
+			$action->element('img', array(
+				'src' => '//img.youtube.com/vi/'.$v->yt_id.'/mqdefault.jpg',
+				'width' => '160',
+				'height' => '90',
+				'style' => 'float:left;margin-right: 8px'
+			), null);
+			$action->elementEnd('a');
+			
+			$action->elementStart('h2');
+			$action->element('a', array('href' => '//youtu.be/' . $v->yt_id, 'rel' => 'external nofollow'), $v->yt_name);
+			$action->elementEnd('h2');
+			$length = intval($v->duration/60) . ':' . ($v->duration%60 < 10 ? '0' : '') . ($v->duration%60);
+			$text = $v->isCurrent() ? '%s, now playing on #%s' : '%s on #%s';
+			$action->element('span', 'length', sprintf(_($text), $length, $this->tag));
+			
+			$action->elementEnd('div');
+		}
+		return true;
+	}
 
     //function onEndShowHeader($action) {
     function onStartShowSiteNotice($action) {
         $user = common_current_user();
+		
+		$this->tagMatch = false;
+		
+		if($action instanceof TagAction) {
+			$tag = $action->tag;
+			$this->tagMatch = $tag == strtolower($this->tag);
+		}
 
-        if($action instanceof PublicAction && $user) {
+        if(($action instanceof PublicAction
+			|| $this->tagMatch) && $user) {
             $action->elementStart('div', array('id' => 'videosync'));
             $action->element('input', array(
                 'type' => 'button', 
                 'id' => 'videosync_btn', 
                 'value' => "Watch videos on the #{$this->tag}!")
             );
-            if(!empty($user) && $user->hasRight(Right::CONFIGURESITE)) {
+            if(!empty($user) && VideosyncAdmin::isAdmin($user)) {
                 $action->elementStart('div', array('id' => 'videosync_aside'));
                 $v = new Videosync();
                 $v->find();
@@ -147,5 +225,44 @@ class VideoSyncPlugin extends Plugin
 
         return true;
     }
+	
+	function onEndUserRoleBlock($action) {
+		if($action->user->hasRight(Right::CONFIGURESITE))
+			return true;
+        list($act, $r2args) = $action->returnToArgs();
+        $r2args['action'] = $act;
+
+        $action->elementStart('li', "entity_role_stream_manager");
+        if (VideosyncAdmin::isAdmin($action->user)) {
+            $rf = new VideosyncDemoteForm($action, $action->profile, $r2args);
+            $rf->show();
+        } else {
+            $rf = new VideosyncPromoteForm($action, $action->profile, $r2args);
+            $rf->show();
+        }
+        $action->elementEnd('li');
+	}
+	
+	var $shownMenuOpt = false;
+	
+	function onEndAdminDropdown($nav) {
+		if(common_logged_in() && VideosyncAdmin::isAdmin(common_current_user()))
+			$nav->menuItem(common_local_url('managevideosync'),
+				// TRANS: Main menu option when logged in and site admin for access to site configuration.
+				_m('MENU', 'Videosync'), _('Manage videosync playlist'), false, 'nav_videosync');
+		
+		$this->shownMenuOpt = true;
+		return true;
+	}
+	
+	function onEndPrimaryNav($nav) {
+		if($this->shownMenuOpt)
+			return true;
+		if(common_logged_in() && VideosyncAdmin::isAdmin(common_current_user()))
+			$nav->menuItem(common_local_url('managevideosync'),
+				// TRANS: Main menu option when logged in and site admin for access to site configuration.
+				_m('MENU', 'Videosync'), _('Manage videosync playlist'), false, 'nav_videosync');
+		
+		return true;
+	}
 }
-?>

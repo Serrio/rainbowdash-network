@@ -263,6 +263,7 @@ class AccountProfileBlock extends ProfileBlock
                             $this->roleButton('administrator', _m('role', 'Administrator'));
                             // TRANS: Role that can be set for a user profile.
                             $this->roleButton('moderator', _m('role', 'Moderator'));
+							Event::handle('EndUserRoleBlock', array($this->out));
                             $this->out->elementEnd('ul');
                             $this->out->elementEnd('li');
                         }

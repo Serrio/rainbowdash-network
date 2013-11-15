@@ -117,6 +117,11 @@ class RdnrefreshsettingsAction extends SettingsAction
                          ($this->arg('backgroundimage')) ? $this->arg('backgroundimage') : $vars['backgroundimage']);
             $this->elementEnd('li');
 */
+            $this->elementStart('li');
+            $this->checkbox('smallfont', _('Small site font'),
+                            ($this->arg('smallfont')) ?
+                            $this->boolean('smallfont') : $vars['smallfont']);
+            $this->elementEnd('li');
             Event::handle('EndRDNRefreshFormData', array($this));
 
         $this->elementEnd('ul');
@@ -173,6 +178,7 @@ class RdnrefreshsettingsAction extends SettingsAction
                 $vars->customstyle = $this->boolean('customstyle');
                 $vars->hideemotes = $this->boolean('hideemotes');*/
                 $vars->autospoil = $this->boolean('autospoil');
+                $vars->smallfont = $this->boolean('smallfont');
 
                 if(isset($orig))
                     $vars->update($orig);

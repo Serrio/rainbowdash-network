@@ -12,8 +12,11 @@ class Videosync extends Memcached_DataObject
 
     public $id;    //internal id. Used for sorting purposes
     public $yt_id; // YouTube ID of the video
+    public $yt_name; // Name of the video
+    public $tag; // Video tag
     public $duration; // Length of the video in seconds
     public $started; // Time the video was started
+    public $temporary; // Remove the video from the list after it plays?
 
     function staticGet($k, $v=null)
     {
@@ -34,8 +37,9 @@ class Videosync extends Memcached_DataObject
             'yt_id' => DB_DATAOBJECT_STR + DB_DATAOBJECT_NOTNULL,
             'duration' => DB_DATAOBJECT_INT + DB_DATAOBJECT_NOTNULL,
             'tag' => DB_DATAOBJECT_STR,
-            'started' => DB_DATAOBJECT_MYSQLTIMESTAMP + DB_DATAOBJECT_NOTNULL,
-            'toggle' => DB_DATAOBJECT_BOOL,
+            'yt_name' => DB_DATAOBJECT_STR,
+            'started' => DB_DATAOBJECT_INT,
+			'temporary' => DB_DATAOBJECT_BOOL,
         );
     }
 
@@ -71,7 +75,7 @@ class Videosync extends Memcached_DataObject
     }
 
     function isCurrent() {
-        if(strtotime($this->started) + $this->duration <= time()) {
+        if($this->started + $this->duration + 10 <= time()) {
             return false;
         }
         return true;
@@ -84,15 +88,16 @@ class Videosync extends Memcached_DataObject
             $v = Videosync::setCurrent(1);
         }
         else if(!$v->isCurrent()) {
-            $v = Videosync::setCurrent($v->id + 1);
+			$id = $v->id;
+			if($v->temporary)
+				$v->delete();
+            $v = Videosync::setNext($id);
         }
 
         return $v;
     }
 
     static function setCurrent($id) {
-        $v = new Videosync();
-
         $new = Videosync::staticGet('id', $id);
         if(empty($new)) {
             $new = Videosync::staticGet('id', 1);
@@ -100,7 +105,7 @@ class Videosync extends Memcached_DataObject
 
         if(!empty($new)) {
             $orig = clone($new);
-            $new->toggle = !($new->toggle);
+            $new->started = time() + 10; // Add buffer so the video has time to load
             $new->update($orig);
         }
         else {
@@ -108,15 +113,57 @@ class Videosync extends Memcached_DataObject
             $new->id = "1";
             $new->yt_id = "wmKrQBWc2U4";
             $new->duration = 856;
-            $new->started = date('r', time() - 7 * 60);
+            $new->started = time() - 7 * 60;
         }
 
         return $new;
     }
+	
+	static function setNext($id) {
+		// Linear video loading
+		/*$v = new Videosync();
+		$v->whereAdd('id > '.$id);
+		$v->orderBy('id ASC');
+		if(!$v->find(true)) {
+			$v = new Videosync();
+			$v->orderBy('id ASC');
+			$v->find(true);
+        }*/
+		
+		// Pseudo-shuffle (favors new videos and those that haven't been played recently)
+		$v = new Videosync();
+		$v->whereAdd('started < 0');
+		$v->orderBy('RANDOM()');
+		if(!$v->find(true)) {
+			$v = new Videosync();
+			$v->whereAdd('started < ' . (time()-5400)); // an hour and a half ago
+			$v->orderBy('RANDOM()');
+			if(!$v->find(true)) {
+				$v = new Videosync();
+				$v->orderBy('RANDOM()');
+				$v->find(true);
+			}
+        }
+		
+		
+		$o = clone($v);
+		$v->started = time() + 10;
+		$v->update($o);
+		
+		return $v;
+	}
 
     function sequenceKey()
     {
         return array(false, false, false);
     }
+	
+	static function idFromUrl($url) {
+		if(strlen($url) == 11)
+			return $url;
+		if(preg_match('/(youtu.be\/|youtube.com\/watch\?(.+&)*v=)(.{11})/i', $url, $match))
+			return $match[3];
+		return false;
+	}
 
 }
