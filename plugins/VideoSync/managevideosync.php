@@ -43,10 +43,27 @@ class ManagevideosyncAction extends Action
 		$current = $current->id;
 		
         $v = new Videosync();
+		
+		if($this->trimmed('sort') == 'alpha')
+			$v->orderBy('yt_name ASC');
+		else if($this->trimmed('sort') == 'played')
+			$v->orderBy('started DESC');
+		
         $v->find();
 		
 		$vidCount = 0;
 		$totalLength = 0;
+		
+		$this->elementStart('p');
+		
+		$this->text(_('Sort by:'));
+		$this->element('a', array('href' => common_local_url('managevideosync')), _('Time added'));
+		$this->text('|');
+		$this->element('a', array('href' => common_local_url('managevideosync') . '?sort=played'), _('Time last played'));
+		$this->text('|');
+		$this->element('a', array('href' => common_local_url('managevideosync') . '?sort=alpha'), _('Alphabetical'));
+		
+		$this->elementEnd('p');
 		
 		while($v->fetch()) {
 			$vidCount++;
