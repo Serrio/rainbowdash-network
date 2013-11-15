@@ -528,13 +528,13 @@ bottom: 38px;
 margin-left: -42px;
 }
 
-.notice-options form:not(.dialog-box), .notice-options a,
-.notice-options form:not(.dialog-box) input, .notice-options .repeated {
+.notice-options form:not(.dialogbox), .notice-options a,
+.notice-options form:not(.dialogbox) input, .notice-options .repeated {
 width: 32px !important;
 height: 32px !important;
 }
 
-.notice-options form:not(.dialog-box):before, .notice-options a:before, .notice-options .repeated:before {
+.notice-options form:not(.dialogbox):before, .notice-options a:before, .notice-options .repeated:before {
 font-size: 26px !important;
 line-height: 32px !important;
 width: 32px;
