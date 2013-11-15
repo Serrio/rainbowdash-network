@@ -1,14 +1,19 @@
-$('head').append($('<style>#content .notice > :not(.notices) {pointer-events: none !important;}</style>'));
+//$('head').append($('<style>#content .notice > :not(.notices) {pointer-events: none !important;}</style>'));
+alert('testing D!');
 
-$('#content .notice').live('click', function() {
-	var notice = $(this).clone(true);
-	notice.find('.notices').remove();
+$('#content .notice .author, #content .notice .author *').live('click', function() {
+	var notice = $(this).closest('.notice').clone(true);
+	var nest = notice.find('.notices');
+	if(nest.length)
+		nest.remove();
 	var popup = $('<div id="notice-popup"></div>');
 	popup.append(notice);
-	popup.append($('<a id="notice-popup-close">&#xf00d;</a>'));
+	popup.append($('<a id="notice-popup-close" href="#">&#xf00d;</a>'));
 	$('body').append(popup);
-	adjustNoticePopup();
-	$(window).bind('resize.popadjust', adjustNoticePopup);
+	try {
+		adjustNoticePopup();
+		$(window).bind('resize.popadjust', adjustNoticePopup);
+	} catch (e) {}
 	return false;
 });
 
@@ -19,10 +24,11 @@ $('#notice-popup-close').live('click', function() {
 	}
 	$('#notice-popup, #notice-popup-style').remove();
 	$(window).unbind('.popadjust');
+	return false;
 });
 
 if($('body#shownotice').length) {
-	$('.notice').click();
+	$('.notice .author').click();
 	$('#notice-popup').css({'background-color':'#889'});
 }
 
@@ -42,7 +48,7 @@ $('#user_info_card img, #user_info_card .profile_block_name').bind('click', func
 $('#user_info_card').append($('#dmcounter'));
 
 // @fixme This isn't working any more for some reason... it worked in an earlier pass of the code. :c
-$('a').live('click', function() {
+/*$('a').live('click', function() {
 	if($(this).is('#notice-popup a.timestamp') || $('body#shownotice').length)
 		return true;
 	var link = $(this).attr('href');
@@ -79,7 +85,7 @@ $('a').live('click', function() {
 		}
 	});
 	return false;
-});
+});*/
 
 function adjustNoticePopup() {
 	try{$('#notice-popup-style').remove();}catch(e) {}
@@ -103,6 +109,7 @@ $('#user_info_card #form_login input.submit').live('click', function() {
 $('.entity_actions h2').live('click', function() {
 	$(this).parent().toggleClass('opened');
 });
+$('.entity_actions h2').html('<a href="#">'+$('.entity_actions h2').html()+'</a>');
 
 $('#site_nav_local_views li.current').live('click', function() {
 	$('#site_nav_local_views').toggleClass('opened');
