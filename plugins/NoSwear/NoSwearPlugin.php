@@ -58,7 +58,7 @@ d[i$s][l$s][d$s]o
 \btwat
 ENDFILTER;
         $wordlist = '/'.($skipLinks ?
-		'(^[^<]*|>[^<]*|<a[^>]*title="[^"]*)\\K' // Keep filter from affecting link hrefs
+		'((^[^<]*)|(>[^<]*)|(<a[^>]*title="[^"]*))\\K' // Keep filter from affecting link hrefs
 		: '').'((' . str_replace("\n", ")|(", str_replace("\r\n", "\n", $wordlist)) . '))/i';
 		return $wordlist;
 	}

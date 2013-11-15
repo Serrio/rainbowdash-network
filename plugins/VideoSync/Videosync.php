@@ -75,7 +75,7 @@ class Videosync extends Memcached_DataObject
     }
 
     function isCurrent() {
-        if($this->started + $this->duration <= time()) {
+        if($this->started + $this->duration + 10 <= time()) {
             return false;
         }
         return true;
@@ -147,7 +147,7 @@ class Videosync extends Memcached_DataObject
 		
 		
 		$o = clone($v);
-		$v->started = time();
+		$v->started = time() + 10;
 		$v->update($o);
 		
 		return $v;
