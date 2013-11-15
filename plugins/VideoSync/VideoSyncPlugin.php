@@ -108,7 +108,7 @@ class VideoSyncPlugin extends Plugin
     }
 
     function initialize() {
-        $this->v = Videosync::getCurrent();
+        $this->v = Videosync::getCurrent(true);
 
     }
 

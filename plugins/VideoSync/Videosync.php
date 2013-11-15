@@ -81,13 +81,13 @@ class Videosync extends Memcached_DataObject
         return true;
     }
 
-    static function getCurrent() {
+    static function getCurrent($setNext = false) {
         $v = new Videosync();
         $v->orderBy("started DESC, id ASC");
         if(!$v->find() || !$v->fetch()) {
             $v = Videosync::setCurrent(1);
         }
-        else if(!$v->isCurrent()) {
+        else if(!$v->isCurrent() && $setNext) {
 			$id = $v->id;
 			if($v->temporary)
 				$v->delete();
