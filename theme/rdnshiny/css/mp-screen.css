@@ -499,6 +499,8 @@ border-radius: 4px;
 
 #notice-popup .notice div.entry-content {margin-bottom: 48px; margin-left: 0;}
 
+#notice-popup .notice .notice {display: none;}
+
 #notice-popup .threaded-replies {
 position: fixed;
 left: 2px;
