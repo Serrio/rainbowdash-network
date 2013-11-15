@@ -69,6 +69,11 @@ class ManagevideosyncAction extends Action
 			$vidCount++;
 			$totalLength += $v->duration;
 			$this->elementStart('div', 'videosync_module');
+			$this->element('img', array(
+				'src' => '//img.youtube.com/vi/'.$v->yt_id.'/mqdefault.jpg',
+				'width' => '96',
+				'height' => '54'
+			), null);
 			$this->elementStart('h2');
 			$this->element('a', array(
 				'class' => 'videosync_videoname',
@@ -76,9 +81,22 @@ class ManagevideosyncAction extends Action
 				'rel' => 'external nofollow',
 				'target' => '_blank'
 			), $v->yt_name);
-			if($v->id == $current)
-				$this->element('span', 'videosync_nowplaying', _('Now Playing'));
 			$this->elementEnd('h2');
+			
+			
+			$dateStr = common_date_string(date('d F Y H:i:s', $v->started));
+			$this->elementStart('div', 'videosync_vidinfo');
+			
+			$length = intval($v->duration/60) . ':' . ($v->duration%60 < 10 ? '0' : '') . ($v->duration%60);
+			$this->text($length);
+			
+			$this->text(' - ' . sprintf(_('Last played %s'), $dateStr));
+			if($v->id == $current)
+				$this->raw(' - <b>' . _('Now Playing') . '</b>');
+			if($v->temporary)
+				$this->raw(' - <i>' . _('Temporary') . '</i>');
+			$this->elementEnd('div');
+			
 			$this->elementStart('div', 'videosync_vidoptions');
 			$form = new VideoSetPlayingForm($this, $v);
 			$form->show();

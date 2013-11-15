@@ -559,8 +559,10 @@ padding: 0 168px;
 margin-bottom: -6px;
 }
 
-.videosync_module {float:left;width:100%;margin-bottom:10px}
-.videosync_module h2 {float:left;margin:0}
+.videosync_module {float:left;width:100%;padding:6px 0; border-top: 1px dotted #CCC}
+.videosync_module img {float: left; margin-right: 10px;}
+.videosync_module h2 {margin:0;}
+.videosync_vidinfo {float: left;}
 .videosync_vidoptions {float:right}
 .videosync_vidoptions form,.videosync_vidoptions button {float:left}
 .videosync_vidoptions input,.videosync_vidoptions button {height: 24px}
