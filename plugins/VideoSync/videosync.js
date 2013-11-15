@@ -18,7 +18,7 @@ Videosync = {
     // Name of the state cookie
     cookie: 'VideoSyncState',
     // second tolerance for stream correction. Any variation lower than this will not cause the stream to jump.
-    tolerance: 5,
+    tolerance: 25,
     // ID of the video frame
     videoFrame: 'videosync_box',
     // Aside container
