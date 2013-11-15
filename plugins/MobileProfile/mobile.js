@@ -1,5 +1,5 @@
 //$('head').append($('<style>#content .notice > :not(.notices) {pointer-events: none !important;}</style>'));
-alert('testing D!');
+//alert('testing D!');
 
 $('#content .notice .author, #content .notice .author *').live('click', function() {
 	var notice = $(this).closest('.notice').clone(true);
