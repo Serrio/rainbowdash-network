@@ -147,6 +147,13 @@ class DesignSettingsForm extends Form
                             ($this->settings['designoptions'] & 256) ? true : false);
             $this->out->elementEnd('li');
 			if($this->isUserForm !== 2) {
+
+            $this->out->elementStart('li');
+            $this->out->checkbox('design_banner-resize',
+                            // TRANS: Checkbox label on profile design page that will cause the profile image to be tiled.
+                            _('Resize image to fit'),
+                            ($this->settings['designoptions'] & 1024) ? true : false);
+            $this->out->elementEnd('li');
 			$this->out->elementStart('li');
             $this->out->dropdown('design_banner-image_anchor',
                             // TRANS: Dropdown field label on profile settings, for what policies to apply when someone else tries to subscribe to your updates.

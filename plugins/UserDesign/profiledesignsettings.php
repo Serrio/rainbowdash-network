@@ -189,6 +189,7 @@ class ProfiledesignsettingsAction extends SettingsAction
 		$bnEnabled = $this->boolean('design_banner-image_enable');
 		$bnAnchor = $this->trimmed('design_banner-image_anchor');
 		$bnLight = $this->boolean('design_banner-light');
+		$bnSize = $this->boolean('design_banner-resize');
 		
 		$useEverywhere = $this->boolean('design_use-everywhere');
 		
@@ -219,6 +220,7 @@ class ProfiledesignsettingsAction extends SettingsAction
 			+ ($bnEnabled ? 64 : 0)
 			+ ($bnLight ? 256 : 0)
 			+ ($useEverywhere ? 512 : 0)
+			+ ($bnSize ? 1024 : 0)
 		;
 		return $new;
 	}
