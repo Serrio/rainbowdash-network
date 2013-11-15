@@ -183,9 +183,19 @@ class VideoSyncPlugin extends Plugin
 			$action->elementStart('h2');
 			$action->element('a', array('href' => '//youtu.be/' . $v->yt_id, 'rel' => 'external nofollow'), $v->yt_name);
 			$action->elementEnd('h2');
+			
+			$action->elementStart('div');
+			
 			$length = intval($v->duration/60) . ':' . ($v->duration%60 < 10 ? '0' : '') . ($v->duration%60);
-			$text = $v->isCurrent() ? '%s, now playing on #%s' : '%s on #%s';
-			$action->element('span', 'length', sprintf(_($text), $length, $this->tag));
+			$action->text($length);
+			
+			$dateStr = common_date_string(date('d F Y H:i:s', $v->started));
+			$action->text(' - ' . sprintf(_('Last played %s'), $dateStr));
+			if($v->isCurrent())
+				$action->raw(' - <b>' . _('Now Playing') . '</b>');
+			if($v->temporary)
+				$action->raw(' - <i>' . _('Temporary') . '</i>');
+			$action->elementEnd('div');
 			
 			$action->elementEnd('div');
 		}

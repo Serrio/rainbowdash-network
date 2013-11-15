@@ -81,6 +81,11 @@ class ManagevideosyncAction extends Action
 				'rel' => 'external nofollow',
 				'target' => '_blank'
 			), $v->yt_name);
+			$this->element('a', array(
+				'class' => 'videosync_videotaglink',
+				'href' => common_local_url('tag', array('tag' => $v->tag)),
+				'target' => '_blank'
+			), '#');
 			$this->elementEnd('h2');
 			
 			
