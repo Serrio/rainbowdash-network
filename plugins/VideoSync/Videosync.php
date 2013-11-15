@@ -120,32 +120,14 @@ class Videosync extends Memcached_DataObject
     }
 	
 	static function setNext($id) {
-		// Linear video loading
-		/*$v = new Videosync();
+		$v = new Videosync();
 		$v->whereAdd('id > '.$id);
 		$v->orderBy('id ASC');
 		if(!$v->find(true)) {
 			$v = new Videosync();
 			$v->orderBy('id ASC');
 			$v->find(true);
-        }*/
-		
-		// Pseudo-shuffle (favors new videos and those that haven't been played recently)
-		$v = new Videosync();
-		$v->whereAdd('started < 0');
-		$v->orderBy('RANDOM()');
-		if(!$v->find(true)) {
-			$v = new Videosync();
-			$v->whereAdd('started < ' . (time()-5400)); // an hour and a half ago
-			$v->orderBy('RANDOM()');
-			if(!$v->find(true)) {
-				$v = new Videosync();
-				$v->orderBy('RANDOM()');
-				$v->find(true);
-			}
         }
-		
-		
 		$o = clone($v);
 		$v->started = time() + 10;
 		$v->update($o);
