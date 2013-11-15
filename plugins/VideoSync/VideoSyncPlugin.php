@@ -189,8 +189,12 @@ class VideoSyncPlugin extends Plugin
 			$length = intval($v->duration/60) . ':' . ($v->duration%60 < 10 ? '0' : '') . ($v->duration%60);
 			$action->text($length);
 			
-			$dateStr = common_date_string(date('d F Y H:i:s', $v->started));
-			$action->text(' - ' . sprintf(_('Last played %s'), $dateStr));
+			if($v->started > 10) {
+				$dateStr = common_date_string(date('d F Y H:i:s', $v->started));
+				$action->text(' - ' . sprintf(_('Last played %s'), $dateStr));
+			} else {
+				$action->text(' - ' . _('Not yet played'));
+			}
 			if($v->isCurrent())
 				$action->raw(' - <b>' . _('Now Playing') . '</b>');
 			if($v->temporary)

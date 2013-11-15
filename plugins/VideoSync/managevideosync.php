@@ -89,13 +89,16 @@ class ManagevideosyncAction extends Action
 			$this->elementEnd('h2');
 			
 			
-			$dateStr = common_date_string(date('d F Y H:i:s', $v->started));
 			$this->elementStart('div', 'videosync_vidinfo');
 			
 			$length = intval($v->duration/60) . ':' . ($v->duration%60 < 10 ? '0' : '') . ($v->duration%60);
 			$this->text($length);
-			
-			$this->text(' - ' . sprintf(_('Last played %s'), $dateStr));
+			if($v->started > 10) {
+				$dateStr = common_date_string(date('d F Y H:i:s', $v->started));
+				$this->text(' - ' . sprintf(_('Last played %s'), $dateStr));
+			} else {
+				$this->text(' - ' . _('Not yet played'));
+			}
 			if($v->id == $current)
 				$this->raw(' - <b>' . _('Now Playing') . '</b>');
 			if($v->temporary)
