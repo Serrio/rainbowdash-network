@@ -88,6 +88,7 @@ $('#user_info_card').append($('#dmcounter'));
 });*/
 
 function adjustNoticePopup() {
+	return;
 	try{$('#notice-popup-style').remove();}catch(e) {}
 	var popup = $('#notice-popup');
 	popup.css({'padding-bottom':'38px', 'padding-top':'38px'});
