@@ -193,7 +193,7 @@ function addLineBreaksToNotice(notice) {
 /* Reprocesses the page and/or post */
 function reProcess(newPosts) {
     if($('#mobile-toggle-disable').length) return;
-    setTimeout(reProcess, 50);
+    setTimeout(reProcess, 333);
     if(!newPosts) { var newPosts = $('.hentry.notice').not('.rdnrefresh_done') }
 
     if(rdnrefresh_vars.autospoil == '1') newPosts.each(function() {decodeSpoiler($(this), true)});
