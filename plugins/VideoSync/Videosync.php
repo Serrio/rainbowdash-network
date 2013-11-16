@@ -105,7 +105,7 @@ class Videosync extends Memcached_DataObject
 
         if(!empty($new)) {
             $orig = clone($new);
-            $new->started = time();
+            $new->started = time()+6;
             $new->update($orig);
         }
         else {
@@ -152,7 +152,7 @@ class Videosync extends Memcached_DataObject
 		
 		
 		$o = clone($v);
-		$v->started = time();
+		$v->started = time()+6;
 		$v->update($o);
 		
 		return $v;

@@ -86,7 +86,10 @@ class VideoSyncPlugin extends Plugin
             $m = $this->getMeteor();
 
             $m->_connect();
-            $m->_publish($this->channelbase . '-videosync', array('yt_id' => $this->v->yt_id, 'pos' => time() - $this->v->started, 'started' => strtotime($this->v->started), 'tag' => $this->getFullTag()));
+			$position = time() - $this->v->started;
+			if($position < 0)
+				$position = 0;
+            $m->_publish($this->channelbase . '-videosync', array('yt_id' => $this->v->yt_id, 'pos' => $position, 'started' => strtotime($this->v->started), 'tag' => $this->getFullTag()));
             $m->_disconnect();
 			
 			exit(0);
