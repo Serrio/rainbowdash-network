@@ -39,6 +39,8 @@ class RemovevideoAction extends Action
         }
         if ($this->boolean('yes')) {
 			$v = Videosync::staticGet('id', $this->trimmed('video-id'));
+			if($v->isCurrent())
+				Videosync::setCurrent($v->next);
 			$v->delete();
             common_redirect(common_local_url('managevideosync'), 303);
 		}
