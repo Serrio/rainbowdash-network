@@ -40,6 +40,7 @@ class ManagevideosyncAction extends Action
 	
 	function showContent() {
 		$current = Videosync::getCurrent();
+		$nextVid = $current->next;
 		$current = $current->id;
 		
         $v = new Videosync();
@@ -81,28 +82,30 @@ class ManagevideosyncAction extends Action
 				'rel' => 'external nofollow',
 				'target' => '_blank'
 			), $v->yt_name);
-			$this->element('a', array(
-				'class' => 'videosync_videotaglink',
-				'href' => common_local_url('tag', array('tag' => $v->tag)),
-				'target' => '_blank'
-			), '#');
 			$this->elementEnd('h2');
 			
 			
 			$this->elementStart('div', 'videosync_vidinfo');
+			$this->element('a', array(
+				'class' => 'videosync_videotaglink',
+				'href' => common_local_url('tag', array('tag' => $v->tag)),
+				'target' => '_blank'
+			), '#' . $v->tag);
 			
 			$length = intval($v->duration/60) . ':' . ($v->duration%60 < 10 ? '0' : '') . ($v->duration%60);
-			$this->text($length);
-			if($v->started > 10) {
-				$dateStr = common_date_string(date('d F Y H:i:s', $v->started));
-				$this->text(' - ' . sprintf(_('Last played %s'), $dateStr));
-			} else {
-				$this->text(' - ' . _('Not yet played'));
-			}
+			$this->text(' | ' . $length);
 			if($v->id == $current)
-				$this->raw(' - <b>' . _('Now Playing') . '</b>');
+				$this->raw(' | <b>' . _('Now Playing') . '</b>');
+			else if($v->id == $nextVid)
+				$this->raw(' | <b>' . _('Up Next') . '</b>');
+			else if($v->started > 10) {
+				$dateStr = common_date_string(date('d F Y H:i:s', $v->started));
+				$this->text(' | ' . sprintf(_('Last played %s'), $dateStr));
+			} else {
+				$this->text(' | ' . _('Not yet played'));
+			}
 			if($v->temporary)
-				$this->raw(' - <i>' . _('Temporary') . '</i>');
+				$this->raw(' | <i>' . _('Temporary') . '</i>');
 			$this->elementEnd('div');
 			
 			$this->elementStart('div', 'videosync_vidoptions');

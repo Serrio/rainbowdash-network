@@ -126,6 +126,7 @@ class VideoSyncPlugin extends Plugin
             new ColumnDef('tag', 'varchar', 50, true),
             new ColumnDef('yt_name', 'varchar', 255, true),
             new ColumnDef('started', 'int',  null, false),
+            new ColumnDef('next', 'int',  null, false),
             new ColumnDef('temporary', 'integer', 1, true, null, false),
         ));
 		
