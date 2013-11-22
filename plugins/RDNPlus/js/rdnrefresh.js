@@ -51,6 +51,12 @@ $(function(){
         selectedRegion = getSelected();
     });
     
+	$('.notice').addClass('read_notice');
+	$('body').addClass('mark_unread_notices');
+});
+
+$('.notice').live('mouseover', function() {
+	$(this).addClass('read_notice');
 });
 
 function getSelected(){ 
