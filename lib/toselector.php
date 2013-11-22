@@ -155,12 +155,12 @@ class ToSelector extends Widget
         case 'public':
             if ($value == 'everyone' && !common_config('site', 'private')) {
                 $options['scope'] = 0;
-				if ($private) {
-					$options['scope'] = Notice::SITE_SCOPE;
-				}
             } else if ($value == 'site') {
                 $options['scope'] = Notice::SITE_SCOPE;
             }
+			if ($private) {
+				$options['scope'] = Notice::FOLLOWER_SCOPE;
+			}
             break;
         default:
             // TRANS: Client exception thrown in widget for selecting potential addressees when an invalid fill option was received.
