@@ -3208,6 +3208,7 @@ content: '\f045';
 content: '\f0c6';
 color: inherit;
 opacity: 0.5;
+margin-right: 1px;
 }
 .notice .attachment.more:before {
 content: '\f141';
