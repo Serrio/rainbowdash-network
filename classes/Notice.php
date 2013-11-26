@@ -478,7 +478,9 @@ class Notice extends Managed_DataObject
                     $groups = array();
                     $replyGroups = $reply->getGroups();
                     foreach ($replyGroups as $group) {
-                        if ($profile->isMember($group)) {
+                        if ($profile->isMember($group)
+							|| $profile->hasRole(Profile_role::MODERATOR) // Make sure if a mod replies to a private notice that it gets to all groups
+							) {
                             $groups[] = $group->id;
                         }
                     }
@@ -532,7 +534,7 @@ class Notice extends Managed_DataObject
         }
 
         // For private streams
-
+/* removing private non-group notices
         $user = $profile->getUser();
 
         if (!empty($user)) {
@@ -541,7 +543,7 @@ class Notice extends Managed_DataObject
                  $notice->scope == Notice::SITE_SCOPE)) {
                 $notice->scope |= Notice::FOLLOWER_SCOPE;
             }
-        }
+        }*/
 
         // Force the scope for private groups
 

@@ -150,6 +150,16 @@ var SN = { // StatusNet
                 jQuery.data(form[0], 'ElementData', {MaxLength:MaxLength});
 
                 SN.U.Counter(form);
+				
+				toSelector = form.find('#notice_to');
+				
+				toSelector.bind('change', function(e) {
+					q = $(this).val();
+					if(q == 'public:everyone')
+						$(this).next().removeClass('visible');
+					else
+						$(this).next().addClass('visible');
+				});
 
                 NDT = form.find('.notice_data-text:first');
 

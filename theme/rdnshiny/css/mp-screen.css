@@ -199,30 +199,10 @@ margin-right: 20px;
 }
 
 #notice_to {
-right: 80px;
-width: 90px;
+width: 100px;
 }
 label[for=notice_to] {display: none}
-.checkbox-wrapper label {width: 24px !important; overflow: hidden;}
-.checkbox-wrapper label:before{
-text-decoration: none;
-  display: inline-block;
-  speak: none;
-font-family: FontAwesome;
-font-weight: normal;
-font-style: normal;
-text-decoration: inherit;
--webkit-font-smoothing: antialiased;
-margin-right: 24px;
-font-size: 16px;
-width: 24px;
-height: 20px;
-text-align: center;
-content: '\f09c';
-color: white;
-line-height: 20px;
-}
-.checkbox-wrapper.checked label:before {content: '\f023';}
+/*.checkbox-wrapper label {width: 24px !important; overflow: hidden;}*/
 
 #form_new_event label[for=event-enddate] {clear: both;}
 #form_new_event li input {width: 50%;}
