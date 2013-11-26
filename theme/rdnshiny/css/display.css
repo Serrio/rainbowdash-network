@@ -2082,6 +2082,7 @@ border-bottom-right-radius: 4px;
 z-index: 99;
 color: white;
 background-color: #A5A6BB;
+overflow: hidden;
 
 transition: height 0.4s;
 -moz-transition: height 0.4s;
