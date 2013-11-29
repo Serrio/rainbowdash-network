@@ -744,6 +744,29 @@ background: none;
 border: none;
 }
 
+.promoted-tag:before {
+content: '#';
+float: left;
+}
+
+.promoted-tag a {
+float: left;
+}
+
+.notice.has-promoted-header {
+margin-left: 10px;
+}
+
+.promoted-tag, .promoted-group {
+float: left;
+width: 100%;
+font-style: italic;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+margin-left: -10px;
+}
+
 .section ul.entities {
 width: 270px;
 }
@@ -789,8 +812,9 @@ clear:both;
 }
 
 .section .vcard .photo {
-margin-right:7px;
+margin-right:7px !important;
 margin-bottom:0;
+margin-top: 7px;
 }
 
 .section .notice {

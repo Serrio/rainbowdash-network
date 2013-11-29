@@ -45,6 +45,8 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
  */
 class PromotedNoticeSection extends NoticeSection
 {
+	var $promotedHeaders;
+	
     function getNotices()
     {
         return Promote::getStream(0, NOTICES_PER_SECTION + 1);
@@ -64,5 +66,83 @@ class PromotedNoticeSection extends NoticeSection
     function moreUrl()
     {
         return common_local_url('promoted');
+    }
+	
+	function showContent() {
+        $promote = new Promote();        
+        $promote->orderBy("FIELD(type, 'tag', 'group', 'profile', 'notice'), created DESC, id DESC");
+		
+		$promote->find();
+		$this->promotedHeaders = $promote;
+		
+		return parent::showContent();
+	}
+
+    function showNotice($notice)
+    {
+        $profile = $notice->getProfile();
+        if (empty($profile)) {
+            common_log(LOG_WARNING, sprintf("Notice %d has no profile",
+                                            $notice->id));
+            return;
+        }
+		
+		$this->promotedHeaders->fetch();
+		if($this->promotedHeaders->type != 'notice' && $this->promotedHeaders->type != 'profile') {
+        $this->out->elementStart('li', 'hentry notice has-promoted-header');
+			$this->out->elementStart('div', 'promoted-'.$this->promotedHeaders->type);
+			if($this->promotedHeaders->type == 'tag') {
+				$this->out->element('a', 
+					array('href' => common_local_url('tag', array('tag' => $this->promotedHeaders->item_id))),
+					$this->promotedHeaders->item_id);
+			} else {
+				$group = new User_group();
+				$group->id = $this->promotedHeaders->item_id;
+				if($group->find(true))
+					$this->out->element('a',
+						array('href' => $group->uri),
+						$group->fullname);
+			}
+			$this->out->elementEnd('div');
+		} else {
+			$this->out->elementStart('li', 'hentry notice');
+		}
+		
+        $this->out->elementStart('div', 'entry-title');
+        $avatar = $profile->getAvatar(AVATAR_MINI_SIZE);
+        $this->out->elementStart('span', 'vcard author');
+        $this->out->elementStart('a', array('title' => ($profile->fullname) ?
+                                            $profile->fullname :
+                                            $profile->nickname,
+                                            'href' => $profile->profileurl,
+                                            'class' => 'url'));
+        $this->out->element('img', array('src' => (($avatar) ? $avatar->displayUrl() :  Avatar::defaultImage(AVATAR_MINI_SIZE)),
+                                         'width' => AVATAR_MINI_SIZE,
+                                         'height' => AVATAR_MINI_SIZE,
+                                         'class' => 'avatar photo',
+                                         'alt' =>  ($profile->fullname) ?
+                                         $profile->fullname :
+                                         $profile->nickname));
+        $this->out->text(' ');
+        $this->out->element('span', 'fn nickname', $profile->nickname);
+        $this->out->elementEnd('a');
+        $this->out->elementEnd('span');
+
+        $this->out->elementStart('p', 'entry-content');
+        $this->out->raw($notice->rendered);
+        $this->out->elementEnd('p');
+
+        $this->out->elementStart('div', 'entry_content');
+        $nli = new NoticeListItem($notice, $this->out);
+        $nli->showNoticeLink();
+        $this->out->elementEnd('div');
+
+        if (!empty($notice->value)) {
+            $this->out->elementStart('p');
+            $this->out->text($notice->value);
+            $this->out->elementEnd('p');
+        }
+        $this->out->elementEnd('div');
+        $this->out->elementEnd('li');
     }
 }
