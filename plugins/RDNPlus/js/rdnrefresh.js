@@ -51,12 +51,18 @@ $(function(){
         selectedRegion = getSelected();
     });
     
-	$('.threaded_replies .notice').addClass('read_notice');
-	$('body').addClass('mark_unread_notices');
-});
 
-$('.threaded_replies .notice').live('mouseover', function() {
-	$(this).addClass('read_notice');
+	$('.notice').addClass('read_notice');
+	$('.threaded_replies').live('mouseover', function() {
+		$(this).find('.notice').addClass('read_notice');
+	});
+	$('.oldschool_stream').live('mouseover', function() {
+		$('.oldschool_stream .notice').addClass('read_notice');
+	});
+	$('.notice').live('mouseover', function() {
+		$(this).addClass('read_notice');
+	});
+	$('body').addClass('mark_unread_notices');
 });
 
 function getSelected(){ 
