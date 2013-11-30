@@ -120,6 +120,7 @@ class RawPromoteNoticeStream extends NoticeStream {
                 if($item instanceof Notice_tag) {
                     //$ids = array_merge($ids, $item->_streamDirect($promote->item_id, 0, 1));
 					$item->tag = $promote->item_id;
+					$item->orderBy('created DESC, notice_id DESC');
 					if($item->find()) {
 						while($item->fetch()) {
 							$notice = Notice::staticGet('id', $item->notice_id);
