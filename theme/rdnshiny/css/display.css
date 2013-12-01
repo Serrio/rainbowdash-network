@@ -767,6 +767,8 @@ text-overflow: ellipsis;
 margin-left: -10px;
 }
 
+.promoted-tag + *, .promoted-group + * {clear: both;}
+
 .section ul.entities {
 width: 270px;
 }
