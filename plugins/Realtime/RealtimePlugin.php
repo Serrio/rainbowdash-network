@@ -253,6 +253,8 @@ class RealtimePlugin extends Plugin
         if (count($paths) > 0) {
 
             $json = $this->noticeAsJson($notice);
+			if(is_array($hson))
+				$json = array_merge($json, $hson);
 
             $this->_connect();
 
