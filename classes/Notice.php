@@ -2731,4 +2731,17 @@ class Notice extends Managed_DataObject
             $notice->_setRepeats($repeats);
         }
     }
+	
+	function showsOnPublic($profile) {
+		if ($this->is_local == Notice::LOCAL_PUBLIC ||
+            ($this->is_local == Notice::REMOTE && !common_config('public', 'localonly')))
+			return true;
+		
+		if($profile == null)
+			return false;
+		
+		$noticeProfile = Profile::staticGet('id', $this->profile_id);
+		
+		return $profile->isSubscribed($noticeProfile);
+	}
 }

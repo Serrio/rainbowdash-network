@@ -90,6 +90,19 @@ class RawPublicNoticeStream extends NoticeStream
             $notice->whereAdd('is_local !='. Notice::LOCAL_NONPUBLIC);
             $notice->whereAdd('is_local !='. Notice::GATEWAY);
         }
+		
+		$profile = common_current_user();
+		if($profile) {
+			$profile = $profile->getProfile();
+			$subscriptions = $profile->getSubscriptions();
+			$subscribedIds = array();
+			while($subscriptions->fetch()) {
+				$subscribedIds[] = $subscriptions->id;
+			}
+			$subscribedIds = implode(',', $subscribedIds);
+			
+			$notice->whereAdd('profile_id IN (' . $subscribedIds . ')', 'OR');
+		}
 
         Notice::addWhereSinceId($notice, $since_id);
         Notice::addWhereMaxId($notice, $max_id);

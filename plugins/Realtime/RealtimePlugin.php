@@ -195,10 +195,10 @@ class RealtimePlugin extends Plugin
 
         // Add to the public timeline
 
-        if ($notice->is_local == Notice::LOCAL_PUBLIC ||
-            ($notice->is_local == Notice::REMOTE && !common_config('public', 'localonly'))) {
+        //if ($notice->is_local == Notice::LOCAL_PUBLIC ||
+        //    ($notice->is_local == Notice::REMOTE && !common_config('public', 'localonly'))) {
             $paths[] = array('public', null, null);
-        }
+        //}
 
         // Add to the tags timeline
 
@@ -283,7 +283,7 @@ class RealtimePlugin extends Plugin
                     } else {
                         $profile = Profile::staticGet('id', $channel->user_id);
                     }
-                    if ($notice->inScope($profile)) {
+                    if (($action != 'public' || $notice->showsOnPublic($profile)) && $notice->inScope($profile)) {
                         $timeline = $this->_pathToChannel(array($channel->channel_key));
                         $this->_publish($timeline, $json);
                     }
