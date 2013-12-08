@@ -263,6 +263,8 @@ class RDNPlusPlugin extends Plugin
         }
 
         foreach($matches as $match) {
+			if($match[2] == '')
+				throw new ClientException(_('Notice contains empty spoiler tags. Make sure the spoilered text is located between the [r] and [/r] tags and try again.'));
             if(strtolower($match[1]) == 'r') {
                 $replacematch = strtr($match[2], 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 'nopqrstuvwxyzabcdefghijklmNOPQRSTUVWXYZABCDEFGHIJKLM');
             }
