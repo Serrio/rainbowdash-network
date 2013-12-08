@@ -1,7 +1,7 @@
 //$('head').append($('<style>#content .notice > :not(.notices) {pointer-events: none !important;}</style>'));
 //alert('testing D!');
 
-$('#content .notice .author, #content .notice .author *').live('click', function() {
+$('#content .notice .timestamp').live('click', function() {
 	var notice = $(this).closest('.notice').clone(true);
 	var nest = notice.find('.notices');
 	if(nest.length)
@@ -47,8 +47,8 @@ $('#user_info_card img, #user_info_card .profile_block_name').bind('click', func
 
 $('#user_info_card').append($('#dmcounter'));
 
-// @fixme This isn't working any more for some reason... it worked in an earlier pass of the code. :c
-/*$('a').live('click', function() {
+/* @fixme This isn't working any more for some reason... it worked in an earlier pass of the code. :c
+$('a').live('click', function() {
 	if($(this).is('#notice-popup a.timestamp') || $('body#shownotice').length)
 		return true;
 	var link = $(this).attr('href');
