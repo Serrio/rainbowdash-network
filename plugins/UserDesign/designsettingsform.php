@@ -275,6 +275,15 @@ class DesignSettingsForm extends Form
                             _('Custom CSS'),
                             common_config('site', 'custom-css'));
 			$this->out->elementEnd('li');
+
+            $this->out->elementStart('li');
+            // TRANS: Label on profile design page for setting a profile page links colour.
+            $this->out->element('label', array('for' => 'design_clm-logo'), _('CLM logo'));
+            $this->out->element('input', array('name' => 'design_clm-logo',
+                                         'type' => 'text',
+                                         'id' => 'design_clm-logo',
+                                         'value' => common_config('site', 'clm-logo')));
+            $this->out->elementEnd('li');
 			$this->out->elementEnd('ul');
 			$this->out->elementEnd('fieldset');
 			}

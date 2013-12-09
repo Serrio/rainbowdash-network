@@ -66,7 +66,6 @@ class UserDesignPlugin extends Plugin
     function onCheckSchema() {
         $schema = Schema::get();
 
-		// TODO figure this part out :c
         $schema->ensureTable('profiledesign',
             array(new ColumnDef('id', 'integer', null,
             true, 'PRI'),

@@ -62,11 +62,35 @@ class RDNPlusPlugin extends Plugin
             new ColumnDef('hideemotes', 'integer', 1, true),*/ // Gonna move this out to another plugin
             new ColumnDef('autospoil', 'integer', 1, true),
             new ColumnDef('smallfont', 'integer', 1, true),
+            new ColumnDef('noclm', 'integer', 1, true),
             new ColumnDef('lastdm', 'integer', null, true),
         ));
 
         return true;
     }
+	
+	function onStartAddressData($action) {
+		global $config;
+		
+        if(!isset($this->vars)) {
+            $this->vars = Rdnrefresh::getValues();
+        }
+		
+		if(date('N') == 1 && !($this->vars['noclm']) && common_config('site', 'clm-logo')) {
+			$config['site']['logo'] = $config['site']['ssllogo'] = $config['site']['clm-logo'];
+		}
+		
+		return true;
+	}
+	
+	function onEndAddressData($action) {
+		if(date('N') == 1 && !($this->vars['noclm']) && common_config('site', 'clm-logo')) {
+			$action->element('a', array(
+				'href' => common_local_url('showgroup', array('nickname' => 'clm')),
+				'class' => 'clm_float'
+			), sprintf(_('%s Community Logo Mondays'), common_config('site', 'name')));
+		}
+	}
 
     function resetInbox($action) {
         /* Reset Inbox counter */
