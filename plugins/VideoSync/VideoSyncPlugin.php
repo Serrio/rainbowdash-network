@@ -86,7 +86,10 @@ class VideoSyncPlugin extends Plugin
             $m = $this->getMeteor();
 
             $m->_connect();
-            $m->_publish($this->channelbase . '-videosync', array('yt_id' => $this->v->yt_id, 'pos' => time() - $this->v->started, 'started' => strtotime($this->v->started), 'tag' => $this->getFullTag()));
+			$position = time() - $this->v->started;
+			if($position < 0)
+				$position = 0;
+            $m->_publish($this->channelbase . '-videosync', array('yt_id' => $this->v->yt_id, 'pos' => $position, 'started' => strtotime($this->v->started), 'tag' => $this->getFullTag()));
             $m->_disconnect();
 			
 			exit(0);
@@ -108,7 +111,7 @@ class VideoSyncPlugin extends Plugin
     }
 
     function initialize() {
-        $this->v = Videosync::getCurrent();
+        $this->v = Videosync::getCurrent(true);
 
     }
 
@@ -123,6 +126,7 @@ class VideoSyncPlugin extends Plugin
             new ColumnDef('tag', 'varchar', 50, true),
             new ColumnDef('yt_name', 'varchar', 255, true),
             new ColumnDef('started', 'int',  null, false),
+            new ColumnDef('next', 'int',  null, false),
             new ColumnDef('temporary', 'integer', 1, true, null, false),
         ));
 		
@@ -183,9 +187,23 @@ class VideoSyncPlugin extends Plugin
 			$action->elementStart('h2');
 			$action->element('a', array('href' => '//youtu.be/' . $v->yt_id, 'rel' => 'external nofollow'), $v->yt_name);
 			$action->elementEnd('h2');
+			
+			$action->elementStart('div');
+			
 			$length = intval($v->duration/60) . ':' . ($v->duration%60 < 10 ? '0' : '') . ($v->duration%60);
-			$text = $v->isCurrent() ? '%s, now playing on #%s' : '%s on #%s';
-			$action->element('span', 'length', sprintf(_($text), $length, $this->tag));
+			$action->text($length);
+			
+			if($v->started > 10) {
+				$dateStr = common_date_string(date('d F Y H:i:s', $v->started));
+				$action->text(' - ' . sprintf(_('Last played %s'), $dateStr));
+			} else {
+				$action->text(' - ' . _('Not yet played'));
+			}
+			if($v->isCurrent())
+				$action->raw(' - <b>' . _('Now Playing') . '</b>');
+			if($v->temporary)
+				$action->raw(' - <i>' . _('Temporary') . '</i>');
+			$action->elementEnd('div');
 			
 			$action->elementEnd('div');
 		}

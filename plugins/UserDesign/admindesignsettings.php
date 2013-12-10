@@ -238,8 +238,11 @@ class AdmindesignsettingsAction extends Action
         $config = new Config();
 
         $config->query('BEGIN');
-				
 				Config::save('site', 'custom-css', $this->trimmed('design_custom-css'));
+        $config->query('COMMIT');
+		
+        $config->query('BEGIN');
+				Config::save('site', 'clm-logo', $this->trimmed('design_clm-logo'));
         $config->query('COMMIT');
 
 			$this->showForm(_('Settings saved.'), true);

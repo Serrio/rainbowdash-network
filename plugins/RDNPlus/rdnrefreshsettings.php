@@ -124,6 +124,13 @@ class RdnrefreshsettingsAction extends SettingsAction
             $this->elementEnd('li');
             Event::handle('EndRDNRefreshFormData', array($this));
 
+            $this->elementStart('li');
+            $this->checkbox('noclm', _('Show Community Logo Monday logos'),
+                            ($this->arg('noclm')) ?
+                            $this->boolean('noclm') : !($vars['noclm']));
+            $this->elementEnd('li');
+            Event::handle('EndRDNRefreshFormData', array($this));
+
         $this->elementEnd('ul');
         $this->submit('save', _m('BUTTON','Save'));
 
@@ -179,6 +186,7 @@ class RdnrefreshsettingsAction extends SettingsAction
                 $vars->hideemotes = $this->boolean('hideemotes');*/
                 $vars->autospoil = $this->boolean('autospoil');
                 $vars->smallfont = $this->boolean('smallfont');
+                $vars->noclm = !($this->boolean('noclm'));
 
                 if(isset($orig))
                     $vars->update($orig);

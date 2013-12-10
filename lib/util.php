@@ -2151,6 +2151,10 @@ function common_shorten_url($long_url, User $user=null, $force = false)
     if (mb_strlen($long_url) < $maxUrlLength && !$force) {
         return $long_url;
     }
+	
+	// return on emails
+	if(strpos($long_url, 'mailto:') !== false || preg_match('/.+\@.+\..+/i', $long_url))
+		return $long_url;
 
     $shortenerName = User_urlshortener_prefs::urlShorteningService($user);
 

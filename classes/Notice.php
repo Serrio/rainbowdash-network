@@ -474,11 +474,13 @@ class Notice extends Managed_DataObject
                 // If the original is private to a group, and notice has no group specified,
                 // make it to the same group(s)
 
-                if (empty($groups) && ($reply->scope | Notice::GROUP_SCOPE)) {
+                if (empty($groups) && ($reply->scope & Notice::GROUP_SCOPE)) {
                     $groups = array();
                     $replyGroups = $reply->getGroups();
                     foreach ($replyGroups as $group) {
-                        if ($profile->isMember($group)) {
+                        if ($profile->isMember($group)
+							|| $profile->hasRole(Profile_role::MODERATOR) // Make sure if a mod replies to a private notice that it gets to all groups
+							) {
                             $groups[] = $group->id;
                         }
                     }
@@ -532,7 +534,7 @@ class Notice extends Managed_DataObject
         }
 
         // For private streams
-
+/* removing private non-group notices
         $user = $profile->getUser();
 
         if (!empty($user)) {
@@ -541,7 +543,7 @@ class Notice extends Managed_DataObject
                  $notice->scope == Notice::SITE_SCOPE)) {
                 $notice->scope |= Notice::FOLLOWER_SCOPE;
             }
-        }
+        }*/
 
         // Force the scope for private groups
 
@@ -2729,4 +2731,17 @@ class Notice extends Managed_DataObject
             $notice->_setRepeats($repeats);
         }
     }
+	
+	function showsOnPublic($profile) {
+		if ($this->is_local == Notice::LOCAL_PUBLIC ||
+            ($this->is_local == Notice::REMOTE && !common_config('public', 'localonly')))
+			return true;
+		
+		if($profile == null)
+			return false;
+		
+		$noticeProfile = Profile::staticGet('id', $this->profile_id);
+		
+		return $profile->isSubscribed($noticeProfile);
+	}
 }

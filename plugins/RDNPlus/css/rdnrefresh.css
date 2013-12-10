@@ -3,6 +3,17 @@
 cursor:pointer;
 }
 
+.mark_unread_notices .notice {
+	background-color: rgba(60, 40, 200, 0.07);
+}
+.mark_unread_notices .notice.read_notice {
+	background-color: transparent;
+	-moz-transition: background-color 1s;
+	-webkit-transition: background-color 1s;
+	-o-transition: background-color 1s;
+	transition: background-color 1s;
+}
+
 .addbreaks,
 .rot13 {
 display:block;/*

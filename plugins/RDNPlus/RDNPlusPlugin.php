@@ -62,11 +62,35 @@ class RDNPlusPlugin extends Plugin
             new ColumnDef('hideemotes', 'integer', 1, true),*/ // Gonna move this out to another plugin
             new ColumnDef('autospoil', 'integer', 1, true),
             new ColumnDef('smallfont', 'integer', 1, true),
+            new ColumnDef('noclm', 'integer', 1, true),
             new ColumnDef('lastdm', 'integer', null, true),
         ));
 
         return true;
     }
+	
+	function onStartAddressData($action) {
+		global $config;
+		
+        if(!isset($this->vars)) {
+            $this->vars = Rdnrefresh::getValues();
+        }
+		
+		if(date('N') == 1 && !($this->vars['noclm']) && common_config('site', 'clm-logo')) {
+			$config['site']['logo'] = $config['site']['ssllogo'] = $config['site']['clm-logo'];
+		}
+		
+		return true;
+	}
+	
+	function onEndAddressData($action) {
+		if(date('N') == 1 && !($this->vars['noclm']) && common_config('site', 'clm-logo')) {
+			$action->element('a', array(
+				'href' => common_local_url('showgroup', array('nickname' => 'clm')),
+				'class' => 'clm_float'
+			), sprintf(_('%s Community Logo Mondays'), common_config('site', 'name')));
+		}
+	}
 
     function resetInbox($action) {
         /* Reset Inbox counter */
@@ -134,7 +158,7 @@ class RDNPlusPlugin extends Plugin
         $action->cssLink($this->path('css/rdnrefresh.css'), null, 'screen, tv, projection, handheld');
 
 		if($vars['smallfont']) {
-			$action->style('body {font-size: 84%} .wf-active body {font-size: 90%}');
+			$action->style('body {font-size: 84%} .wf-active body, .wf-inactive body {font-size: 90%}');
 		}
 		
         // Kill RDN Refresh
@@ -263,6 +287,8 @@ class RDNPlusPlugin extends Plugin
         }
 
         foreach($matches as $match) {
+			if($match[2] == '')
+				throw new ClientException(_('Notice contains empty spoiler tags. Make sure the spoilered text is located between the [r] and [/r] tags and try again.'));
             if(strtolower($match[1]) == 'r') {
                 $replacematch = strtr($match[2], 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 'nopqrstuvwxyzabcdefghijklmNOPQRSTUVWXYZABCDEFGHIJKLM');
             }

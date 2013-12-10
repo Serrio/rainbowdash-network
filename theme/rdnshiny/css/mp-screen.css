@@ -199,30 +199,10 @@ margin-right: 20px;
 }
 
 #notice_to {
-right: 80px;
-width: 90px;
+width: 100px;
 }
 label[for=notice_to] {display: none}
-.checkbox-wrapper label {width: 24px !important; overflow: hidden;}
-.checkbox-wrapper label:before{
-text-decoration: none;
-  display: inline-block;
-  speak: none;
-font-family: FontAwesome;
-font-weight: normal;
-font-style: normal;
-text-decoration: inherit;
--webkit-font-smoothing: antialiased;
-margin-right: 24px;
-font-size: 16px;
-width: 24px;
-height: 20px;
-text-align: center;
-content: '\f09c';
-color: white;
-line-height: 20px;
-}
-.checkbox-wrapper.checked label:before {content: '\f023';}
+/*.checkbox-wrapper label {width: 24px !important; overflow: hidden;}*/
 
 #form_new_event label[for=event-enddate] {clear: both;}
 #form_new_event li input {width: 50%;}
@@ -398,6 +378,16 @@ color: #DDD;
 text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 1px 1px 0 black;
 margin: 0;
 white-space: nowrap;
+position: relative;
+}
+
+.entity_actions h2 a {
+position: absolute;
+left: 0;
+right: 0;
+top: 0;
+bottom: 0;
+opacity: 0;
 }
 
 .entity_actions h2:before {
@@ -489,6 +479,8 @@ border-radius: 4px;
 
 #notice-popup .notice div.entry-content {margin-bottom: 48px; margin-left: 0;}
 
+#notice-popup .notice .notice {display: none;}
+
 #notice-popup .threaded-replies {
 position: fixed;
 left: 2px;
@@ -518,13 +510,13 @@ bottom: 38px;
 margin-left: -42px;
 }
 
-.notice-options form:not(.dialog-box), .notice-options a,
-.notice-options form:not(.dialog-box) input, .notice-options .repeated {
+.notice-options form:not(.dialogbox), .notice-options a,
+.notice-options form:not(.dialogbox) input, .notice-options .repeated {
 width: 32px !important;
 height: 32px !important;
 }
 
-.notice-options form:not(.dialog-box):before, .notice-options a:before, .notice-options .repeated:before {
+.notice-options form:not(.dialogbox):before, .notice-options a:before, .notice-options .repeated:before {
 font-size: 26px !important;
 line-height: 32px !important;
 width: 32px;
@@ -557,3 +549,14 @@ padding: 0;
 #user_info_card #form_login input.submit {width: 40px;}
 #usercard_register {right: 0; padding: 3px 5px 5px;}
 #user_info_card #form_login {position: fixed; top: -999px;}
+
+#content .notice .timestamp:after {
+content: ' ';
+position: absolute;
+left: 0;
+top: 0;
+right: 0;
+bottom: 0;
+opacity: 0.3;
+}
+.threaded-replies {position: relative;z-index:5;}

@@ -49,7 +49,25 @@ class PublicNoticeStream extends ScopingNoticeStream
 {
     function __construct($profile=null, $images=false)
     {
-        parent::__construct(new CachingNoticeStream(new RawPublicNoticeStream(),
+		$check = false;
+		if($profile != null) {
+			$subscriptions = $profile->getSubscriptions();
+			while($subscriptions->fetch()) {
+				if($subscriptions->isSandboxed()) {
+					$check = true;
+					break;
+				} else if(class_exists('Ostatus_profile') && Ostatus_profile::staticGet('profile_id', $subscriptions->id)) {
+					$check = true;
+					break;
+				}
+			}
+		}
+		
+		if($check)
+			parent::__construct(new RawPublicNoticeStream($profile),
+                            $profile);
+		else
+			parent::__construct(new CachingNoticeStream(new RawPublicNoticeStream(false),
                                                     'public'),
                             $profile);
 
@@ -70,6 +88,12 @@ class PublicNoticeStream extends ScopingNoticeStream
 
 class RawPublicNoticeStream extends NoticeStream
 {
+	var $hasRemote;
+	
+	function __construct($hasRemote=false) {
+		$this->hasRemote = $hasRemote;
+	}
+	
     function getNoticeIds($offset, $limit, $since_id, $max_id)
     {
         $notice = new Notice();
@@ -90,6 +114,18 @@ class RawPublicNoticeStream extends NoticeStream
             $notice->whereAdd('is_local !='. Notice::LOCAL_NONPUBLIC);
             $notice->whereAdd('is_local !='. Notice::GATEWAY);
         }
+		
+		if($this->hasRemote) {
+			$profile = $this->hasRemote;
+			$subscriptions = $profile->getSubscriptions();
+			$subscribedIds = array();
+			while($subscriptions->fetch()) {
+				$subscribedIds[] = $subscriptions->id;
+			}
+			$subscribedIds = implode(',', $subscribedIds);
+			
+			$notice->whereAdd('profile_id IN (' . $subscribedIds . ')', 'OR');
+		}
 
         Notice::addWhereSinceId($notice, $since_id);
         Notice::addWhereMaxId($notice, $max_id);

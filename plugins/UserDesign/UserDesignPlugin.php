@@ -66,7 +66,6 @@ class UserDesignPlugin extends Plugin
     function onCheckSchema() {
         $schema = Schema::get();
 
-		// TODO figure this part out :c
         $schema->ensureTable('profiledesign',
             array(new ColumnDef('id', 'integer', null,
             true, 'PRI'),
@@ -134,7 +133,7 @@ class UserDesignPlugin extends Plugin
 			if(!($design['designoptions'] & 512))
 				$design = false;
 			else
-				$design['designoptions'] -= $design['designoptions'] & 64;
+				$design['designoptions'] -= $design['designoptions'] & (64+1024);
 		}
 		
 		if($design === false) {
@@ -180,7 +179,8 @@ class UserDesignPlugin extends Plugin
 		
 		if($design['designoptions'] & 64 && $design['infoimage'] != null) {
 			$css .= '.profile_block{background-image:url(' . UserDesign::url($design['infoimage']) . ')'
-				. ($design['designoptions'] & 128 ? ';background-position:top left' : '') . '}';
+				. ($design['designoptions'] & 128 ? ';background-position:top left' : '')
+				. ($design['designoptions'] & 1024 ? ';background-size: cover' : '') . '}';
 		}
 		
 		if($design['designoptions'] & 256)

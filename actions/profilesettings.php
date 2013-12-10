@@ -202,14 +202,14 @@ class ProfilesettingsAction extends SettingsAction
                             false,
                             (empty($user->subscribe_policy)) ? User::SUBSCRIBE_POLICY_OPEN : $user->subscribe_policy);
             $this->elementEnd('li');
-        }
+        }/* removing private non-group notices
         $this->elementStart('li');
         $this->checkbox('private_stream',
                         // TRANS: Checkbox label in profile settings.
                         _('Make updates visible only to my followers'),
                         ($this->arg('private_stream')) ?
                         $this->boolean('private_stream') : $user->private_stream);
-        $this->elementEnd('li');
+        $this->elementEnd('li');*/
         $this->elementEnd('ul');
         // TRANS: Button to save input in profile settings.
         $this->submit('save', _m('BUTTON','Save'));
@@ -252,7 +252,7 @@ class ProfilesettingsAction extends SettingsAction
             $location = $this->trimmed('location');
             $autosubscribe = $this->boolean('autosubscribe');
             $subscribe_policy = $this->trimmed('subscribe_policy');
-            $private_stream = $this->boolean('private_stream');
+            //$private_stream = $this->boolean('private_stream'); //removing private non-group notices
             $language = $this->trimmed('language');
             $timezone = $this->trimmed('timezone');
             $tagstring = $this->trimmed('tags');
@@ -359,13 +359,13 @@ class ProfilesettingsAction extends SettingsAction
 
             // XXX: XOR
             if (($user->autosubscribe ^ $autosubscribe) ||
-                ($user->private_stream ^ $private_stream) ||
+                //($user->private_stream ^ $private_stream) ||
                 ($user->subscribe_policy != $subscribe_policy)) {
 
                 $original = clone($user);
 
                 $user->autosubscribe    = $autosubscribe;
-                $user->private_stream   = $private_stream;
+                //$user->private_stream   = $private_stream;
                 $user->subscribe_policy = $subscribe_policy;
 
                 $result = $user->update($original);

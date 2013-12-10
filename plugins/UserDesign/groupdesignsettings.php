@@ -273,6 +273,7 @@ class GroupdesignsettingsAction extends GroupAction
 		$bnEnabled = $this->boolean('design_banner-image_enable');
 		$bnAnchor = $this->trimmed('design_banner-image_anchor');
 		$bnLight = $this->boolean('design_banner-light');
+		$bnSize = $this->boolean('design_banner-resize');
 		
 		
 		$mask = 0;
@@ -300,6 +301,7 @@ class GroupdesignsettingsAction extends GroupAction
 			+ ($scroll ? 32 : 0)
 			+ ($bnEnabled ? 64 : 0)
 			+ ($bnLight ? 256 : 0)
+			+ ($bnSize ? 1024 : 0)
 		;
 		return $new;
 	}

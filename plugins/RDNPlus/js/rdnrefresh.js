@@ -24,15 +24,15 @@ $(function(){
         $(this).removeClass('hideSpoilerT hideUserT');
         $(this).children().removeClass('hideSpoiler hideUser');
     });
-
+/*
     $('.addbreaks').live('click', function(){
         var notice = $(this).closest('li');
         addLineBreaksToNotice(notice);
     });
-
+*/
     $('.bbTools li').live('click', function() {
 
-        var notice_data = $(this).closest('form').find('#notice_data-text, .notice_data-text')
+        var notice_data = $(this).closest('form').find('#notice_data-text, .notice_data-text');
         if(selectedRegion.end == 0) {
             selectedRegion.end = notice_data.val().length;
         }
@@ -51,6 +51,18 @@ $(function(){
         selectedRegion = getSelected();
     });
     
+
+	$('.notice').addClass('read_notice');
+	$('.threaded_replies').live('mouseover', function() {
+		$(this).find('.notice').addClass('read_notice');
+	});
+	$('.oldschool_stream').live('mouseover', function() {
+		$('.oldschool_stream .notice').addClass('read_notice');
+	});
+	$('.notice').live('mouseover', function() {
+		$(this).addClass('read_notice');
+	});
+	$('body').addClass('mark_unread_notices');
 });
 
 function getSelected(){ 
@@ -126,7 +138,9 @@ function updateDM() {
                 var newDM = $(holder).find('.messages li').length;
             }
             $('#dmcounter').html((newDM == 0 ? '' : newDM + ''));
-            setTimeout(updateDM, 60000);
+			
+			if(!($('#mobile-toggle-disable').length))
+				setTimeout(updateDM, 60000);
             
             //(newDM > 0) ? $('#nav_userlinks').addClass('new_dms') : $('#nav_userlinks').removeClass('new_dms');
     }});
@@ -175,7 +189,7 @@ function hideSpoilers(newPosts) {
     }
 }
 
-/* Removes emoticons */
+/* Removes emoticons *
 function delEmotes(newPosts) {
     if(rdnrefresh_vars.hideemotes == '1') {
         $(newPosts).find('img.emote').each(function() {
@@ -183,7 +197,7 @@ function delEmotes(newPosts) {
             $(this).remove();
         });
     }
-}
+}*/
 
 function addLineBreaksToNotice(notice) {
     var noticeText = $(notice).find('p.entry-content').filter(':first');
@@ -193,14 +207,16 @@ function addLineBreaksToNotice(notice) {
 /* Reprocesses the page and/or post */
 function reProcess(newPosts) {
     if($('#mobile-toggle-disable').length) return;
-    setTimeout(reProcess, 50);
-    if(!newPosts) { var newPosts = $('.hentry.notice').not('.rdnrefresh_done') }
+    setTimeout(reProcess, 1000);
+    if(!newPosts) { var newPosts = $('.hentry.notice')/*.not('.rdnrefresh_done')*/ }
+	
+	if(!newPosts.length) return;
 
     if(rdnrefresh_vars.autospoil == '1') newPosts.each(function() {decodeSpoiler($(this), true)});
 
     hideSpoilers(newPosts);
     hideUsers(newPosts);
-    delEmotes(newPosts);
+    //delEmotes(newPosts);
     highlightUsername(newPosts);
     highlightAny(newPosts);
 
@@ -209,8 +225,9 @@ function reProcess(newPosts) {
         delButton(notice_options);
     }
 
-    $(newPosts).addClass('rdnrefresh_done');
-    $(newPosts).find('.hentry.notice').addClass('rdnrefresh_done');
+    //$(newPosts).addClass('rdnrefresh_done');
+    $(newPosts)//.find('.hentry.notice')//.addClass('rdnrefresh_done');
+	.removeClass('hentry');
 }
 
 function delButton(newPosts) {

@@ -169,6 +169,7 @@ class Videosync extends Memcached_DataObject
     public $tag; // Video tag
     public $duration; // Length of the video in seconds
     public $started; // Time the video was started
+    public $next; // Video to play after this one
     public $temporary; // Remove the video from the list after it plays?
 
     function staticGet($k, $v=null)
@@ -192,6 +193,7 @@ class Videosync extends Memcached_DataObject
             'tag' => DB_DATAOBJECT_STR,
             'yt_name' => DB_DATAOBJECT_STR,
             'started' => DB_DATAOBJECT_INT,
+            'next' => DB_DATAOBJECT_INT,
 			'temporary' => DB_DATAOBJECT_BOOL,
         );
     }
@@ -234,22 +236,25 @@ class Videosync extends Memcached_DataObject
         return true;
     }
 
-    static function getCurrent() {
+    static function getCurrent($setNext = false) {
         $v = new Videosync();
         $v->orderBy("started DESC, id ASC");
         if(!$v->find() || !$v->fetch()) {
             $v = Videosync::setCurrent(1);
         }
-        else if(!$v->isCurrent()) {
+        else if(!$v->isCurrent() && $setNext) {
 			$id = $v->id;
+			$next = $v->next;
+			if($next < 1)
+				$next = $id;
 			if($v->temporary)
 				$v->delete();
-            $v = Videosync::setNext($id);
+            $v = Videosync::setCurrent($next);
         }
 
         return $v;
     }
-
+/*
     static function setCurrent($id) {
         $new = Videosync::staticGet('id', $id);
         if(empty($new)) {
@@ -258,7 +263,7 @@ class Videosync extends Memcached_DataObject
 
         if(!empty($new)) {
             $orig = clone($new);
-            $new->started = time() + 10; // Add buffer so the video has time to load
+            $new->started = time()+6;
             $new->update($orig);
         }
         else {
@@ -270,38 +275,35 @@ class Videosync extends Memcached_DataObject
         }
 
         return $new;
-    }
+    }*/
 	
-	static function setNext($id) {
-		// Linear video loading
+	static function setCurrent($id) {
+		// Pseudo-shuffle (favors new videos and those that haven't been played recently)
 		$v = new Videosync();
-		$v->whereAdd('id > '.$id);
+		$v->whereAdd('started <= 0');
+		$v->whereAdd('id != ' . $id);
 		$v->orderBy('id ASC');
 		if(!$v->find(true)) {
 			$v = new Videosync();
-			$v->orderBy('id ASC');
-			$v->find(true);
-        }
-		
-		// Pseudo-shuffle (favors new videos and those that haven't been played recently)
-		// @FIXME seems to just crash the site
-		/*$v = new Videosync();
-		$v->whereAdd('started < 1');
-		$v->orderBy('RANDOM()');
-		if(!$v->find(true)) {
-			$v = new Videosync();
-			$v->whereAdd('started < ' . (time()-5400)); // an hour and a half ago
-			$v->orderBy('RANDOM()');
-			if(!$v->find(true)) {
-				$v = new Videosync();
-				$v->orderBy('RANDOM()');
-				$v->find(true);
+			$v->whereAdd('id != ' . $id);
+			$v->orderBy('started ASC');
+			$num = $v->count('id');
+			$num = intval($num/3);
+			if($num == 0)
+				$num = 1;
+			$num = rand(1, $num);
+			$v->find();
+			while($num > 0) {
+				$v->fetch();
+				$num--;
 			}
-        }*/
-		
+        }
+		$next = $v->id;
+		$v = Videosync::staticGet($id);
 		
 		$o = clone($v);
-		$v->started = time() + 10;
+		$v->started = time()+6;
+		$v->next = $next;
 		$v->update($o);
 		
 		return $v;

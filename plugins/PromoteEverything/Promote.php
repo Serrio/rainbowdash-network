@@ -103,10 +103,10 @@ class RawPromoteNoticeStream extends NoticeStream {
             while ($promote->fetch()) {
                 switch($promote->type) {
                     case 'group':
-                        $item = new User_group();
+                        $item = new Group_inbox();
                         break;
                     case 'profile':
-                        $item = new Profile();
+                        $item = new Notice();
                         break;
                     case 'tag':
                         $item = new Notice_tag();
@@ -118,12 +118,50 @@ class RawPromoteNoticeStream extends NoticeStream {
                 if(empty($item)) continue;
 
                 if($item instanceof Notice_tag) {
-                    $ids = array_merge($ids, $item->_streamDirect($promote->item_id, 0, 1));
-                }
-                else {
-                    $item->id = intval($promote->item_id);
-                    $ids = array_merge($ids, $item->_streamDirect(0, 1));
-                }
+                    //$ids = array_merge($ids, $item->_streamDirect($promote->item_id, 0, 1));
+					$item->tag = $promote->item_id;
+					$item->orderBy('created DESC, notice_id DESC');
+					if($item->find()) {
+						while($item->fetch()) {
+							$notice = Notice::staticGet('id', $item->notice_id);
+							if($notice->isLocal() && empty($notice->repeat_of)) {
+								$ids[] = $notice->id;
+								break;
+							}
+						}
+					}
+                } else if($item instanceof Group_inbox) {
+					$item->group_id = $promote->item_id;
+
+					$item->selectAdd();
+					$item->selectAdd('notice_id');
+					$item->orderBy('created DESC, notice_id DESC');
+					if($item->find()) {
+						while($item->fetch()) {
+							$notice = Notice::staticGet('id', $item->notice_id);
+							if(empty($notice->reply_to) && empty($notice->repeat_of)) {
+								$ids[] = $notice->id;
+								break;
+							}
+						}
+					}
+                } else {					
+					$item->profile_id = $promote->item_id;
+
+					$item->selectAdd();
+					$item->selectAdd('id');
+
+					$item->orderBy('created DESC, id DESC');
+					
+					if($item->find()) {
+						while($item->fetch()) {
+							if(empty($item->repeat_of)) {
+								$ids[] = $item->id;
+								break;
+							}
+						}
+					}
+				}
 
                 $item->free();
                 $item = NULL;

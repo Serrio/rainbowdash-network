@@ -24,6 +24,7 @@ class Rdnrefresh extends Memcached_DataObject
     public $hideemotes;*/
     public $autospoil;
     public $smallfont;
+    public $noclm;
     public $lastdm;
 
     function staticGet($k, $v=null)
@@ -55,6 +56,7 @@ class Rdnrefresh extends Memcached_DataObject
             'hideemotes' => DB_DATAOBJECT_BOOL + DB_DATAOBJECT_NOTNULL,*/
             'autospoil' => DB_DATAOBJECT_BOOL + DB_DATAOBJECT_NOTNULL,
 			'smallfont' => DB_DATAOBJECT_BOOL,
+			'noclm' => DB_DATAOBJECT_BOOL,
             'lastdm' => DB_DATAOBJECT_INT,
         );
     }
@@ -118,6 +120,7 @@ class Rdnrefresh extends Memcached_DataObject
             //'hideemotes'        => 0,
             'autospoil'         => 0,
             'smallfont'         => 0,
+            'noclm'				=> 0,
             'lastdm'            => 0,
         );
 

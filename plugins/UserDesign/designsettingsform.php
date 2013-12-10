@@ -147,6 +147,13 @@ class DesignSettingsForm extends Form
                             ($this->settings['designoptions'] & 256) ? true : false);
             $this->out->elementEnd('li');
 			if($this->isUserForm !== 2) {
+
+            $this->out->elementStart('li');
+            $this->out->checkbox('design_banner-resize',
+                            // TRANS: Checkbox label on profile design page that will cause the profile image to be tiled.
+                            _('Resize image to fit'),
+                            ($this->settings['designoptions'] & 1024) ? true : false);
+            $this->out->elementEnd('li');
 			$this->out->elementStart('li');
             $this->out->dropdown('design_banner-image_anchor',
                             // TRANS: Dropdown field label on profile settings, for what policies to apply when someone else tries to subscribe to your updates.
@@ -268,6 +275,15 @@ class DesignSettingsForm extends Form
                             _('Custom CSS'),
                             common_config('site', 'custom-css'));
 			$this->out->elementEnd('li');
+
+            $this->out->elementStart('li');
+            // TRANS: Label on profile design page for setting a profile page links colour.
+            $this->out->element('label', array('for' => 'design_clm-logo'), _('CLM logo'));
+            $this->out->element('input', array('name' => 'design_clm-logo',
+                                         'type' => 'text',
+                                         'id' => 'design_clm-logo',
+                                         'value' => common_config('site', 'clm-logo')));
+            $this->out->elementEnd('li');
 			$this->out->elementEnd('ul');
 			$this->out->elementEnd('fieldset');
 			}
