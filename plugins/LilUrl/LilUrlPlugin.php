@@ -49,15 +49,22 @@ class LilUrlPlugin extends UrlShortenerPlugin
         $responseBody = $this->http_post($this->serviceUrl,$data);
 
         if (!$responseBody) return;
-        $y = @simplexml_load_string($responseBody);
-        if (!isset($y->body)) return;
-		ob_start(); // @fixme HACK HACK HACK
-        $x = $y->body->p[0]->a->attributes();
-		$f = false;
-        if (isset($x['href'])) {
-            $f = (string) $x['href'];
-        }
-		ob_end_clean(); // @fixme I'm real sick of those warnings tho
+		
+		$p = strpos($responseBody, '<p class="success">');
+		if($p === false)
+			return;
+		$f = substr($responseBody, $p);
+		
+		$p = strpos($f, '<a href="');
+		if($p === false)
+			return;
+		$f = substr($f, $p+9);
+		
+		$p = strpos($f, '"');
+		if($p === false)
+			return;
+		$f = substr($f, 0, $p);
+		
 		return $f;
     }
 
