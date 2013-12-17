@@ -27,7 +27,7 @@ d[i$s][c$s]?khead
 \bdik
 c[u$s]nt
 s[h$s][i$s]t(?!su|a|o)e?(head)?
-vag(ina)?
+vag(ina)?[sl]?\b
 (m[ou]th(er|uh|a))?f[r$s]?[uo$s][c$s]?k
 \bf[r$s]?e[c$s]?k\b
 (da)?fuq
