@@ -265,8 +265,8 @@ SNNote = { //StatusNetNotification
 			} else
 				return; // Limit desktop notifications to one window at a time
 			
-			if(!SNNote.bN.enabled || SNNote.windowActive) // Don't create desktop notification if window is active
-				return;
+			if(!SNNote.bN.enabled || (SNNote.windowActive && SNNote.update < 20000)) // Don't create desktop notification if window is active
+				return; // Always create notification on mobile though
 			
 			SNNote.bN.lastJson = notifications;
 			
