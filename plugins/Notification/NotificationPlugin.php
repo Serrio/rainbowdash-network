@@ -372,8 +372,9 @@ class NotificationPlugin extends Plugin {
 	function onEndShowScripts($action) {
 		if(!common_logged_in())
 			return true;
+		$user = common_current_user();
         $action->script($this->path('notify.js'));
-        $action->inlineScript('SNNote.init('.json_encode(User_notification::getAllForUser(common_current_user()))
+        $action->inlineScript('SNNote.init('.json_encode(User_notification::getAllForUser($user))
 			.', '.json_encode(array('updateUrl' => common_local_url('getnotificationjson'),
 			'removeUrl' => common_local_url('removenotifications'),
 			'openInNewWindow' => (User_notification_settings::openInNewWindow($user->id) ? true : false),

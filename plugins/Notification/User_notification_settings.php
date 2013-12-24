@@ -111,7 +111,7 @@ class User_notification_settings extends Memcached_DataObject
 	
 	static function getsReplies($user) {
 		$vals = self::getValues($user);
-		return $vals['enabled'] && $vals['replies'];
+		return $vals['enabled'] && $vals['mentions'];
 	}
 	
 	static function getsGroupPosts($user, $group) {

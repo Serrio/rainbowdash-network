@@ -585,6 +585,9 @@ SNNote = { //StatusNetNotification
 	init: function(notifications, options) {
 		SNNote.dom = $('<div id="notification_popup"></div>');
 		$('body').append(SNNote.dom);
+		$('body').append($('<a href="#" class="notification_toggle"></a>').bind('click', function() {
+			SNNote.dom.toggleClass('visible');
+		}));
 		SNNote.updateUrl = options.updateUrl;
 		SNNote.removeUrl = options.removeUrl;
 		SNNote.openInNewWindow = options.openInNewWindow;
@@ -618,6 +621,9 @@ SNNote = { //StatusNetNotification
 	// Process notification JSON into site notifications
 	process: function(notifications) {
 		var displayedNotes = [];
+		
+		if(notifications === false)
+			notifications = {empty:1};
 
 		// Private messages
 		if("message" in notifications) {
