@@ -252,8 +252,19 @@ SNNote = { //StatusNetNotification
 				}));
 		},
 		
+		// Check to keep notifications to one browser window at a time
+		master: false;
+		
 		// Process notification JSON, determine if a new browser notification needs to be sent out
 		process: function(notifications) {
+			if(SNNote.bN.master || typeof(localStorage) == 'undefined'
+				|| localStorage.getItem('Notifications_mastercheck') + timeout*2 < new Date().getTime()) {
+				SNNote.bN.master = true;
+				if(typeof(localStorage) != 'undefined')
+					localStorage.setItem('Notifications_mastercheck', new Date().getTime()):
+			} else
+				return; // Limit desktop notifications to one window at a time
+			
 			if(!SNNote.bN.enabled || SNNote.windowActive) // Don't create desktop notification if window is active
 				return;
 			
