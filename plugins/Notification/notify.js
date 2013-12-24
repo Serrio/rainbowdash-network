@@ -253,7 +253,7 @@ SNNote = { //StatusNetNotification
 		},
 		
 		// Check to keep notifications to one browser window at a time
-		master: false;
+		master: false,
 		
 		// Process notification JSON, determine if a new browser notification needs to be sent out
 		process: function(notifications) {
