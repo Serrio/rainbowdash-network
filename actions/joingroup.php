@@ -130,6 +130,8 @@ class JoingroupAction extends Action
 
         try {
             $result = $cur->joinGroup($this->group);
+			if ($result instanceof Group_join_queue)
+				Event::handle('EndRequestJoinGroup', array($cur, $this->group));
         } catch (Exception $e) {
         	common_log(LOG_ERR, sprintf("Couldn't join user %s to group %s: '%s'",
         								$cur->nickname,

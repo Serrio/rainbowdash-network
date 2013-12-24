@@ -90,10 +90,8 @@ class UserDesignPlugin extends Plugin
 		}
 		
 		$design = false;
-		if(in_array(strtolower($action->trimmed('action')), array(
-			'profiledesignsettings', 'profilesettings', 'avatarsettings', 'passwordsettings', 'emailsettings',
-			'urlsettings', 'oldschoolsettings', 'rdnrefreshsettings', 'openidsettings', 'oauthconnectionssettings',
-			'editpeopletag'))) {
+		if($action instanceof SettingsAction || in_array(strtolower($action->trimmed('action')), array(
+			'openidsettings', 'oauthconnectionssettings', 'editpeopletag'))) {
 			$user = common_current_user();
 			if($user)
 				$design = ProfileDesign::getDesign($user->id);
