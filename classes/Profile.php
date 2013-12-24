@@ -624,6 +624,9 @@ class Profile extends Managed_DataObject
     function joinGroup(User_group $group)
     {
         $join = null;
+		if($this->isMember($group))
+			return false;
+		
         if ($group->join_policy == User_group::JOIN_POLICY_MODERATE) {
             $join = Group_join_queue::saveNew($this, $group);
         } else {
