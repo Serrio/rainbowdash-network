@@ -116,11 +116,11 @@ class User_notification_settings extends Memcached_DataObject
 	
 	static function getsGroupPosts($user, $group) {
 		$vals = self::getValues($user);
-		if($vals['enabled'] && $vals['grouppost']) {
+		if($vals['enabled'] && $vals['groupposts']) {
 			$not = new User_notification_optout();
 			$not->user_id = $user;
 			$not->group_id = $group;
-			return $not->find(true);
+			return !($not->find(true));
 		}
 		return false;
 	}
