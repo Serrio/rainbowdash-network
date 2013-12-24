@@ -763,7 +763,7 @@ SNNote = { //StatusNetNotification
 					
 					names = SNNote.mergeNames(names);
 					var message = String.format(SN.msg('notification_grouprequest'), names, group[0].group.name);
-					var link = group[0].group.url+'/pending';
+					var link = group[0].group.url+'/members/pending';
 					
 					var element = $('<div class="notification notification-grouprequest" id="notification-'+ids.join('-')
 						+'"><a class="notification_close" href="#"></a><span>'+message+'</span></div>');
@@ -1091,7 +1091,7 @@ SNNote = { //StatusNetNotification
 			if(notification.type == 'groupjoin')
 				link += '/members';
 			else
-				link += '/pending';
+				link += '/members/pending';
 		}
 		else if(notification.type == 'message')
 			link = notification.inboxlink;
