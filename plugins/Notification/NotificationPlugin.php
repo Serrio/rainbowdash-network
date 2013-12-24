@@ -300,7 +300,7 @@ class NotificationPlugin extends Plugin {
 			return true;
 		}
 		
-		if($action instanceof RepliesAction && $action->profile->id == $user->id) {
+		if($action instanceof RepliesAction && $action->user->id == $user->id) {
 			$note = new User_notification();
 			$note->user_id = $user->id;
 			$note->type = 'mention';
