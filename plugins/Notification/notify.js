@@ -203,7 +203,7 @@ var indexOf = function(needle) {
 // Custom plugin JS starts here
 SNNote = { //StatusNetNotification
 	bN: { //browserNotifications
-		// Debug toggle for single-notification mode. Should consider adding a setting for this
+		// Debug toggle for single-notification mode. TODO add a toggle for this in settings
 		singleMode: true,
 		
 		// Path to icon
@@ -259,7 +259,12 @@ SNNote = { //StatusNetNotification
 			
 			SNNote.bN.lastJson = notifications;
 			
+			var check = SNNote.bN.newestTimestamp;
+			
 			var newNotifications = SNNote.bN.getNew(notifications);
+			
+			if(check == SNNote.bN.newestTimestamp)
+				return;
 			
 			var types = ['message','mention','subscribe','favorite','repeat','grouppost','groupjoin','grouprequest'];
 			var typeFound = 0;
@@ -533,14 +538,12 @@ SNNote = { //StatusNetNotification
 		// Figure out which notifications are new
 		getNew: function(nots) {
 			var notes = jQuery.parseJSON(JSON.stringify(nots)); // Create a cloned object so as not to affect the original
-			if(SNNote.bN.singleMode)
-				return nots;
 			var threshold = SNNote.bN.newestTimestamp;
 			
 			for(type in notes) {
 				var count = 0;
 				for(var i = 0; i < notes[type].length; i++) {
-					if(notes[type][i].created <= threshold) {
+					if(notes[type][i].created <= threshold && !SNNote.bN.singleMode) {
 						delete notes[type][i];
 						count++;
 					}
