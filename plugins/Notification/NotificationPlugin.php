@@ -7,7 +7,7 @@ if (!defined('STATUSNET')) {
 }
 
 class NotificationPlugin extends Plugin {
-	public $mobileCheckFrequency = 15000; // every 15 seconds
+	public $mobileCheckFrequency = 600000; // every 10 minutes
 	public $desktopCheckFrequency = 15000; // every 15 seconds
 	
 	function onEndShowHeader($action) {
