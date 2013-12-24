@@ -258,10 +258,10 @@ SNNote = { //StatusNetNotification
 		// Process notification JSON, determine if a new browser notification needs to be sent out
 		process: function(notifications) {
 			if(SNNote.bN.master || typeof(localStorage) == 'undefined'
-				|| localStorage.getItem('Notifications_mastercheck') + timeout*2 < new Date().getTime()) {
+				|| localStorage.getItem('SNNotes_mastercheck') + SNNote.update*2 < new Date().getTime()) {
 				SNNote.bN.master = true;
 				if(typeof(localStorage) != 'undefined')
-					localStorage.setItem('Notifications_mastercheck', new Date().getTime()):
+					localStorage.setItem('SNNotes_masterCheck', new Date().getTime());
 			} else
 				return; // Limit desktop notifications to one window at a time
 			
