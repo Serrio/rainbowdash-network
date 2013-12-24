@@ -247,7 +247,7 @@ class NotificationPlugin extends Plugin {
 		return true;
 	}
 	
-	function onEndShowFooter($action) {
+	function onEndEndHTML($action) {
 		if(!common_logged_in())
 			return true;
 		$user = common_current_user();
