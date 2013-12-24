@@ -203,8 +203,8 @@ var indexOf = function(needle) {
 // Custom plugin JS starts here
 SNNote = { //StatusNetNotification
 	bN: { //browserNotifications
-		// The last browser notification to be displayed. Force-closed when a new one needs to be spawned.
-		//last: null, FIXME probably won't be necessary after all
+		// Debug toggle for single-notification mode. Should consider adding a setting for this
+		singleMode: true,
 		
 		// Path to icon
 		icon: '',
@@ -512,14 +512,19 @@ SNNote = { //StatusNetNotification
 				return true;
 			};
 			
+			var noteTag = 'RDN';
+			if(!SNNote.bN.singleMode) {
+				noteTag += SNNote.bN.counter;
+				SNNote.bN.counter++;
+			}
+			
 			var notify = new Notify(SN.msg('notification_title'), {
 				body: message,
 				notifyClick: clickCallback,
 				icon: SNNote.bN.icon,
-				tag: 'RDN-'+SNNote.bN.counter
+				tag: noteTag
 			});
 			notify.show();
-			SNNote.bN.counter++;
 		},
 		
 		// Timestamp of newest notification seen
@@ -528,6 +533,8 @@ SNNote = { //StatusNetNotification
 		// Figure out which notifications are new
 		getNew: function(nots) {
 			var notes = jQuery.parseJSON(JSON.stringify(nots)); // Create a cloned object so as not to affect the original
+			if(SNNote.bN.singleMode)
+				return nots;
 			var threshold = SNNote.bN.newestTimestamp;
 			
 			for(type in notes) {
