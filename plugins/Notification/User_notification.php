@@ -106,8 +106,10 @@ class User_notification extends Memcached_DataObject
 			case 'favorite':
 			case 'repeat':
 				$notice = Notice::staticGet('id', $notify->arg);
-				if($notice == false)
-					continue;
+				if($notice == false) {
+					$item = null;
+					break;
+				}
 				$item['notice'] = array(
 					'id' => $notice->id,
 					'content' => $notice->content,
@@ -118,8 +120,10 @@ class User_notification extends Memcached_DataObject
 				
 			case 'grouppost':
 				$notice = Notice::staticGet('id', $notify->arg2);
-				if($notice == false)
-					continue;
+				if($notice == false) {
+					$item = null;
+					break;
+				}
 				$item['notice'] = array(
 					'id' => $notice->id,
 					'content' => $notice->content,
@@ -129,8 +133,10 @@ class User_notification extends Memcached_DataObject
 			case 'groupjoin':
 			case 'grouprequest';
 				$group = User_group::staticGet('id', $notify->arg);
-				if($group == false)
-					return;
+				if($group == false) {
+					$item = null;
+					break;
+				}
 				$item['group'] = array(
 					'id' => $group->id,
 					'name' => $group->getFancyName(),
@@ -150,7 +156,8 @@ class User_notification extends Memcached_DataObject
 				break;
 			}
 			
-			$return[$notify->type][] = $item;
+			if($item != null)
+				$return[$notify->type][] = $item;
 		}
 		return $return;
 	}
