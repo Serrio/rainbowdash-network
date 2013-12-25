@@ -251,6 +251,8 @@ class NotificationPlugin extends Plugin {
 		if(!common_logged_in())
 			return true;
 		$user = common_current_user();
+		if(!User_notification_settings::isEnabled($user->id))
+			return true;
 		
 		if($action instanceof ShowgroupAction) {
 			$note = new User_notification();
@@ -343,6 +345,9 @@ class NotificationPlugin extends Plugin {
     function onEndScriptMessages($action, &$messages){
 		if(!common_logged_in())
 			return true;
+		$user = common_current_user();
+		if(!User_notification_settings::isEnabled($user->id))
+			return true;
         // TRANS: Text label for realtime view "play" button, usually replaced by an icon.
         $messages['notification_mention'] = _m('%1$s mentioned you in a notice');
         $messages['notification_mention_multiple'] = _m('%1$s mentioned you in %2$s notices');
@@ -373,6 +378,8 @@ class NotificationPlugin extends Plugin {
 		if(!common_logged_in())
 			return true;
 		$user = common_current_user();
+		if(!User_notification_settings::isEnabled($user->id))
+			return true;
         $action->script($this->path('notify.js'));
         $action->inlineScript('SNNote.init('.json_encode(User_notification::getAllForUser($user))
 			.', '.json_encode(array('updateUrl' => common_local_url('getnotificationjson'),

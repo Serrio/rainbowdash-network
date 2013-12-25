@@ -104,6 +104,11 @@ class User_notification_settings extends Memcached_DataObject
 	}
 	
 	// Helper functions to simplify things
+	static function isEnabled($user) {
+		$vals = self::getValues($user);
+		return $vals['enabled'];
+	}
+	
 	static function getsRepeats($user) {
 		$vals = self::getValues($user);
 		return $vals['enabled'] && $vals['repeats'];
