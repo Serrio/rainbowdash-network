@@ -278,9 +278,9 @@ function common_ensure_session()
         if (common_config('sessions', 'handle')) {
             Session::setSaveHandler();
         }
-	if (array_key_exists(session_name(), $_GET)) {
+	/*if (array_key_exists(session_name(), $_GET)) {
 	    $id = $_GET[session_name()];
-	} else if (array_key_exists(session_name(), $_COOKIE)) {
+	} else */if (array_key_exists(session_name(), $_COOKIE)) {
 	    $id = $_COOKIE[session_name()];
 	}
 	if (isset($id)) {
@@ -1304,7 +1304,7 @@ function common_path($relative, $ssl=false, $addSession=true)
 }
 
 function common_inject_session($url, $serverpart = null)
-{
+{/*
     if (common_have_session()) {
 
 	if (empty($serverpart)) {
@@ -1326,7 +1326,7 @@ function common_inject_session($url, $serverpart = null)
                 $url = substr($url, 0, $i + 1).$sesspart.'&'.substr($url, $i + 1);
             }
         }
-    }
+    }*/
 
     return $url;
 }
