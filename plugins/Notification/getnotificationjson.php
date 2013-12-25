@@ -73,7 +73,11 @@ class GetnotificationjsonAction extends Action
     function handle($args)
     {
 		$user = common_current_user();
-		$notifications = User_notification::getAllForUser($user);
+		try {
+			$notifications = User_notification::getAllForUser($user);
+		} catch(Exception $e) {
+			$this->raw($e->getTraceAsString());
+		}
 		if($notifications)
 			$this->raw(json_encode($notifications));
 		else
