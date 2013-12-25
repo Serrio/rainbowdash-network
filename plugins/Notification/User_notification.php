@@ -77,78 +77,82 @@ class User_notification extends Memcached_DataObject
 	// Return an array of notification information, ready to be JSON-encoded and sent to the user
 	// Return false if no notifications
 	static function getAllForUser($user) {
-		try {
-			$notify = new User_notification();
-			$notify->user_id = $user->id;
-			if(!$notify->find())
-				return false;
+		$notify = new User_notification();
+		$notify->user_id = $user->id;
+		if(!$notify->find())
+			return false;
+			
+		$return = array();
+		while($notify->fetch()) {
+			if(!isset($return[$notify->type]))
+				$return[$notify->type] = array();
+			$item = array();
+			
+			$item['type'] = $notify->type;
+			$item['id'] = $notify->id;
+			$item['created'] = $notify->created;
 				
-			$return = array();
-			while($notify->fetch()) {
-				if(!isset($return[$notify->type]))
-					$return[$notify->type] = array();
-				$item = array();
+			$other = Profile::staticGet('id', $notify->from_user_id);
+			if($other == false)
+				continue;
+			$item['user'] = array(
+				'id' => $other->id,
+				'nickname' => $other->nickname,
+				'fullname' => $other->getBestName(),
+			);
+			
+			switch($notify->type) {
+			case 'mention':
+			case 'favorite':
+			case 'repeat':
+				$notice = Notice::staticGet('id', $notify->arg);
+				if($notice == false)
+					continue;
+				$item['notice'] = array(
+					'id' => $notice->id,
+					'content' => $notice->content,
+					'url' => $notice->bestUrl(),
+					'replieslink' => common_local_url('replies', array('nickname' => $user->nickname)),
+				);
+				break;
 				
-				$item['type'] = $notify->type;
-				$item['id'] = $notify->id;
-				$item['created'] = $notify->created;
-					
-				$other = Profile::staticGet('id', $notify->from_user_id);
-				$item['user'] = array(
-					'id' => $other->id,
-					'nickname' => $other->nickname,
-					'fullname' => $other->getBestName(),
+			case 'grouppost':
+				$notice = Notice::staticGet('id', $notify->arg2);
+				if($notice == false)
+					continue;
+				$item['notice'] = array(
+					'id' => $notice->id,
+					'content' => $notice->content,
+					'url' => $notice->bestUrl(),
 				);
 				
-				switch($notify->type) {
-				case 'mention':
-				case 'favorite':
-				case 'repeat':
-					$notice = Notice::staticGet('id', $notify->arg);
-					$item['notice'] = array(
-						'id' => $notice->id,
-						'content' => $notice->content,
-						'url' => $notice->bestUrl(),
-						'replieslink' => common_local_url('replies', array('nickname' => $user->nickname)),
-					);
-					break;
-					
-				case 'grouppost':
-					$notice = Notice::staticGet('id', $notify->arg2);
-					$item['notice'] = array(
-						'id' => $notice->id,
-						'content' => $notice->content,
-						'url' => $notice->bestUrl(),
-					);
-					
-				case 'groupjoin':
-				case 'grouprequest';
-					$group = User_group::staticGet('id', $notify->arg);
-					$item['group'] = array(
-						'id' => $group->id,
-						'name' => $group->getFancyName(),
-						'url' => $group->permalink(),
-					);
-					break;
-					
-				case 'message':
-					$item['inboxlink'] = common_local_url('inbox', array('nickname' => $user->nickname));
-					break;
-					
-				case 'subscribe':
-					$item['subscriberslist'] = common_local_url('subscribers', array('nickname' => $user->nickname));
-					break;
-					
-				default:
-					break;
-				}
+			case 'groupjoin':
+			case 'grouprequest';
+				$group = User_group::staticGet('id', $notify->arg);
+				if($group == false)
+					return;
+				$item['group'] = array(
+					'id' => $group->id,
+					'name' => $group->getFancyName(),
+					'url' => $group->permalink(),
+				);
+				break;
 				
-				$return[$notify->type][] = $item;
+			case 'message':
+				$item['inboxlink'] = common_local_url('inbox', array('nickname' => $user->nickname));
+				break;
+				
+			case 'subscribe':
+				$item['subscriberslist'] = common_local_url('subscribers', array('nickname' => $user->nickname));
+				break;
+				
+			default:
+				break;
 			}
-			return $return;
-		} catch(Exception $e) {
-			return array('empty' => '1', 'error' => $e->getMessage(), 'stack' => $e->getTrace());
+			
+			$return[$notify->type][] = $item;
 		}
+		return $return;
 	}
 	
 	static function saveNew($from, $to, $type, $arg1 = null, $arg2 = null) {
