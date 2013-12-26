@@ -1,5 +1,5 @@
 /*
- * jQuery Autocomplete plugin 1.2.2
+ * jQuery Autocomplete plugin 1.2.3
  *
  * Copyright (c) 2009 Jörn Zaefferer
  *
@@ -21,7 +21,8 @@ $.fn.extend({
 			url: isUrl ? urlOrData : null,
 			data: isUrl ? null : urlOrData,
 			delay: isUrl ? $.Autocompleter.defaults.delay : 10,
-			max: options && !options.scroll ? 10 : 150
+			max: options && !options.scroll ? 10 : 150,
+			noRecord: "No Records."
 		}, options);
 
 		// if highlight is set to false, replace it with a do-nothing function
@@ -87,15 +88,15 @@ $.Autocompleter = function(input, options) {
 	var blockSubmit;
 
 	// prevent form submit in opera when selecting with return key
-	$.browser.opera && $(input.form).bind("submit.autocomplete", function() {
+  navigator.userAgent.indexOf("Opera") != -1 && $(input.form).bind("submit.autocomplete", function() {
 		if (blockSubmit) {
 			blockSubmit = false;
 			return false;
 		}
 	});
 
-	// only opera doesn't trigger keydown multiple times while pressed, others don't work with keypress at all
-	$input.bind(($.browser.opera ? "keypress" : "keydown") + ".autocomplete", function(event) {
+	// older versions of opera don't trigger keydown multiple times while pressed, others don't work with keypress at all
+	$input.bind((navigator.userAgent.indexOf("Opera") != -1 && !'KeyboardEvent' in window ? "keypress" : "keydown") + ".autocomplete", function(event) {
 		// a keypress means the input has focus
 		// avoids issue where input had focus before the autocomplete was applied
 		hasFocus = 1;
@@ -361,8 +362,14 @@ $.Autocompleter = function(input, options) {
 			term = term.toLowerCase();
 		var data = cache.load(term);
 		// recieve the cached data
-		if (data && data.length) {
-			success(term, data);
+		if (data) {
+			if(data.length)	{
+				success(term, data);
+			}
+			else{
+				var parsed = options.parse && options.parse(options.noRecord) || parse(options.noRecord);	
+				success(term,parsed);
+			}
 		// if an AJAX url has been supplied, try loading the data now
 		} else if( (typeof options.url == "string") && (options.url.length > 0) ){
 
@@ -766,7 +773,7 @@ $.Autocompleter.Select = function (options, input, select, config) {
 					overflow: 'auto'
 				});
 
-                if($.browser.msie && typeof document.body.style.maxHeight === "undefined") {
+                if(navigator.userAgent.indexOf("MSIE") != -1 && typeof document.body.style.maxHeight === "undefined") {
 					var listHeight = 0;
 					listItems.each(function() {
 						listHeight += this.offsetHeight;
