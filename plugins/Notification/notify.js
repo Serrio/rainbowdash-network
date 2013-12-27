@@ -436,7 +436,7 @@ SNNote = { //StatusNetNotification
 				var sorted = SNNote.sortByGroup(notes);
 				if(sorted.count > 1) {
 					var message = String.format(SN.msg('notification_grouppost_multiple_condensed'), 
-						notes.count, sorted.count);
+						notes.length, sorted.count);
 					return {"message": message, "link": '#'};
 				}
 				// If we reached this point, all notes are for the same group
