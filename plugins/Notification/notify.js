@@ -615,7 +615,7 @@ SNNote = { //StatusNetNotification
 		SNNote.update = options.update;
 		SNNote.bN.icon = options.icon;
 		SNNote.bN.init();
-		window.setInterval(SNNote.refresh, SNNote.update);
+		window.setTimeout(SNNote.refresh, SNNote.update);
 		$(window).bind('focus', function() {
 			SNNote.windowActive = true;
 		});
@@ -633,11 +633,15 @@ SNNote = { //StatusNetNotification
 			type: 'GET',
 			url: SNNote.updateUrl,
 			cache: false,
-			error: function(response) {},
+			error: function(response) {
+				window.setTimeout(SNNote.refresh, SNNote.update);
+			},
 			success: function(response) {
+				window.setTimeout(SNNote.refresh, SNNote.update);
 				var json = jQuery.parseJSON(response);
 				SNNote.process(json);
-		}});
+			}
+		});
 	},
 	
 	// Process notification JSON into site notifications
