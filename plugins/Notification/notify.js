@@ -632,6 +632,7 @@ SNNote = { //StatusNetNotification
 		$.ajax({
 			type: 'GET',
 			url: SNNote.updateUrl,
+			cache: false,
 			error: function(response) {},
 			success: function(response) {
 				var json = jQuery.parseJSON(response);
