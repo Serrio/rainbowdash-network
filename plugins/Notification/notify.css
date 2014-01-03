@@ -27,7 +27,7 @@
     display: none;
 }
 
-.notification span {
+.notification > span {
     font-weight: bold;
     text-align: center;
     display: block;
@@ -38,6 +38,10 @@
     max-height: 4em;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.notification p * {
+	color: inherit;
 }
 
 .notification_close {

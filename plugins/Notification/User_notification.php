@@ -113,6 +113,7 @@ class User_notification extends Memcached_DataObject
 				$item['notice'] = array(
 					'id' => $notice->id,
 					'content' => $notice->content,
+					'rendered' => $notice->rendered,
 					'url' => $notice->bestUrl(),
 					'replieslink' => common_local_url('replies', array('nickname' => $user->nickname)),
 				);
@@ -127,6 +128,7 @@ class User_notification extends Memcached_DataObject
 				$item['notice'] = array(
 					'id' => $notice->id,
 					'content' => $notice->content,
+					'rendered' => $notice->rendered,
 					'url' => $notice->bestUrl(),
 				);
 				

@@ -1106,7 +1106,7 @@ SNNote = { //StatusNetNotification
 		var element = $('<div class="notification notification-'+notification.type+'" id="notification-'+id
 			+'"><a class="notification_close" href="#"></a><span>'+message+'</span></div>');
 		if('notice' in notification)
-			element.append($('<p></p>').text(notification.notice.content));
+			element.append($('<p>'+notification.notice.rendered+'</p>')/*.text(notification.notice.content)*/);
 		element.append($('<a class="notification_link"></a>').attr('href', link));
 		if(SNNote.openInNewWindow)
 			element.find('.notification_link').attr('target', '_blank');
