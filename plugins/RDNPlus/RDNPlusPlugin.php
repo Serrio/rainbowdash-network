@@ -300,7 +300,7 @@ class RDNPlusPlugin extends Plugin
         }
 
         // Prevent thumbs from being processed. This is an evil hack
-        if(!empty($matches)) {
+        if(!empty($matches) || preg_match('@#nsfw@i', $notice->content)) {
             $config['attachments']['process_links'] = false;
         }
     }
