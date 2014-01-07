@@ -77,19 +77,39 @@ class RDNPlusPlugin extends Plugin
         }
 		
 		if(date('N') == 1 && !($this->vars['noclm']) && common_config('site', 'clm-logo')) {
-			$config['site']['logo'] = $config['site']['ssllogo'] = $config['site']['clm-logo'];
-		}
-		
-		return true;
-	}
-	
-	function onEndAddressData($action) {
-		if(date('N') == 1 && !($this->vars['noclm']) && common_config('site', 'clm-logo')) {
+            if (common_config('singleuser', 'enabled')) {
+                $user = User::singleUser();
+                $url = common_local_url('showstream',
+                                        array('nickname' => $user->nickname));
+            } else /*if (common_logged_in()) {
+                $cur = common_current_user();
+                $url = common_local_url('all', array('nickname' => $cur->nickname));
+            } else*/ {
+                $url = common_local_url('public');
+            }
+
+            $action->elementStart('a', array('class' => 'url home bookmark',
+                'href' => $url));
+
+            if (!empty($logoUrl)) {
+                $action->element('img', array('class' => 'logo photo',
+                    'src' => common_config('site', 'clm-logo'),
+                    'alt' => common_config('site', 'name')));
+            }
+
+            $action->text(' ');
+            $action->element('span', array('class' => 'fn org'), common_config('site', 'name'));
+            $action->elementEnd('a');
+			
 			$action->element('a', array(
 				'href' => common_local_url('showgroup', array('nickname' => 'clm')),
 				'class' => 'clm_float'
 			), sprintf(_('%s Community Logo Mondays'), common_config('site', 'name')));
+			
+			return false;
 		}
+		
+		return true;
 	}
 
     function resetInbox($action) {
