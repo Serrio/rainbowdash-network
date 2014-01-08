@@ -560,3 +560,33 @@ bottom: 0;
 opacity: 0.3;
 }
 .threaded-replies {position: relative;z-index:5;}
+
+#notification_popup {
+	bottom: 32px !important;
+	overflow: auto !important;
+	display: none;
+	max-height: 90% !important;
+}
+
+#notification_popup.visible {display: block;}
+
+.notification_toggle {
+width: 32px;
+height: 32px;
+font-family: FontAwesome;
+font-size: 28px;
+line-height: 32px;
+position: fixed;
+right: 0;
+bottom: 2px;
+color: white;
+text-shadow: 0 0 2px red;
+text-decoration: none !important;
+}
+.notification_toggle:before {
+content: '\f0f3';
+}
+
+.notification_close {display: block !important;}
+
+#notification_popup:empty + .notification_toggle {display: none;}

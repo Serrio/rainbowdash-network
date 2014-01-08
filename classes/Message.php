@@ -126,6 +126,8 @@ class Message extends Managed_DataObject
             // TRANS: Message given when a message could not be updated on the server.
             return _('Could not update message with new URI.');
         }
+		
+		Event::handle('EndSendPrivateMessage', array($msg));
 
         return $msg;
     }

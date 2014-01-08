@@ -9,11 +9,6 @@ $(function(){
     reProcess();
     customStyle();
 
-        // Get number of new DMs and append it to the Personal link
-    if(currentUser) {
-        updateDM();
-    }
-
     $('.rot13').live('click', function(e){
         e.preventDefault();
         var notice = $(this).closest('li');
@@ -120,32 +115,6 @@ function getTextSelection(el) {
     return {'start':start,'end':end};
 }
 
-function updateDM() {
-    $.ajax({
-        type: 'GET',
-        url: siteDir + currentUser + '/inbox?peek=peek',
-        error: function(response) {},
-        success: function(response) {
-            var holder = document.createElement('div');
-            holder.innerHTML = response;
-
-            // Passing the new page to post checker
-            var lastDMItem = $(holder).find('#message-' + rdnrefresh_vars.lastdm);
-            if(lastDMItem.length) {
-                var newDM = lastDMItem.prevAll().length;
-            }
-            else {
-                var newDM = $(holder).find('.messages li').length;
-            }
-            $('#dmcounter').html((newDM == 0 ? '' : newDM + ''));
-			
-			if(!($('#mobile-toggle-disable').length))
-				setTimeout(updateDM, 60000);
-            
-            //(newDM > 0) ? $('#nav_userlinks').addClass('new_dms') : $('#nav_userlinks').removeClass('new_dms');
-    }});
-}
-
 function hideUsers(newPosts) {
     // Remove users
     if(rdnrefresh_vars.usernamestags && rdnrefresh_vars.usernamestags.replace(/W+/,'') != '') {
@@ -206,7 +175,7 @@ function addLineBreaksToNotice(notice) {
 
 /* Reprocesses the page and/or post */
 function reProcess(newPosts) {
-    if($('#mobile-toggle-disable').length) return;
+    //if($('#mobile-toggle-disable').length) return;
     setTimeout(reProcess, 1000);
     if(!newPosts) { var newPosts = $('.hentry.notice')/*.not('.rdnrefresh_done')*/ }
 	

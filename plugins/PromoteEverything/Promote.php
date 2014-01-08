@@ -124,7 +124,7 @@ class RawPromoteNoticeStream extends NoticeStream {
 					if($item->find()) {
 						while($item->fetch()) {
 							$notice = Notice::staticGet('id', $item->notice_id);
-							if($notice->isLocal() && empty($notice->repeat_of)) {
+							if($notice->isLocal() && empty($notice->repeat_of) && !in_array($notice->id, $ids)) {
 								$ids[] = $notice->id;
 								break;
 							}
@@ -139,7 +139,7 @@ class RawPromoteNoticeStream extends NoticeStream {
 					if($item->find()) {
 						while($item->fetch()) {
 							$notice = Notice::staticGet('id', $item->notice_id);
-							if(empty($notice->reply_to) && empty($notice->repeat_of)) {
+							if(empty($notice->reply_to) && empty($notice->repeat_of) && !in_array($notice->id, $ids)) {
 								$ids[] = $notice->id;
 								break;
 							}
@@ -155,7 +155,7 @@ class RawPromoteNoticeStream extends NoticeStream {
 					
 					if($item->find()) {
 						while($item->fetch()) {
-							if(empty($item->repeat_of)) {
+							if(empty($item->repeat_of) && !in_array($notice->id, $ids)) {
 								$ids[] = $item->id;
 								break;
 							}

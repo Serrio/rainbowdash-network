@@ -3505,7 +3505,7 @@ margin:0 0 18px 0;
 /* Highlight and tooltip for specific tags */
 span a[href$="/tag/nsfw"]
 {
-color: red;
+color: red !important;
 }
 
 span a[href$="/tag/nsfw"]:hover:after
@@ -3525,7 +3525,7 @@ z-index: 999;
 span a[href$="/tag/spoiler"],
 span a[href$="/tag/spoilers"]
 {
-color: #008000;
+color: #008000 !important;
 }
 
 span a[href$="/tag/spoiler"]:hover:after,

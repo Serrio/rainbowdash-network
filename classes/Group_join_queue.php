@@ -91,12 +91,12 @@ class Group_join_queue extends Managed_DataObject
     {
         $profile = $this->getMember();
         $group = $this->getGroup();
-        if ($request) {
+        //if ($request) {
             if (Event::handle('StartCancelJoinGroup', array($profile, $group))) {
                 $this->delete();
                 Event::handle('EndCancelJoinGroup', array($profile, $group));
             }
-        }
+        //}
     }
 
     /**
@@ -111,6 +111,7 @@ class Group_join_queue extends Managed_DataObject
         $group = $this->getGroup();
         if (Event::handle('StartJoinGroup', array($profile, $group))) {
             $join = Group_member::join($group->id, $profile->id);
+            self::blow('profile:groups:%d', $profile->id);
             $this->delete();
             Event::handle('EndJoinGroup', array($profile, $group));
         }
