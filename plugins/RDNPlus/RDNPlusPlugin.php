@@ -91,11 +91,9 @@ class RDNPlusPlugin extends Plugin
             $action->elementStart('a', array('class' => 'url home bookmark',
                 'href' => $url));
 
-            if (!empty($logoUrl)) {
-                $action->element('img', array('class' => 'logo photo',
-                    'src' => common_config('site', 'clm-logo'),
-                    'alt' => common_config('site', 'name')));
-            }
+			$action->element('img', array('class' => 'logo photo',
+				'src' => common_config('site', 'clm-logo'),
+				'alt' => common_config('site', 'name')));
 
             $action->text(' ');
             $action->element('span', array('class' => 'fn org'), common_config('site', 'name'));
