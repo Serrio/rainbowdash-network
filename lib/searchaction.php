@@ -123,6 +123,12 @@ class SearchAction extends Action
         }
     }
 
+    function showLocalNav()
+    {
+        $menu = new SearchGroupNav($this);
+        $menu->show();
+    }
+
     function searchSuggestions($q) {
         // Don't change these long strings to HEREDOC; xgettext won't pick them up.
         // TRANS: Standard search suggestions shown when a search does not give any results.
