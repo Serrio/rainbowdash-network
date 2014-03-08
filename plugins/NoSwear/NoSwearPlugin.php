@@ -56,11 +56,6 @@ fap
 q[u$s][e$s][e$s]f
 d[i$s][l$s][d$s]o
 \btwat
-anime
-yuri
-manga
-naruto
-meme(s)?
 ENDFILTER;
         $wordlist = '/'.($skipLinks ?
 		'((^[^<]*)|(>[^<]*)|(<a[^>]*title="[^"]*))\\K' // Keep filter from affecting link hrefs
