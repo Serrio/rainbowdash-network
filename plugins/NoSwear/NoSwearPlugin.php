@@ -103,5 +103,12 @@ ENDFILTER;
 
         return true;
     }
+
+    function onStartGroupSaveForm($action)
+    {
+        $action->args['description'] = $this->_filter($action->trimmed('description'));
+
+        return true;
+    }
 }
 ?>
