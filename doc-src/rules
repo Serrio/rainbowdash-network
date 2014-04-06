@@ -82,11 +82,11 @@ _____
 >-	Real life photography depicting torture or abuse.
 >-	Any content similarly inappropriate as any of the above.
 >
->These restrictions apply to all content displayed on any linked pages; for example, if a Tumblr post is in itself work-safe, but an avatar or other such media on the page contains non-work-safe content, linking the post is prohibited.
+>These restrictions apply to all content displayed on any linked pages; for example, if a Tumblr post is in itself work-safe, but an avatar or other such media on the page contains non-work-safe content, linking the post is prohibited. Discussion of prohibited material is also prohibited.
 >
 >If all content on a page is work-safe, and the page is part of a site known primarily for work-safe content, but unrelated links on the page link to content that contains something prohibited above (for example, if a Tumblr blog occasionally contains NSFW content, but the post you want to link contains no rule-breaking content), the link may be posted; however, if said links are not clearly marked as such on the page, it is your responsibility to mention this in your post. This exception does not apply if the page in question is part of a site known primarily for non-work-safe content.
 >
->Content posted to the site that contains any of the following must be tagged #nsfw, and may not be used in account-related imagery (avatar, banner, or background for any user or group):
+>Content posted to the site that contains any of the following must be tagged #<span style="color: #800000">nsfw</span>, and may not be used in account-related imagery (avatar, banner, or background for any user or group):
 >
 >-	Sexually provocative or suggestive content.
 >-	Cartoon depictions of torture or abuse. (This does not include "slapstick" comedy such as that seen in cartoons like Tom and Jerry, which may be posted freely.)
@@ -95,6 +95,8 @@ _____
 >-	Any content similarly inappropriate as any of the above. (Use your better judgement, or ask a moderator if you're unsure.)
 >
 >(Yes, not all of this content is typically considered unsafe for work. Yes, it must still be tagged as such on this site.)
+>
+>Discussion of such materials is allowed; however, such discussion should be obscured with spoiler markup and tagged  #<span style="color: #800000">nsfw</span> if the discussion hints toward inappropriate aspects of the material.
 
 ### [Why?](#) ###
 >Our site is browsed by people of all ages, in a variety of social situations (at home, work, out with friends, and other places). As such, the content presented and discussed on this site must meet standards of appropriateness that will allow everyone to browse the site comfortably in public - even if they're in school and their teacher is watching over their shoulder, the detention slip should read "goofing off in class" and not "browsing pornography in class".
