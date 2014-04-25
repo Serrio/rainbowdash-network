@@ -68,10 +68,10 @@ class Popularity
         $qry = "SELECT notice.*, $weightexpr as weight ";
         if(isset($tag)) {
             $qry .= 'FROM notice_tag, notice JOIN fave ON notice.id = fave.notice_id ' .
-                    "WHERE $cutoff and notice.id = notice_tag.notice_id and '$tag' = notice_tag.tag";
+                    "WHERE $cutoff and fave.user_id != notice.profile_id and notice.id = notice_tag.notice_id and '$tag' = notice_tag.tag";
         } else {
             $qry .= 'FROM notice JOIN fave ON notice.id = fave.notice_id ' .
-                    "WHERE $cutoff";
+                    "WHERE $cutoff and fave.user_id != notice.profile_id";
         }
         if(isset($this->user)) {
             $qry .= " AND profile_id={$this->user->id}";
