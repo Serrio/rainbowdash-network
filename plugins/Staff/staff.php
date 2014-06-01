@@ -80,7 +80,7 @@ class StaffAction extends Action
     {
         $sitename = common_config('site', 'name');
 
-        $this->raw(sprintf('<p style="clear: both;"><b>The Head Administrators of %s (Responsible for moderator promotion/demotion)</b></p>', $sitename));
+        $this->raw(sprintf('<p style="clear: both;"><b>The Owner of %s</b></p>', $sitename));
 
         $owners = new ProfileList($this->owners, $this);
         $owners->show();
