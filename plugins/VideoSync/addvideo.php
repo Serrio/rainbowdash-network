@@ -64,7 +64,9 @@ class AddvideoAction extends Action
 					$v->duration = intval($n['duration']);
 				$v->yt_name = $x->title . '';
 				//ob_end_clean(); // @fixme I'm real sick of those warnings tho
-			} else exit;
+			} else {
+				common_redirect(common_local_url('managevideosync'), 303);
+			};
 		}
 		
 		if($this->trimmed('video_yt_name'))
