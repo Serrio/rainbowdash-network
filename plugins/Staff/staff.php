@@ -28,6 +28,7 @@ class StaffAction extends Action
 
         $this->mods = Profile::adminProfiles(array(Profile_role::MODERATOR));
         $this->admins = Profile::adminProfiles(array(Profile_role::ADMINISTRATOR));
+        $this->devs = Profile::adminProfiles(array(Profile_role::DEVELOPER));
         $this->owners = Profile::adminProfiles(array(Profile_role::OWNER));
 
         return true;
@@ -90,11 +91,18 @@ class StaffAction extends Action
         $admins = new ProfileList($this->admins, $this);
         $admins->show();
 
+        $this->raw(sprintf('<p style="clear: both;"><b>The Developers of %s</b></p>', $sitename));
+
+        $mods = new ProfileList($this->devs, $this);
+        $mods->show();
+
         $this->raw(sprintf('<p style="clear: both;"><b>The Moderators of %s (Please go to these for basic rule issues)</b></p>', $sitename));
 
         $mods = new ProfileList($this->mods, $this);
         $mods->show();
-
+		
+		$this->raw("<p>Staff are not accepting new members unless otherwise stated. Do not ask to become a moderator.</p>");
+/*
         $this->raw(<<<HERE
 <p><b>Hoofy information for mods.</b></p>
 
@@ -108,7 +116,7 @@ class StaffAction extends Action
 
 <p><b>V)</b> Directives are sometimes issued by the administrator. You will get either a message on the site, or a direct message.</p>
 HERE
-        );
+        );*/
 
     }
 

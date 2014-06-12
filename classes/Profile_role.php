@@ -66,6 +66,7 @@ class Profile_role extends Managed_DataObject
     const OWNER         = 'owner';
     const MODERATOR     = 'moderator';
     const ADMINISTRATOR = 'administrator';
+    const DEVELOPER     = 'developer';
     const SANDBOXED     = 'sandboxed';
     const SILENCED      = 'silenced';
     const DELETED       = 'deleted'; // Pending final deletion of notices...
@@ -76,6 +77,7 @@ class Profile_role extends Managed_DataObject
         $known = array(self::OWNER,
                        self::MODERATOR,
                        self::ADMINISTRATOR,
+                       self::DEVELOPER,
                        self::SANDBOXED,
                        self::SILENCED);
         return in_array($role, $known);
@@ -83,7 +85,7 @@ class Profile_role extends Managed_DataObject
 
     public static function isSettable($role)
     {
-        $allowedRoles = array('administrator', 'moderator');
+        $allowedRoles = array('administrator', 'moderator', 'developer');
         return self::isValid($role) && in_array($role, $allowedRoles);
     }
 }

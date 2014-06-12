@@ -487,6 +487,8 @@ function common_current_user()
                 $user = User::staticGet($id);
                 if ($user) {
                 	$_cur = $user;
+					if ($_cur->hasRole(Profile_role::DEVELOPER))
+						error_reporting(E_ERROR|E_WARNING);
                 	return $_cur;
                 }
             }
@@ -500,6 +502,9 @@ function common_current_user()
             $_SESSION['userid'] = $_cur->id;
         }
     }
+	
+	if ($_cur && $_cur->hasRole(Profile_role::DEVELOPER))
+		error_reporting(E_ERROR|E_WARNING);
 
     return $_cur;
 }
