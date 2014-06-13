@@ -26,7 +26,7 @@ h[o0$s]m[e3]?.?[s5][t7][u$s](ck?|k)
 d[i$s][c$s]?khead
 \bdik
 c[u$s]nt
-s[h$s][i$s]t(?!su|a|o)e?(head)?
+sh[i$s]te?(head)?
 vag(ina)?[sl]?\b
 (m[ou]th(er|uh|a))?f[uoe$s][c$s]?k(?!ushima)
 \bf[r$s]?e[c$s]?k\b
