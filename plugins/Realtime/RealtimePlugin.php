@@ -294,7 +294,8 @@ class RealtimePlugin extends Plugin
         }
     }
 
-    function onHandleQueuedNotice($notice)
+    function onStartEnqueueNotice($notice)
+    //function onHandleQueuedNotice($notice)
     {
         $this->_addToTimelines($notice, null);
 
