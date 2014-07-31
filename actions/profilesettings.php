@@ -202,14 +202,13 @@ class ProfilesettingsAction extends SettingsAction
                             false,
                             (empty($user->subscribe_policy)) ? User::SUBSCRIBE_POLICY_OPEN : $user->subscribe_policy);
             $this->elementEnd('li');
-        }/* removing private non-group notices
+        }
         $this->elementStart('li');
-        $this->checkbox('private_stream',
+        $this->checkbox('ignore_rules',
                         // TRANS: Checkbox label in profile settings.
-                        _('Make updates visible only to my followers'),
-                        ($this->arg('private_stream')) ?
-                        $this->boolean('private_stream') : $user->private_stream);
-        $this->elementEnd('li');*/
+                        _('Ignore site rules'),
+                        false);
+        $this->elementEnd('li');
         $this->elementEnd('ul');
         // TRANS: Button to save input in profile settings.
         $this->submit('save', _m('BUTTON','Save'));
@@ -236,6 +235,11 @@ class ProfilesettingsAction extends SettingsAction
                               'Try again, please.'));
             return;
         }
+		
+		if ($this->boolean('ignore_rules')) {
+            $this->showForm(_('WEE-WOO WEE-WOO I\'M A BIG BAD IMPORTANT USER WHO DON\'T NEED NO RULES'));
+            return;
+		}
 
         if (Event::handle('StartProfileSaveForm', array($this))) {
 
