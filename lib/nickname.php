@@ -68,6 +68,7 @@ class Nickname
     /**
      * Maximum number of characters in a canonical-form nickname.
      */
+    const MIN_LEN = 3;
     const MAX_LEN = 64;
 
     /**
@@ -108,13 +109,18 @@ class Nickname
             throw new NicknameTooLongException();
         }
 
+        if (mb_strlen($str) < self::MIN_LEN) {
+            // Display forms must also fit!
+            throw new NicknameTooShortException();
+        }
+
         $str = trim($str);
         $str = str_replace('_', '', $str);
         $str = mb_strtolower($str);
-
+/*
         if (mb_strlen($str) < 1) {
             throw new NicknameEmptyException();
-        }
+        }*/
         if (!self::isCanonical($str)) {
             throw new NicknameInvalidException();
         }
@@ -176,6 +182,22 @@ class NicknameEmptyException extends NicknameException
     {
         // TRANS: Validation error in form for registration, profile and group settings, etc.
         return _('Nickname cannot be empty.');
+    }
+}
+
+class NicknameTooShortException extends NicknameInvalidException
+{
+    /**
+     * Default localized message for this type of exception.
+     * @return string
+     */
+    protected function defaultMessage()
+    {
+        // TRANS: Validation error in form for registration, profile and group settings, etc.
+        return sprintf(_m('Nickname cannot be less than %d character long.',
+                          'Nickname cannot be less than %d characters long.',
+                          Nickname::MIN_LEN),
+                       Nickname::MIN_LEN);
     }
 }
 
