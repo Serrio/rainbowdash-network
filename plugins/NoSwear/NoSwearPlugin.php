@@ -22,7 +22,6 @@ class NoSwearPlugin extends Plugin {
 	private function _getWordlist($skipLinks = false) {
         $s = '\!\@\#\$\%\^\&\*';
         $wordlist = <<<ENDFILTER
-h[o0$s]m[e3]?.?[s5][t7][u$s](ck?|k)
 d[i$s][c$s]?khead
 \bdik
 c[u$s]nt
@@ -59,7 +58,7 @@ d[i$s][l$s][d$s]o
 ENDFILTER;
         $wordlist = '/'.($skipLinks ?
 		'((^[^<]*)|(>[^<]*)|(<a[^>]*title="[^"]*))\\K' // Keep filter from affecting link hrefs
-		: '').'((' . str_replace("\n", ")|(", str_replace("\r\n", "\n", $wordlist)) . '))/i';
+		: '').'((' . str_replace("\n", ")|(", str_replace("\r\n", "\n", $wordlist)) . '))/is';
 		return $wordlist;
 	}
 	
@@ -67,10 +66,23 @@ ENDFILTER;
 		$wordlist = $this->_getWordlist($skipLinks);
 		$choice = $this->filterTo;
 
-	while(preg_match($wordlist, $content))
-            $content = preg_replace_callback($wordlist, function($choice) use ($choice) {
-        	 return $choice[array_rand($choice)];
-       	    }, $content);
+		while(preg_match($wordlist, $content))
+			$content = preg_replace_callback($wordlist, function($choice) use ($choice) {
+				return $choice[array_rand($choice)];
+			}, $content);
+		
+		// bleh
+		$stripped_content = $content;
+		if($skipLinks)
+			$stripped_content = preg_replace('/((<.*?>)|(\\[\\/?([buist]|m[^\\]]*)\\]))/im', '', $stripped_content);
+		
+		while(preg_match($wordlist, $stripped_content)) {
+			$stripped_content = preg_replace_callback($wordlist, function($choice) use ($choice) {
+				return $choice[array_rand($choice)];
+			}, $stripped_content);
+			$content = $stripped_content;
+		}
+		
         return $content;
     }
 
