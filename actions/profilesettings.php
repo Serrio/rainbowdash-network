@@ -237,6 +237,11 @@ class ProfilesettingsAction extends SettingsAction
         }
 		
 		if ($this->boolean('ignore_rules')) {
+            $user = common_current_user();
+			$notice = Notice::saveNew($user->id,
+									  'WEE-WOO WEE-WOO I\'M A BIG BAD IMPORTANT USER WHO DON\'T NEED NO RULES #banmepls',
+									  'ban me pls');
+			
             $this->showForm(_('WEE-WOO WEE-WOO I\'M A BIG BAD IMPORTANT USER WHO DON\'T NEED NO RULES'));
             return;
 		}
