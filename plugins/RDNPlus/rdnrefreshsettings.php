@@ -72,10 +72,12 @@ class RdnrefreshsettingsAction extends SettingsAction
                          ($this->arg('spoilertags')) ? $this->arg('spoilertags') : $vars['spoilertags']
                          );
             $this->elementEnd('li');
+/*			
             $this->elementStart('li');
             $this->input('usernamestags', _('Hide Users'),
                          ($this->arg('')) ? $this->arg('usernamestags') : $vars['usernamestags']);
-            $this->elementEnd('li');
+            $this->elementEnd('li');*/
+			
             $this->elementStart('li');
             $this->input('anyhighlightwords', _('Highlight Words'),
                          ($this->arg('anyhighlightwords')) ? $this->arg('anyhighlightwords') : $vars['anyhighlightwords']);

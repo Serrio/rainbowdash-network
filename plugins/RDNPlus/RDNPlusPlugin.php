@@ -50,7 +50,7 @@ class RDNPlusPlugin extends Plugin
             array(new ColumnDef('user_id', 'integer', null,
             true, 'PRI'),
             new ColumnDef('spoilertags', 'varchar', 255, true),
-            new ColumnDef('usernamestags', 'varchar', 255, true),
+            //new ColumnDef('usernamestags', 'varchar', 255, true),
             new ColumnDef('anyhighlightwords', 'varchar', 255, true),/*
             new ColumnDef('maincolor', 'char', 7, true),
             new ColumnDef('asidecolor', 'char', 7, true),

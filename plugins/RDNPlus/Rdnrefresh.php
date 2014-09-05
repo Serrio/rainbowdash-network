@@ -12,7 +12,7 @@ class Rdnrefresh extends Memcached_DataObject
 
     public $user_id;                         // int(4)  primary_key not_null
     public $spoilertags;
-    public $usernamestags;
+    //public $usernamestags;
     public $anyhighlightwords;/*
     public $maincolor;
     public $asidecolor;
