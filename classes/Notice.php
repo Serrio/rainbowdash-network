@@ -2404,6 +2404,12 @@ class Notice extends Managed_DataObject
         } else {
             $scope = self::defaultScope();
         }
+		
+		// If user has blocked this notice's owner, hide it regardless
+		
+		if ($profile && $profile->hasBlocked($this->getProfile())) {
+			return false;
+		}
 
         // If there's no scope, anyone (even anon) is in scope.
 

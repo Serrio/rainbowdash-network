@@ -220,6 +220,16 @@ class ShowstreamAction extends ProfileAction
                                      'href' => $rsd));
     }
 
+    function showBlockedListMessage()
+    {
+        // TRANS: First sentence of empty list message for a timeline. $1%s is a user nickname.
+        $message = sprintf(_('This is the timeline for %1$s, but you have blocked %1$s, so their notices will not show up for you.'), $this->user->nickname) . ' ';
+
+        $this->elementStart('div', 'guide');
+        $this->raw(common_markup_to_html($message));
+        $this->elementEnd('div');
+    }
+
     function showEmptyListMessage()
     {
         // TRANS: First sentence of empty list message for a timeline. $1%s is a user nickname.
@@ -249,6 +259,14 @@ class ShowstreamAction extends ProfileAction
 
     function showNotices()
     {
+		if (common_logged_in()) {
+			$u = common_current_user();
+			if ($u->hasBlocked($this->user)) {
+				$this->showBlockedListMessage();
+				return;
+			}
+		}
+		
         $pnl = null;
         if (Event::handle('ShowStreamNoticeList', array($this->notice, $this, &$pnl))) {
             $pnl = new ProfileNoticeList($this->notice, $this);
