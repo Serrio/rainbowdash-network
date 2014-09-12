@@ -122,7 +122,7 @@ class PollResultForm extends Form
 
             $out->elementStart('span', 'poll-option-amount');
             $out->element('span', array('class' => 'poll-block' . ($counts[$i] == $max ? ' poll-winner' : ''),
-                                       'style' => "width: {$w}%"),*
+                                       'style' => "width: {$w}%"),
                                   "\xc2\xa0"); // nbsp
             $out->element('span', 'poll-amount-label', $counts[$i]);
             $out->elementEnd('span');
