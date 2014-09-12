@@ -114,7 +114,7 @@ function getTextSelection(el) {
     }
     return {'start':start,'end':end};
 }
-
+/*
 function hideUsers(newPosts) {
     // Remove users
     if(rdnrefresh_vars.usernamestags && rdnrefresh_vars.usernamestags.replace(/W+/,'') != '') {
@@ -136,7 +136,7 @@ function hideUsers(newPosts) {
                     })
                 })
     }
-}
+}*/
 
 function hideSpoilers(newPosts) {
     // Remove spoilers
@@ -184,7 +184,7 @@ function reProcess(newPosts) {
     if(rdnrefresh_vars.autospoil == '1') newPosts.each(function() {decodeSpoiler($(this), true)});
 
     hideSpoilers(newPosts);
-    hideUsers(newPosts);
+    //hideUsers(newPosts);
     //delEmotes(newPosts);
     highlightUsername(newPosts);
     highlightAny(newPosts);
