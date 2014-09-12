@@ -165,7 +165,7 @@ class User_notification extends Memcached_DataObject
 	}
 	
 	static function saveNew($from, $to, $type, $arg1 = null, $arg2 = null) {
-		if(!$from || !$to || $from->id == null || $to->id == null)
+		if(!$from || !$to || $from->id == null || $to->id == null || $to->hasBlocked($from))
 			return false;
 		$notify = new User_notification();
 		$notify->user_id = $to->id;
