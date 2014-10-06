@@ -327,6 +327,12 @@ class Attachment extends AttachmentListItem
                 case 'image/jpeg':
                     $this->out->element('img', array('src' => $this->attachment->url, 'alt' => 'alt'));
                     break;
+					
+				case 'image/svg+xml':
+					$this->out->elementStart('object', array('data' => $this->attachment->url, 'type' => 'image/svg+xml'));
+                    $this->out->element('img', array('src' => $this->attachment->url, 'alt' => 'alt'));
+					$this->out->elementEnd('object');
+					break;
 
                 case 'application/ogg':
                 case 'audio/x-speex':

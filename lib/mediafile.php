@@ -116,6 +116,22 @@ class MediaFile
             // @fixme video thumbs would be nice!
             return null;
         }
+		
+		// Hack for SVGs -Red
+		if ($this->mimetype == 'image/svg+xml') {
+			$xml = simplexml_load_file(File::path($this->filename));
+			$attr = $xml->attributes();
+
+			$maxWidth = common_config('attachments', 'thumb_width');
+			$maxHeight = common_config('attachments', 'thumb_height');
+			list($width, $height) = $this->scaleToFit($attr->width, $attr->height, $maxWidth, $maxHeight);
+			
+			File_thumbnail::saveThumbnail($this->fileRecord->id,
+										  File::url($this->filename),
+										  $width,
+										  $height);
+		}
+		
         try {
             $image = new ImageFile($this->fileRecord->id,
                                    File::path($this->filename));
