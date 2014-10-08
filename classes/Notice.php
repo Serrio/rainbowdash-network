@@ -2410,6 +2410,15 @@ class Notice extends Managed_DataObject
 		if ($profile && $profile->hasBlocked($this->getProfile())) {
 			return false;
 		}
+		
+		
+        if (!empty($this->repeat_of)) {
+            $original = Notice::staticGet('id', $this->repeat_of);
+            if (!empty($original)) { // could have been deleted
+				if ($profile && $profile->hasBlocked($original->getProfile()))
+					return false;
+			}
+		}
 
         // If there's no scope, anyone (even anon) is in scope.
 
