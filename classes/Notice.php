@@ -1039,14 +1039,15 @@ class Notice extends Managed_DataObject
                         $originalProfile = $original->getProfile();
                     }
                 }
-                foreach ($ni as $id => $source) {
-                    $user = User::staticGet('id', $id);
-                    if (empty($user) || $user->hasBlocked($profile) ||
-                        ($originalProfile && $user->hasBlocked($originalProfile))) {
-                        unset($ni[$id]);
-                    }
-                }
             }
+			
+			foreach ($ni as $id => $source) {
+				$user = User::staticGet('id', $id);
+				if (empty($user) || $user->hasBlocked($profile) ||
+					($originalProfile && $user->hasBlocked($originalProfile))) {
+					unset($ni[$id]);
+				}
+			}
 
             // Give plugins a chance to filter out...
             Event::handle('EndNoticeWhoGets', array($this, &$ni));
@@ -1320,7 +1321,7 @@ class Notice extends Managed_DataObject
             $original = $this->getOriginal();
             if (!empty($original)) { // that'd be weird
                 $author = $original->getProfile();
-                if (!empty($author)) {
+                if (!empty($author) && !$author->hasBlocked($sender)) {
                     $this->saveReply($author->id);
                     $replied[$author->id] = 1;
                     self::blow('reply:stream:%d', $author->id);
