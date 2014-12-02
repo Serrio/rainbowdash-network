@@ -401,6 +401,7 @@ class AvatarsettingsAction extends SettingsAction
 
         if (!$filedata) {
             // TRANS: Server error displayed if an avatar upload went wrong somehow server side.
+			echo 'Lost our file data.';
             $this->serverError(_('Lost our file data.'));
             return;
         }
@@ -417,10 +418,22 @@ class AvatarsettingsAction extends SettingsAction
         $user = common_current_user();
         $profile = $user->getProfile();
 
-        $imagefile = new ImageFile($user->id, $filedata['filepath']);
-        $filename = $imagefile->resize($size, $dest_x, $dest_y, $dest_w, $dest_h);
+		try {
+			$imagefile = new ImageFile($user->id, $filedata['filepath']);
+			$filename = $imagefile->resize($size, $dest_x, $dest_y, $dest_w, $dest_h);
+		} catch ($e) {
+			echo $e->getMessage();
+			return;
+		}
 
-        if ($profile->setOriginal($filename)) {
+		$test;
+		try {
+			$test = $profile->setOriginal($filename);
+		} catch ($e) {
+			echo $e->getMessage();
+			return;
+		}
+        if ($test) {
             @unlink($filedata['filepath']);
             unset($_SESSION['FILEDATA']);
             $this->mode = 'upload';
