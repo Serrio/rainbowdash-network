@@ -362,6 +362,13 @@ class AvatarsettingsAction extends SettingsAction
 			
 			$imagefile = new ImageFile(null, $temp_file_name);
         }
+		
+		if ($imagefile->width * $imagefile->height > 3000*3000) { // guesstimated sane limit 
+			$imagefile->unlink();
+				 
+			$this->showForm(_('File is too big for our servers to process. (Maximum image dimensions should be 9000000 square pixels, or around 3000x3000.)'));
+			return;
+		}
 
         $cur = common_current_user();
         $type = $imagefile->preferredType();
