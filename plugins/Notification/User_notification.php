@@ -75,6 +75,29 @@ class User_notification extends Memcached_DataObject
     {
         return array('id' => 'K');
     }
+	
+	// Get notifications cached as pre-encoded JSON
+	static function getCachedNotes($user) {
+        $cache = Cache::instance();
+		
+		if (empty($cache)) // No caching... just get them straight
+			return json_encode(User_notification::getAllForUser($user));
+		
+        $key = Cache::key('usernotifications:'.$user->id);
+
+        $json = $cache->get($key);
+
+        if ($json !== false) // Cache hit! Woohoo!
+            return $json;
+        
+		// Nope. Generate new ones and store them
+		
+		$json = json_encode(User_notification::getAllForUser($user));
+		
+        $result = $cache->set($key, $json);
+		
+		return $json;
+	}
 
 	// Return an array of notification information, ready to be JSON-encoded and sent to the user
 	// Return false if no notifications
@@ -198,6 +221,12 @@ class User_notification extends Memcached_DataObject
 		$notify->arg2 = $arg2;
 		$notify->created = time();
 		$notify->insert();
+		
+		// Clear the user's notification cache
+        $cache = Cache::instance();
+        $key = Cache::key('usernotifications:'.$to->id);
+		$cache->delete($key);
+		
 		return $notify;
 	}
 }

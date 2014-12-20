@@ -78,6 +78,11 @@ class RemovenotificationsAction extends Action
 		
 		$user = common_current_user();
 		
+		// Clear the user's notification cache
+        $cache = Cache::instance();
+        $key = Cache::key('usernotifications:'.$user->id);
+		$cache->delete($key);
+		
 		$notes = $this->trimmed('notifications');
 		$notes = explode(',', $notes);
 		

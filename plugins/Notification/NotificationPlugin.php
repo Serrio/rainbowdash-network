@@ -259,7 +259,12 @@ class NotificationPlugin extends Plugin {
 			$note->user_id = $user->id;
 			$note->type = 'grouppost';
 			$note->arg = $action->group->id;
-			$note->delete();
+			if ($note->delete()) {
+				// Clear the user's notification cache
+				$cache = Cache::instance();
+				$key = Cache::key('usernotifications:'.$user->id);
+				$cache->delete($key);
+			}
 			
 			return true;
 		}
@@ -269,7 +274,12 @@ class NotificationPlugin extends Plugin {
 			$note->user_id = $user->id;
 			$note->type = 'groupjoin';
 			$note->arg = $action->group->id;
-			$note->delete();
+			if ($note->delete()) {
+				// Clear the user's notification cache
+				$cache = Cache::instance();
+				$key = Cache::key('usernotifications:'.$user->id);
+				$cache->delete($key);
+			}
 			
 			return true;
 		}
@@ -279,7 +289,12 @@ class NotificationPlugin extends Plugin {
 			$note->user_id = $user->id;
 			$note->type = 'grouprequest';
 			$note->arg = $action->group->id;
-			$note->delete();
+			if ($note->delete()) {
+				// Clear the user's notification cache
+				$cache = Cache::instance();
+				$key = Cache::key('usernotifications:'.$user->id);
+				$cache->delete($key);
+			}
 			
 			return true;
 		}
@@ -288,7 +303,12 @@ class NotificationPlugin extends Plugin {
 			$note = new User_notification();
 			$note->user_id = $user->id;
 			$note->type = 'subscribe';
-			$note->delete();
+			if ($note->delete()) {
+				// Clear the user's notification cache
+				$cache = Cache::instance();
+				$key = Cache::key('usernotifications:'.$user->id);
+				$cache->delete($key);
+			}
 			
 			return true;
 		}
@@ -297,7 +317,12 @@ class NotificationPlugin extends Plugin {
 			$note = new User_notification();
 			$note->user_id = $user->id;
 			$note->type = 'message';
-			$note->delete();
+			if ($note->delete()) {
+				// Clear the user's notification cache
+				$cache = Cache::instance();
+				$key = Cache::key('usernotifications:'.$user->id);
+				$cache->delete($key);
+			}
 			
 			return true;
 		}
@@ -306,7 +331,12 @@ class NotificationPlugin extends Plugin {
 			$note = new User_notification();
 			$note->user_id = $user->id;
 			$note->type = 'mention';
-			$note->delete();
+			if ($note->delete()) {
+				// Clear the user's notification cache
+				$cache = Cache::instance();
+				$key = Cache::key('usernotifications:'.$user->id);
+				$cache->delete($key);
+			}
 			
 			return true;
 		}
@@ -316,17 +346,37 @@ class NotificationPlugin extends Plugin {
 			$note->user_id = $user->id;
 			$note->type = 'mention';
 			$note->arg = $action->notice->id;
-			$note->delete();
+			if ($note->delete()) {
+				// Clear the user's notification cache
+				$cache = Cache::instance();
+				$key = Cache::key('usernotifications:'.$user->id);
+				$cache->delete($key);
+			}
 			$note->type = 'favorite';
-			$note->delete();
+			if ($note->delete()) {
+				// Clear the user's notification cache
+				$cache = Cache::instance();
+				$key = Cache::key('usernotifications:'.$user->id);
+				$cache->delete($key);
+			}
 			$note->type = 'repeat';
-			$note->delete();
+			if ($note->delete()) {
+				// Clear the user's notification cache
+				$cache = Cache::instance();
+				$key = Cache::key('usernotifications:'.$user->id);
+				$cache->delete($key);
+			}
 
 			$note = new User_notification();
 			$note->user_id = $user->id;
 			$note->type = 'grouppost';
 			$note->arg2 = $action->notice->id;
-			$note->delete();
+			if ($note->delete()) {
+				// Clear the user's notification cache
+				$cache = Cache::instance();
+				$key = Cache::key('usernotifications:'.$user->id);
+				$cache->delete($key);
+			}
 			
 			return true;
 		}
@@ -381,7 +431,7 @@ class NotificationPlugin extends Plugin {
 		if(!User_notification_settings::isEnabled($user->id))
 			return true;
         $action->script($this->path('notify.js'));
-        $action->inlineScript('SNNote.init('.json_encode(User_notification::getAllForUser($user))
+        $action->inlineScript('SNNote.init('.(User_notification::getCachedNotes($user))
 			.', '.json_encode(array('updateUrl' => common_local_url('getnotificationjson'),
 			'removeUrl' => common_local_url('removenotifications'),
 			'openInNewWindow' => (User_notification_settings::openInNewWindow($user->id) ? true : false),
