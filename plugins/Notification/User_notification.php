@@ -6,6 +6,8 @@ if (!defined('STATUSNET')) {
 
 require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
 
+define('MAX_NOTIFICATIONS_PER_USER', 64);
+
 class User_notification extends Memcached_DataObject
 {
     public $__table = 'user_notification'; // table name
@@ -79,7 +81,10 @@ class User_notification extends Memcached_DataObject
 	static function getAllForUser($user) {
 		$notify = new User_notification();
 		$notify->user_id = $user->id;
-		if(!$notify->find())
+        $notify->orderBy('id ASC');
+		
+		$noteCount = $notify->find();
+		if(!$noteCount)
 			return false;
 			
 		$return = array();
@@ -88,6 +93,15 @@ class User_notification extends Memcached_DataObject
 				$return[$notify->type] = array();
 			$item = array();
 			
+			// Prune "unimportant" (not replies or DMs) notes when we go over the limit
+			if ($noteCount > MAX_NOTIFICATIONS_PER_USER && !(
+				$notify->type == 'mention' || $notify->type == 'message'
+			)) {
+				$notify->delete();
+				$noteCount--;
+				continue;
+			}
+			
 			$item['type'] = $notify->type;
 			$item['id'] = $notify->id;
 			$item['created'] = $notify->created;
@@ -95,6 +109,7 @@ class User_notification extends Memcached_DataObject
 			$other = Profile::staticGet('id', $notify->from_user_id);
 			if($other == false) {
 				$notify->delete();
+				$noteCount--;
 				continue;
 			}	
 			$item['user'] = array(
@@ -111,6 +126,7 @@ class User_notification extends Memcached_DataObject
 				if($notice == false) {
 					$item = null;
 					$notify->delete();
+					$noteCount--;
 					break;
 				}
 				$item['notice'] = array(
@@ -127,6 +143,7 @@ class User_notification extends Memcached_DataObject
 				if($notice == false) {
 					$item = null;
 					$notify->delete();
+					$noteCount--;
 					break;
 				}
 				$item['notice'] = array(
@@ -142,6 +159,7 @@ class User_notification extends Memcached_DataObject
 				if($group == false) {
 					$item = null;
 					$notify->delete();
+					$noteCount--;
 					break;
 				}
 				$item['group'] = array(
