@@ -88,6 +88,7 @@ class RemovenotificationsAction extends Action
 		
 		foreach($notes as $note) {
 			$item = User_notification::staticGet('id', $note);
+			if (!$item) continue;
 			if($user->id != $item->user_id) {
 				$this->clientError(_('That notification isn\'t yours!'));
 				return false;
