@@ -93,8 +93,10 @@ class User_notification extends Memcached_DataObject
 			$item['created'] = $notify->created;
 				
 			$other = Profile::staticGet('id', $notify->from_user_id);
-			if($other == false)
+			if($other == false) {
+				$notify->delete();
 				continue;
+			}	
 			$item['user'] = array(
 				'id' => $other->id,
 				'nickname' => $other->nickname,
@@ -108,6 +110,7 @@ class User_notification extends Memcached_DataObject
 				$notice = Notice::staticGet('id', $notify->arg);
 				if($notice == false) {
 					$item = null;
+					$notify->delete();
 					break;
 				}
 				$item['notice'] = array(
@@ -123,6 +126,7 @@ class User_notification extends Memcached_DataObject
 				$notice = Notice::staticGet('id', $notify->arg2);
 				if($notice == false) {
 					$item = null;
+					$notify->delete();
 					break;
 				}
 				$item['notice'] = array(
@@ -137,6 +141,7 @@ class User_notification extends Memcached_DataObject
 				$group = User_group::staticGet('id', $notify->arg);
 				if($group == false) {
 					$item = null;
+					$notify->delete();
 					break;
 				}
 				$item['group'] = array(
