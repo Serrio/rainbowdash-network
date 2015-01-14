@@ -1,4 +1,4 @@
-<?php
+<php
 
 if (!defined('STATUSNET')) {
     // This check helps protect against security problems;
@@ -16,7 +16,9 @@ class NoSwearPlugin extends Plugin {
 		'kiwi',
 		'papaya',
 		'FrankerZ',
-		'Fluffle Puff'
+		'Fluffle Puff',
+		'batcave',
+		'Potato Knishes',
 	);
 
 	private function _getWordlist($skipLinks = false) {
