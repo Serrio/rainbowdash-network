@@ -18,7 +18,7 @@ class NoSwearPlugin extends Plugin {
 		'FrankerZ',
 		'Fluffle Puff',
 		'batcave',
-		'Potato Knishes',
+		'Potato Knishes'
 	);
 
 	private function _getWordlist($skipLinks = false) {
