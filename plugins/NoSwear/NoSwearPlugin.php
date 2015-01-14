@@ -28,7 +28,8 @@ fight.club
 d[i$s][c$s]?khead
 \bdik
 c[u$s]nt
-sh[ai$s]te?(head)?
+sh[i$s]te?(head)?
+shat(?!ter)
 vag(ina)?[sl]?\b
 (m[ou]th(er|uh|a))?f[uoe$s][c$s]?k(?!ushima)
 \bf[r$s]?e[c$s]?k\b
