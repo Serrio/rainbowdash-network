@@ -1,4 +1,4 @@
-<php
+<?php
 
 if (!defined('STATUSNET')) {
     // This check helps protect against security problems;
