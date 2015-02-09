@@ -24,6 +24,7 @@ class NoSwearPlugin extends Plugin {
 	private function _getWordlist($skipLinks = false) {
         $s = '\!\@\#\$\%\^\&\*';
         $wordlist = <<<ENDFILTER
+mrmattimation
 bepis
 h[o0$s]m[e3].?[s5][t7][u$s](c?k|c)
 fight.club
