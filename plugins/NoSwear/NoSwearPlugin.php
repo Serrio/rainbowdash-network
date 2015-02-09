@@ -28,13 +28,14 @@ fight.club
 d[i$s][c$s]?khead
 \bdik
 c[u$s]nt
+\bcl[i1$s]t(oris)?\b
 sh[i$s]te?(head)?
 shat(?!ter)
 vag(ina)?[sl]?\b
 (m[ou]th(er|uh|a))?f[uoe$s][c$s]?k(?!ushima)
 \bf[r$s]?e[c$s]?k\b
 (da)?fuq
-b[ie$s]a?[t$s][c$s][h$s]
+b[ie$s]a?[t$s][c$s]h
 c[o$s][c$s]?k.?suc?k
 nigg[^l]
 \bcum\b
