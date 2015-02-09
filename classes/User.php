@@ -1190,7 +1190,7 @@ class User extends Managed_DataObject
             } 
         }
 
-        return false;
+        return true;
     }
 
     function conversationTree()
@@ -1202,7 +1202,7 @@ class User extends Managed_DataObject
             }
         }
 
-        return false;
+        return true;
     }
 
     function streamNicknames()

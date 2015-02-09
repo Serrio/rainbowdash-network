@@ -109,8 +109,8 @@ class OldschoolsettingsAction extends SettingsAction
             $osp->created = common_sql_now();
         }
 
-        $osp->stream_mode_only  = $this->boolean('stream_mode_only');
-        $osp->conversation_tree = $this->boolean('conversation_tree');
+        $osp->stream_mode_only  = !$this->boolean('stream_mode_only');
+        $osp->conversation_tree = !$this->boolean('conversation_tree');
         $osp->stream_nicknames  = $this->boolean('stream_nicknames');
         $osp->modified          = common_sql_now();
 
@@ -158,12 +158,12 @@ class OldSchoolForm extends Form
         $this->elementStart('fieldset');
         $this->elementStart('ul', 'form_data');
         $this->elementStart('li');
-        $this->checkbox('stream_mode_only', _('Only stream mode (no conversations) in timelines'),
-                        $this->user->streamModeOnly());
+        $this->checkbox('stream_mode_only', _('Show conversations in timelines'),
+                        !$this->user->streamModeOnly());
         $this->elementEnd('li');
         $this->elementStart('li');
-        $this->checkbox('conversation_tree', _('Show conversation page as hierarchical trees'),
-                        $this->user->conversationTree());
+        $this->checkbox('conversation_tree', _('Show conversation page as flat listing'),
+                        !$this->user->conversationTree());
         $this->elementEnd('li');
         $this->elementStart('li');
         $this->checkbox('stream_nicknames', _('Show nicknames (not full names) in timelines'),
