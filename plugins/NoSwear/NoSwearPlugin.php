@@ -8,15 +8,17 @@ if (!defined('STATUSNET')) {
 
 class NoSwearPlugin extends Plugin {
 	public $filterTo = array( // An array of strings to use as replacements for filtered words
-		'bananas',
-		'apples',
-		'mangoes',
-		'cherries',
-		'grapes',
+		'banana',
+		'apple',
+		'mango',
+		'cherry',
+		'grape',
 		'kiwi',
-		'dole',
-		'murdock',
-		'papayas',
+		'papaya',
+		'FrankerZ',
+		'Fluffle Puff',
+		'batcave',
+		'Potato Knishes'
 	);
 
 	private function _getWordlist($skipLinks = false) {
