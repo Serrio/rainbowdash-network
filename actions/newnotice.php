@@ -140,7 +140,7 @@ class NewnoticeAction extends Action
             $this->clientError(_('No content!'));
             return;
         }
-
+		/* Nobody ever uses these dumb things and it just confuses people. -Red
         $inter = new CommandInterpreter();
 
         $cmd = $inter->handle_command($user, $content);
@@ -152,7 +152,7 @@ class NewnoticeAction extends Action
                 $cmd->execute(new WebChannel($this));
             }
             return;
-        }
+        }*/
 
         $content_shortened = $user->shortenLinks($content);
         if (Notice::contentTooLong($content_shortened)) {
