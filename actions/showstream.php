@@ -111,14 +111,6 @@ class ShowstreamAction extends ProfileAction
         $notice_form->show();
     }*/
 
-    function noticeFormOptions()
-    {
-        $options = parent::noticeFormOptions();
-        $options['content'] =  "@{$this->profile->nickname} ";
-
-        return $options;
-    }
-
     function handle($args)
     {
         // Looks like we're good; start output
