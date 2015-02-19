@@ -105,10 +105,18 @@ class ShowstreamAction extends ProfileAction
         }
     }
 
-    function showNoticeForm()
+    /*function showNoticeForm()
     {  
         $notice_form = new NoticeForm($this, array('content' => "@{$this->profile->nickname} "));
         $notice_form->show();
+    }*/
+
+    function noticeFormOptions()
+    {
+        $options = parent::noticeFormOptions();
+        $options['content'] =  "@{$this->profile->nickname} ";
+
+        return $options;
     }
 
     function handle($args)
