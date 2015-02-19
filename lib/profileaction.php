@@ -331,14 +331,6 @@ class ProfileAction extends Action
             $this->elementEnd('div');
         }
     }
-
-    function noticeFormOptions()
-    {
-        $options = parent::noticeFormOptions();
-        $options['content'] =  "@{$this->profile->nickname} ";
-
-        return $options;
-    }
 }
 
 class SubscribersMiniList extends ProfileMiniList

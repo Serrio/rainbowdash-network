@@ -105,12 +105,6 @@ class ShowstreamAction extends ProfileAction
         }
     }
 
-    /*function showNoticeForm()
-    {  
-        $notice_form = new NoticeForm($this, array('content' => "@{$this->profile->nickname} "));
-        $notice_form->show();
-    }*/
-
     function handle($args)
     {
         // Looks like we're good; start output
@@ -327,6 +321,7 @@ class ShowstreamAction extends ProfileAction
 
         if (empty($cur) || $cur->id != $this->profile->id) {
             $options['to_profile'] =  $this->profile;
+			$options['content'] =  "@{$this->profile->nickname} ";
         }
 
         return $options;
