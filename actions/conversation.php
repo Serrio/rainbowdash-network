@@ -125,7 +125,7 @@ class ConversationAction extends Action
     {
         $user = common_current_user();
 
-        if (!empty($user) && $user->conversationTree()) {
+        if (empty($user) || $user->conversationTree()) {
             $nl = new ConversationTree($this->notices, $this);
         } else {
             $nl = new FullThreadedNoticeList($this->notices, $this, $this->userProfile);

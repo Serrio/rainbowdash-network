@@ -92,7 +92,7 @@ class PublicAction extends Action
 
         $user = common_current_user();
 
-        if (!empty($user) && $user->streamModeOnly()) {
+        if (empty($user) || $user->streamModeOnly()) {
             $stream = new PublicNoticeStream($this->userProfile, $this->images);
         } else {
             $stream = new ThreadingPublicNoticeStream($this->userProfile, $this->images);
