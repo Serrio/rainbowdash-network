@@ -1,0 +1,37 @@
+{
+    "name": "gnu/social",
+    "license": "AGPL-3.0",
+    "minimum-stability": "dev",
+    "description": "a FOSS microblogging server written in PHP that implements the OStatus standard for interoperation between installations.",
+    "autoload":{
+        "classmap":["actions/","classes/","lib/","extlib/","plugins/"]
+    },
+    "repositories": [
+        {
+            "type": "pear",
+            "url": "http://pear.php.net"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "@stable",
+        "phpunit/phpunit-selenium": "@stable",
+        "sauce/sausage": "@stable",
+        "squizlabs/php_codesniffer": "@stable"
+    },
+    "require": {
+        "mustache/mustache": "v2.6.1",
+        "pear-pear.php.net/DB": "1.7.14",
+        "pear-pear.php.net/DB_DataObject": "1.11.3",
+        "pear/http_request2": "v2.2.1",
+        "phpseclib/phpseclib": "0.3.7",
+        "openid/php-openid": "dev-master",
+        "bandroidx/xmpphp": "1.0.*@dev",
+        "fusesource/stomp-php": "2.1.1",
+        "mrclay/minify": "2.1.6",
+        "pear/mail": "dev-trunk",
+        "zetacomponents/base": "1.8",
+        "zetacomponents/mvc-tools": "1.1.2",
+        "zetacomponents/database-schema": "1.4.3",
+        "zetacomponents/console-tools": "1.6"
+    }
+}
