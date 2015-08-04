@@ -21,11 +21,6 @@ install:
 
 script: ./vendor/bin/phpunit tests/WebTest
 
-addons:
-  sauce_connect: true
-  hosts:
-  - mysite.dev
-  - www.mysite.dev
 
 env:
   global:
