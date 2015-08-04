@@ -1,23 +1,42 @@
-# see http://about.travis-ci.org/docs/user/languages/php/ for more hints
 language: php
 
-# list any PHP version you want to test against
 php:
-  # using major version aliases
+- 5.5
 
-  # aliased to 5.2.17
-  - 5.2
-  # aliased to 5.3.29
-  - 5.3
-  # aliased to a recent 5.4.x version
-  - 5.4
-  # aliased to a recent 5.5.x version
-  - 5.5
-  # aliased to a recent 5.6.x version
-  - 5.6
-  # aliased to a recent 7.x version
-  - 7.0
-  # aliased to a recent hhvm version
-  - hhvm
-  
-before_script: phpenv config-add myconfig.ini
+before_install:
+- sudo apt-get update
+- sudo apt-get install apache2 php5 php5-curl php5-gd php5-mysql
+- sudo a2enmod rewrite
+- sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place build/apache.conf
+- sudo cp build/apache.conf /etc/apache2/sites-available/default
+- sudo /etc/init.d/apache2 restart
+- mysql -e 'create database myapp_test;' -u root
+
+install:
+- composer install --prefer-dist
+- sudo mv www/htaccess.sample www/.htaccess
+# will change rights on all files except .git/
+- sudo chown www-data:www-data -R .
+- sudo chown travis:travis -R .git
+
+script: ./vendor/bin/phpunit tests/WebTest
+
+addons:
+  sauce_connect: true
+  hosts:
+  - mysite.dev
+  - www.mysite.dev
+
+env:
+  global:
+  - secure: bsCIp8XXarTOIQ4NDZpo5rPGDmGnKFr6avD7Ca+hwjaWzLLbidMDO4ai+b+Js5cEIif7cDmytzPOU/QMBgtJKC+bLTT2moJJ1831bslBqAAquL6TMbt/wxQwPNshUJtWCBi5rG2IaBiUAegiqiGGe5RHRZhFplJjSBCgW5Ul3+Q=
+  - secure: noxF6oJgGf+eY7EjHWmdstobJ/P1U7oTMRD8Qj3DsfXPzPn4uvnVC9JcHIh7mf/Xz7gV8EupvpIuKgByUe09KOezBkB59Oot8jtITMYwIghykPZ5Ujh0H74V51gPa1uUdg3NpQjY2Nzo2V49yQ6YjEVlCWroQo8ypmt2SqToB80=
+
+after_failure:
+- sudo cat /var/log/apache2/error.log
+
+before_deploy:
+- cp -r . /tmp/StatusNet/
+- sudo rm -fr /tmp/StatusNet/tests
+- tar cfz /tmp/StatusNet.tar.gz /tmp/StatusNet/
+- sudo mv /tmp/StatusNet.tar.gz .
