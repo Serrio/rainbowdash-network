@@ -7,7 +7,7 @@ before_install:
 - sudo apt-get update
 - sudo apt-get install apache2 php5 php5-curl php5-gd php5-mysql
 - sudo a2enmod rewrite
-- sudo sed -e "s$TRAVIS_BUILD_DIR%" --in-place build/apache.conf
+- #sudo sed -e "s$TRAVIS_BUILD_DIR%" --in-place build/apache.conf
 - sudo cp build/apache.conf /etc/apache2/sites-available/default
 - sudo /etc/init.d/apache2 restart
 - mysql -e 'create database myapp_test;' -u root
